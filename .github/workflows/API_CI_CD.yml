@@ -1,0 +1,68 @@
+name: Continuous Delivery Pipeline For Flask API
+
+on:
+  push:
+    branches:
+      - RELEASE
+  workflow_dispatch:
+
+jobs:
+  ci-cd:
+    name: Continuous Delivery Pipeline For API
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Switch to RELEASE branch
+        run: |
+          git checkout RELEASE
+          git pull origin RELEASE
+        if: success()
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        if: success()
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+        if: success()
+
+      - name: Build and Push Docker Image To DockerHub
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_ID }}/${{ secrets.API_IMAGE_NAME }}:${{ secrets.API_IMAGE_TAG }} .
+          docker push ${{ secrets.DOCKERHUB_ID }}/${{ secrets.API_IMAGE_NAME }}:${{ secrets.API_IMAGE_TAG }}
+        working-directory: ./flask
+        if: success()
+
+      - name: Install SSH Client and Pass
+        run: sudo apt-get update && sudo apt-get install -y openssh-client sshpass
+        if: success()
+
+      - name: Add Server to Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.API_SERVER_IP }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+        if: success()
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.API_SERVER_IP }}
+          port: ${{ secrets.API_SERVER_PORT }}
+          username: ${{ secrets.API_SSH_USERNAME }}
+          key: ${{ secrets.API_SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/${{ secrets.API_PWD }}
+            docker compose down
+            docker images -q ${{ secrets.DOCKERHUB_ID }}/${{ secrets.API_IMAGE_NAME }} | xargs -r docker rmi -f;
+            docker pull ${{ secrets.DOCKERHUB_ID }}/${{ secrets.API_IMAGE_NAME }}:${{ secrets.API_IMAGE_TAG }} 
+            docker compose up -d
+        if: success()
