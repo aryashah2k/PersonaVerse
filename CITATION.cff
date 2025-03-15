@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+preferred-citation:
+  type: github-repository
+  authors:
+  - family-names: "Shah"
+    given-names: "Arya Shah"
+    orcid: "https://orcid.org/0000-0002-2649-1835"
+- family-names: "Bhanja"
+    given-names: "Swaraj Bhanja"
+- family-names: "Srivastava"
+    given-names: "Suryansh Srivastava"
+  title: ""All the world's a stage, and all the agents merely players": Persona Driven Survey Response Generation"
+  year: 2025
+  url: "https://github.com/aryashah2k/PersonaVerse"
