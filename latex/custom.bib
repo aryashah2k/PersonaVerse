@@ -1,0 +1,301 @@
+% Use this file for citations not found in the ACL Anthology (contained in "anthology.bib").
+
+@inproceedings{long-etal-2024-llms,
+    title = "On {LLM}s-Driven Synthetic Data Generation, Curation, and Evaluation: A Survey",
+    author = "Long, Lin  and
+      Wang, Rui  and
+      Xiao, Ruixuan  and
+      Zhao, Junbo  and
+      Ding, Xiao  and
+      Chen, Gang  and
+      Wang, Haobo",
+    editor = "Ku, Lun-Wei  and
+      Martins, Andre  and
+      Srikumar, Vivek",
+    booktitle = "Findings of the Association for Computational Linguistics: ACL 2024",
+    month = aug,
+    year = "2024",
+    address = "Bangkok, Thailand",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.findings-acl.658/",
+    doi = "10.18653/v1/2024.findings-acl.658",
+    pages = "11065--11082",
+    abstract = "Within the evolving landscape of deep learning, the dilemma of data quantity and quality has been a long-standing problem. The recent advent of Large Language Models (LLMs) offers a data-centric solution to alleviate the limitations of real-world data with synthetic data generation. However, current investigations into this field lack a unified framework and mostly stay on the surface. Therefore, this paper provides an organization of relevant studies based on a generic workflow of synthetic data generation. By doing so, we highlight the gaps within existing research and outline prospective avenues for future study. This work aims to shepherd the academic and industrial communities towards deeper, more methodical inquiries into the capabilities and applications of LLMs-driven synthetic data generation."
+}
+@inproceedings{li-etal-2023-synthetic,
+    title = "Synthetic Data Generation with Large Language Models for Text Classification: Potential and Limitations",
+    author = "Li, Zhuoyan  and
+      Zhu, Hangxiao  and
+      Lu, Zhuoran  and
+      Yin, Ming",
+    editor = "Bouamor, Houda  and
+      Pino, Juan  and
+      Bali, Kalika",
+    booktitle = "Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing",
+    month = dec,
+    year = "2023",
+    address = "Singapore",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2023.emnlp-main.647/",
+    doi = "10.18653/v1/2023.emnlp-main.647",
+    pages = "10443--10461",
+    abstract = "The collection and curation of high-quality training data is crucial for developing text classification models with superior performance, but it is often associated with significant costs and time investment. Researchers have recently explored using large language models (LLMs) to generate synthetic datasets as an alternative approach. However, the effectiveness of the LLM-generated synthetic data in supporting model training is inconsistent across different classification tasks. To better understand factors that moderate the effectiveness of the LLM-generated synthetic data, in this study, we look into how the performance of models trained on these synthetic data may vary with the $\textit{subjectivity}$ of classification. Our results indicate that subjectivity, at both the task level and instance level, is negatively associated with the performance of the model trained on synthetic data. We conclude by discussing the implications of our work on the potential and limitations of leveraging LLM for synthetic data generation."
+}
+@inproceedings{jandaghi-etal-2024-faithful,
+    title = "Faithful Persona-based Conversational Dataset Generation with Large Language Models",
+    author = "Jandaghi, Pegah  and
+      Sheng, Xianghai  and
+      Bai, Xinyi  and
+      Pujara, Jay  and
+      Sidahmed, Hakim",
+    editor = "Nouri, Elnaz  and
+      Rastogi, Abhinav  and
+      Spithourakis, Georgios  and
+      Liu, Bing  and
+      Chen, Yun-Nung  and
+      Li, Yu  and
+      Albalak, Alon  and
+      Wakaki, Hiromi  and
+      Papangelis, Alexandros",
+    booktitle = "Proceedings of the 6th Workshop on NLP for Conversational AI (NLP4ConvAI 2024)",
+    month = aug,
+    year = "2024",
+    address = "Bangkok, Thailand",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.nlp4convai-1.8/",
+    pages = "114--139",
+    abstract = "High-quality conversational datasets are essential for developing AI models that can communicate with users. One way to foster deeper interactions between a chatbot and its user is through personas, aspects of the user`s character that provide insights into their personality, motivations, and behaviors. Training Natural Language Processing (NLP) models on a diverse and comprehensive persona-based dataset can lead to conversational models that create a deeper connection with the user, and maintain their engagement. In this paper, we leverage the power of Large Language Models (LLMs) to create a large, high-quality conversational dataset from a seed dataset. We propose a Generator-Critic architecture framework to expand the initial dataset, while improving the quality of its conversations. The Generator is an LLM prompted to output conversations. The Critic consists of a mixture of expert LLMs that control the quality of the generated conversations. These experts select the best generated conversations, which we then use to improve the Generator. We release Synthetic-Persona-Chat, consisting of 20k conversations seeded from Persona-Chat. We evaluate the quality of Synthetic-Persona-Chat and our generation framework on different dimensions through extensive experiments, and observe that the losing rate of Synthetic-Persona-Chat against Persona-Chat during an AI detection test decreases from 17.2{\%} to 8.8{\%} over three iterations."
+}
+@inproceedings{bao-etal-2023-synthetic,
+    title = "A Synthetic Data Generation Framework for Grounded Dialogues",
+    author = "Bao, Jianzhu  and
+      Wang, Rui  and
+      Wang, Yasheng  and
+      Sun, Aixin  and
+      Li, Yitong  and
+      Mi, Fei  and
+      Xu, Ruifeng",
+    editor = "Rogers, Anna  and
+      Boyd-Graber, Jordan  and
+      Okazaki, Naoaki",
+    booktitle = "Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = jul,
+    year = "2023",
+    address = "Toronto, Canada",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2023.acl-long.608/",
+    doi = "10.18653/v1/2023.acl-long.608",
+    pages = "10866--10882",
+    abstract = "Training grounded response generation models often requires a large collection of grounded dialogues. However, it is costly to build such dialogues. In this paper, we present a synthetic data generation framework (SynDG) for grounded dialogues. The generation process utilizes large pre-trained language models and freely available knowledge data (e.g., Wikipedia pages, persona profiles, etc.). The key idea of designing SynDG is to consider dialogue flow and coherence in the generation process. Specifically, given knowledge data, we first heuristically determine a dialogue flow, which is a series of knowledge pieces. Then, we employ T5 to incrementally turn the dialogue flow into a dialogue. To ensure coherence of both the dialogue flow and the synthetic dialogue, we design a two-level filtering strategy, at the flow-level and the utterance-level respectively. Experiments on two public benchmarks show that the synthetic grounded dialogue data produced by our framework is able to significantly boost model performance in both full training data and low-resource scenarios."
+}
+@inproceedings{giorgi-etal-2024-modeling,
+    title = "Modeling Human Subjectivity in {LLM}s Using Explicit and Implicit Human Factors in Personas",
+    author = "Giorgi, Salvatore  and
+      Liu, Tingting  and
+      Aich, Ankit  and
+      Isman, Kelsey Jane  and
+      Sherman, Garrick  and
+      Fried, Zachary  and
+      Sedoc, Jo{\~a}o  and
+      Ungar, Lyle  and
+      Curtis, Brenda",
+    editor = "Al-Onaizan, Yaser  and
+      Bansal, Mohit  and
+      Chen, Yun-Nung",
+    booktitle = "Findings of the Association for Computational Linguistics: EMNLP 2024",
+    month = nov,
+    year = "2024",
+    address = "Miami, Florida, USA",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.findings-emnlp.420/",
+    doi = "10.18653/v1/2024.findings-emnlp.420",
+    pages = "7174--7188",
+    abstract = "Large language models (LLMs) are increasingly being used in human-centered social scientific tasks, such as data annotation, synthetic data creation, and engaging in dialog. However, these tasks are highly subjective and dependent on human factors, such as one`s environment, attitudes, beliefs, and lived experiences. Thus, it may be the case that employing LLMs (which do not have such human factors) in these tasks results in a lack of variation in data, failing to reflect the diversity of human experiences. In this paper, we examine the role of prompting LLMs with human-like personas and asking the models to answer as if they were a specific human. This is done explicitly, with exact demographics, political beliefs, and lived experiences, or implicitly via names prevalent in specific populations. The LLM personas are then evaluated via (1) subjective annotation task (e.g., detecting toxicity) and (2) a belief generation task, where both tasks are known to vary across human factors. We examine the impact of explicit vs. implicit personas and investigate which human factors LLMs recognize and respond to. Results show that explicit LLM personas show mixed results when reproducing known human biases, but generally fail to demonstrate implicit biases. We conclude that LLMs may capture the statistical patterns of how people speak, but are generally unable to model the complex interactions and subtleties of human perceptions, potentially limiting their effectiveness in social science applications."
+}
+@misc{joshi2024personaswaymodeltruthfulness,
+      title={Personas as a Way to Model Truthfulness in Language Models}, 
+      author={Nitish Joshi and Javier Rando and Abulhair Saparov and Najoung Kim and He He},
+      year={2024},
+      eprint={2310.18168},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2310.18168}, 
+}
+@INPROCEEDINGS{9677302,
+  author={Abufadda, Mohammad and Mansour, Khalid},
+  booktitle={2021 22nd International Arab Conference on Information Technology (ACIT)}, 
+  title={A Survey of Synthetic Data Generation for Machine Learning}, 
+  year={2021},
+  volume={},
+  number={},
+  pages={1-7},
+  keywords={Data privacy;Machine learning algorithms;Medical services;Machine learning;Fuels;National security;Information technology;data generation;machine learning;healthcare},
+  doi={10.1109/ACIT53391.2021.9677302}}
+@misc{guo2024generativeaisyntheticdata,
+      title={Generative AI for Synthetic Data Generation: Methods, Challenges and the Future}, 
+      author={Xu Guo and Yiqiang Chen},
+      year={2024},
+      eprint={2403.04190},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2403.04190}, 
+}
+@misc{bauer2024comprehensiveexplorationsyntheticdata,
+      title={Comprehensive Exploration of Synthetic Data Generation: A Survey}, 
+      author={André Bauer and Simon Trapp and Michael Stenger and Robert Leppich and Samuel Kounev and Mark Leznik and Kyle Chard and Ian Foster},
+      year={2024},
+      eprint={2401.02524},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2401.02524}, 
+}
+@ARTICLE{10906589,
+  author={Lehtonen, Esko and Buder-Gröndahl, Tommi and Nordhoff, Sina},
+  journal={IEEE Access}, 
+  title={Revealing the Influence of Semantic Similarity on Survey Responses: A Synthetic Data Generation Approach}, 
+  year={2025},
+  volume={13},
+  number={},
+  pages={40285-40301},
+  keywords={Semantics;Surveys;Synthetic data;Encoding;Vectors;Transformers;Bidirectional control;Data models;Correlation;Automobiles;Questionnaire;synthetic data;natural language processing;large language models;technology acceptance},
+  doi={10.1109/ACCESS.2025.3546565}}
+
+@article{annurev:/content/journals/10.1146/annurev-soc-060116-053613,
+   author = "Couper, Mick P.",
+   title = "New Developments in Survey Data Collection", 
+   journal= "Annual Review of Sociology",
+   year = "2017",
+   volume = "43",
+   number = "Volume 43, 2017",
+   pages = "121-145",
+   doi = "https://doi.org/10.1146/annurev-soc-060116-053613",
+   url = "https://www.annualreviews.org/content/journals/10.1146/annurev-soc-060116-053613",
+   publisher = "Annual Reviews",
+   issn = "1545-2115",
+   type = "Journal Article",
+   keywords = "mail surveys",
+   keywords = "mixed-mode data collection",
+   keywords = "survey mode",
+   keywords = "telephone surveys",
+   keywords = "responsive design",
+   keywords = "Web surveys",
+   keywords = "nonprobability methods",
+   keywords = "random digit dialing",
+   keywords = "address-based sampling",
+   keywords = "adaptive design",
+   abstract = "This review focuses on recent methodological and technological developments in survey data collection. Surveys are facing unprecedented challenges from both societal and technological changes. Against this backdrop, I review the survey profession&apos;s response to these challenges and developments to enhance and extend the survey tool. I discuss the decline in random digit dialing and the rise of address-based sampling, along with the corresponding shift from telephone surveys to self-administered (mail and/or Web) modes. I discuss the rise in nonprobability sampling approaches, especially those associated with online data collection. I also review so-called big data alternatives to surveys. Finally, I discuss a number of recent methodological and technological trends designed to modernize the survey method. I conclude that although they face a number of major challenges, surveys remain a robust and flexible method for collecting data on, and making inference to, populations.",
+  }
+@inproceedings{patel-etal-2024-datadreamer,
+    title = "{D}ata{D}reamer: A Tool for Synthetic Data Generation and Reproducible {LLM} Workflows",
+    author = "Patel, Ajay  and
+      Raffel, Colin  and
+      Callison-Burch, Chris",
+    editor = "Ku, Lun-Wei  and
+      Martins, Andre  and
+      Srikumar, Vivek",
+    booktitle = "Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = aug,
+    year = "2024",
+    address = "Bangkok, Thailand",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.acl-long.208/",
+    doi = "10.18653/v1/2024.acl-long.208",
+    pages = "3781--3799",
+    abstract = "Large language models (LLMs) have become a dominant and important tool for NLP researchers in a wide range of tasks. Today, many researchers use LLMs in synthetic data generation, task evaluation, fine-tuning, distillation, and other model-in-the-loop research workflows. However, challenges arise when using these models that stem from their scale, their closed source nature, and the lack of standardized tooling for these new and emerging workflows. The rapid rise to prominence of these models and these unique challenges has had immediate adverse impacts on open science and on the reproducibility of work that uses them. In this ACL 2024 theme track paper, we introduce DataDreamer, an open source Python library that allows researchers to write simple code to implement powerful LLM workflows. DataDreamer also helps researchers adhere to best practices that we propose to encourage open science and reproducibility. The library and documentation are available at: https://github.com/datadreamer-dev/DataDreamer."
+}
+@inproceedings{josifoski-etal-2023-exploiting,
+    title = "Exploiting Asymmetry for Synthetic Training Data Generation: {S}ynth{IE} and the Case of Information Extraction",
+    author = "Josifoski, Martin  and
+      Sakota, Marija  and
+      Peyrard, Maxime  and
+      West, Robert",
+    editor = "Bouamor, Houda  and
+      Pino, Juan  and
+      Bali, Kalika",
+    booktitle = "Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing",
+    month = dec,
+    year = "2023",
+    address = "Singapore",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2023.emnlp-main.96/",
+    doi = "10.18653/v1/2023.emnlp-main.96",
+    pages = "1555--1574",
+    abstract = "Large language models (LLMs) have great potential for synthetic data generation. This work shows that useful data can be synthetically generated even for tasks that cannot be solved directly by LLMs: for problems with structured outputs, it is possible to prompt an LLM to perform the task in the reverse direction, by generating plausible input text for a target output structure. Leveraging this asymmetry in task difficulty makes it possible to produce large-scale, high-quality data for complex tasks. We demonstrate the effectiveness of this approach on closed information extraction, where collecting ground-truth data is challenging, and no satisfactory dataset exists to date. We synthetically generate a dataset of 1.8M data points, establish its superior quality compared to existing datasets in a human evaluation, and use it to finetune small models (220M and 770M parameters), termed SynthIE, that outperform the prior state of the art (with equal model size) by a substantial margin of 57 absolute points in micro-F1 and 79 points in macro-F1. Code, data, and models are available at anonymous."
+}
+@inproceedings{wang-etal-2024-codeclm,
+    title = "{C}odec{LM}: Aligning Language Models with Tailored Synthetic Data",
+    author = "Wang, Zifeng  and
+      Li, Chun-Liang  and
+      Perot, Vincent  and
+      Le, Long  and
+      Miao, Jin  and
+      Zhang, Zizhao  and
+      Lee, Chen-Yu  and
+      Pfister, Tomas",
+    editor = "Duh, Kevin  and
+      Gomez, Helena  and
+      Bethard, Steven",
+    booktitle = "Findings of the Association for Computational Linguistics: NAACL 2024",
+    month = jun,
+    year = "2024",
+    address = "Mexico City, Mexico",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.findings-naacl.235/",
+    doi = "10.18653/v1/2024.findings-naacl.235",
+    pages = "3712--3729",
+    abstract = "Instruction tuning has emerged as the key in aligning large language models (LLMs) with specific task instructions, thereby mitigating the discrepancy between the next-token prediction objective and users' actual goals. To reduce the labor and time cost to collect or annotate data by humans, researchers start to explore the use of LLMs to generate instruction-aligned synthetic data. Recent works focus on generating diverse instructions and applying LLM to increase instruction complexity, often neglecting downstream use cases. It remains unclear how to tailor high-quality data to elicit better instruction-following abilities in different target instruction distributions and LLMs. To this end, we introduce CodecLM, a general framework for adaptively generating high-quality synthetic data for LLM alignment with different downstream instruction distributions and LLMs. Drawing on the Encode-Decode principles, we use LLMs as codecs to guide the data generation process. We first encode seed instructions into metadata, which are concise keywords generated on-the-fly to capture the target instruction distribution, and then decode metadata to create tailored instructions. We also introduce Self-Rubrics and Contrastive Filtering during decoding to tailor data-efficient samples. Extensive experiments on four open-domain instruction following benchmarks validate the effectiveness of CodecLM over the current state-of-the-arts."
+}
+@misc{tjuatja2024llmsexhibithumanlikeresponse,
+      title={Do LLMs exhibit human-like response biases? A case study in survey design}, 
+      author={Lindia Tjuatja and Valerie Chen and Sherry Tongshuang Wu and Ameet Talwalkar and Graham Neubig},
+      year={2024},
+      eprint={2311.04076},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2311.04076}, 
+}
+@misc{chuang2024demographicsaligningroleplayingllmbased,
+      title={Beyond Demographics: Aligning Role-playing LLM-based Agents Using Human Belief Networks}, 
+      author={Yun-Shiuan Chuang and Krirk Nirunwiroj and Zach Studdiford and Agam Goyal and Vincent V. Frigo and Sijia Yang and Dhavan Shah and Junjie Hu and Timothy T. Rogers},
+      year={2024},
+      eprint={2406.17232},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2406.17232}, 
+}
+@inproceedings{zhang-etal-2018-personalizing,
+    title = "Personalizing Dialogue Agents: {I} have a dog, do you have pets too?",
+    author = "Zhang, Saizheng  and
+      Dinan, Emily  and
+      Urbanek, Jack  and
+      Szlam, Arthur  and
+      Kiela, Douwe  and
+      Weston, Jason",
+    editor = "Gurevych, Iryna  and
+      Miyao, Yusuke",
+    booktitle = "Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = jul,
+    year = "2018",
+    address = "Melbourne, Australia",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/P18-1205/",
+    doi = "10.18653/v1/P18-1205",
+    pages = "2204--2213",
+    abstract = "Chit-chat models are known to have several problems: they lack specificity, do not display a consistent personality and are often not very captivating. In this work we present the task of making chit-chat more engaging by conditioning on profile information. We collect data and train models to (i)condition on their given profile information; and (ii) information about the person they are talking to, resulting in improved dialogues, as measured by next utterance prediction. Since (ii) is initially unknown our model is trained to engage its partner with personal topics, and we show the resulting dialogue can be used to predict profile information about the interlocutors."
+}
+
+@misc{ge2024scalingsyntheticdatacreation,
+      title={Scaling Synthetic Data Creation with 1,000,000,000 Personas}, 
+      author={Tao Ge and Xin Chan and Xiaoyang Wang and Dian Yu and Haitao Mi and Dong Yu},
+      year={2024},
+      eprint={2406.20094},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2406.20094}, 
+}
+@misc{Shah_All_the_world_s_2025,
+author = {Shah, Arya and Bhanja, Swaraj and Srivastava, Suryansh},
+title = {{All the world's a stage, and all the agents merely players: Persona Driven Survey Response Generation}},
+url = {https://github.com/aryashah2k/PersonaVerse},
+year = {2025}
+}
