@@ -1,6 +1,20 @@
 # PersonaVerse
 Team StochasticallyYours | Natural Language Processing Project | 2025
 
+## Team Members
+
+|Name|ID|
+|----|--|
+|Arya Shah|st125462|
+|Swaraj Bhanja|st125052|
+|Suryansh Srivastava|st124997|
+
+------------
+
+|All the world's a stage, and all agents merely players|
+|------------------------------------------------------|
+|![coolguy](https://github.com/aryashah2k/PersonaVerse/blob/main/assets/cool_shakespeare.jpg)|
+
 ## Overview
 PersonaVerse is an advanced framework designed to generate persona-based survey responses using large language models (LLMs). It enables researchers to simulate diverse human responses across different demographics and psychographics, making it a powerful tool for survey-based studies.
 
