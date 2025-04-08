@@ -35,7 +35,7 @@ export default function AboutPage() {
           <Badge variant="outline" className="mb-4">About Us</Badge>
           <h1 className="text-4xl font-bold mb-4">Understand Your Content Through Multiple Perspectives</h1>
           <p className="text-lg text-muted-foreground mb-8">
-            ChantriBucket helps you gain valuable insights into how diverse audiences perceive your content,
+            PersonaVerse helps you gain valuable insights into how diverse audiences perceive your content,
             helping you create more effective communication.
           </p>
           <div className="flex flex-wrap justify-center gap-4">

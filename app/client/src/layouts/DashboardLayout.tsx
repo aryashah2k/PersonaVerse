@@ -72,7 +72,7 @@ export default function DashboardLayout() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               <Link to="/" className="font-bold text-2xl flex items-center gap-2">
-                ChantriBucket
+                PersonaVerse
               </Link>
 
               {/* Desktop Navigation */}
@@ -230,7 +230,7 @@ export default function DashboardLayout() {
 
       <footer className="border-t border-border py-6 mt-auto">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} ChantriBucket. All rights reserved.
+          &copy; {new Date().getFullYear()} PersonaVerse. All rights reserved.
         </div>
       </footer>
 

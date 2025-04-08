@@ -15,7 +15,7 @@ export const supabase = createClient<Database>(
   supabaseAnonKey,
   {
     auth: {
-      storageKey: 'chantribucket-auth',
+      storageKey: 'PersonaVerse-auth',
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,

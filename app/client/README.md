@@ -49,9 +49,9 @@ export default tseslint.config({
 })
 ```
 
-# ChantriBucket
+# PersonaVerse
 
-ChantriBucket is a document analysis platform that leverages AI personas to analyze uploaded documents and provide insights. Users can upload various document types, select AI personas for analysis, and receive customized outputs based on their expectations.
+PersonaVerse is a document analysis platform that leverages AI personas to analyze uploaded documents and provide insights. Users can upload various document types, select AI personas for analysis, and receive customized outputs based on their expectations.
 
 ## Features
 
@@ -74,7 +74,7 @@ ChantriBucket is a document analysis platform that leverages AI personas to anal
 
 ```bash
 git clone <repository-url>
-cd chantribucket
+cd PersonaVerse
 ```
 
 ### 2. Install Dependencies

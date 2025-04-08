@@ -1,6 +1,6 @@
-# Setting Up Supabase for ChantriBucket
+# Setting Up Supabase for PersonaVerse
 
-This guide will walk you through setting up a Supabase project and configuring it for the ChantriBucket application.
+This guide will walk you through setting up a Supabase project and configuring it for the PersonaVerse application.
 
 ## Creating a Supabase Project
 
@@ -10,7 +10,7 @@ This guide will walk you through setting up a Supabase project and configuring i
 
 2. **Create a New Project**
    - Click the "New Project" button
-   - Enter a name for your project (e.g., "ChantriBucket")
+   - Enter a name for your project (e.g., "PersonaVerse")
    - Set a secure database password (save this somewhere safe)
    - Choose the region closest to your users
    - Click "Create new project"
@@ -31,7 +31,7 @@ Once your project is created, you need to get your API credentials:
    - **NEVER** use the `service_role` key in your frontend code (it has admin privileges)
 
 3. **Update Your .env File**
-   - Open the `.env` file in the ChantriBucket project
+   - Open the `.env` file in the PersonaVerse project
    - Replace the placeholder values with your actual credentials:
      ```
      VITE_SUPABASE_URL=your-project-url
@@ -40,7 +40,7 @@ Once your project is created, you need to get your API credentials:
 
 ## Setting Up Database Tables
 
-For the ChantriBucket application, you'll need to set up the following tables:
+For the PersonaVerse application, you'll need to set up the following tables:
 
 1. **Create the `profiles` Table**
    - Go to the "SQL Editor" in your Supabase dashboard
@@ -127,7 +127,7 @@ ON files FOR DELETE USING (auth.uid() = profile_id);
 
 After completing the setup:
 
-1. Restart your ChantriBucket application
+1. Restart your PersonaVerse application
 2. Try signing up with email
 3. Verify that you can log in and see your profile
 4. Test the file upload functionality

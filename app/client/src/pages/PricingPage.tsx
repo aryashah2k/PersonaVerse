@@ -273,7 +273,7 @@ export default function PricingPage() {
           <div className="mt-20 text-center">
             <h2 className="text-2xl font-bold mb-4">Ready to gain valuable insights?</h2>
             <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Start using ChantriBucket today and see how different perspectives can improve your content.
+              Start using PersonaVerse today and see how different perspectives can improve your content.
             </p>
             {user ? (
               <Button asChild size="lg">

@@ -117,7 +117,7 @@ export default function SignupPage() {
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold">Sign Up</CardTitle>
         <CardDescription>
-          Create a new account to get started with ChantriBucket
+          Create a new account to get started with PersonaVerse
         </CardDescription>
       </CardHeader>
       <CardContent>
