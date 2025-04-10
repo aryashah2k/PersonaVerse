@@ -23,8 +23,8 @@ jobs:
       - name: Configure Git
         run: |
           git config --global safe.directory $(pwd)
-          git config --global user.email "branch-cut-bot@noreply.github.com"
-          git config --global user.name "Branch Cut Bot"
+          git config --global user.email "branch-cut-bot-personaverse@noreply.github.com"
+          git config --global user.name "Branch Cut Bot Personaverse"
           git config --global pull.rebase false
           git config --global core.longpaths true
 
