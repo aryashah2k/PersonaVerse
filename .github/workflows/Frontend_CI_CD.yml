@@ -27,6 +27,10 @@ jobs:
         uses: docker/setup-buildx-action@v2
         if: success()
 
+      - name: Log in to HCR
+        run: |
+          echo "${{ secrets.HEROKU_API_KEY }}" | docker login --username=_ --password-stdin registry.heroku.com
+
       - name: Build and Push Docker Image To HCR
         run: |
           docker build -t registry.heroku.com/${{ secrets.FRONTEND_IMAGE_NAME }}/${{ secrets.FRONTEND_IMAGE_TAG }} .
@@ -35,8 +39,9 @@ jobs:
         if: success()
 
       - name: Release the Container
-        run: |
-          heroku container:release ${{ secrets.FRONTEND_IMAGE_TAG }} --app ${{ secrets.FRONTEND_IMAGE_NAME }}
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+          heroku container:release ${{ secrets.FRONTEND_IMAGE_TAG }} --app ${{ secrets.FRONTEND_IMAGE_NAME }}
         if: success()
