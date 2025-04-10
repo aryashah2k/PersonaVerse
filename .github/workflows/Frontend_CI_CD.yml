@@ -31,7 +31,7 @@ jobs:
         run: |
           docker build -t registry.heroku.com/${{ secrets.FRONTEND_IMAGE_NAME }}/${{ secrets.FRONTEND_IMAGE_TAG }} .
           docker push registry.heroku.com/${{ secrets.FRONTEND_IMAGE_NAME }}/${{ secrets.FRONTEND_IMAGE_TAG }}
-        working-directory: ./app
+        working-directory: ./app/client
         if: success()
 
       - name: Release the Container
