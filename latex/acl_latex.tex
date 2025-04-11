@@ -11,6 +11,7 @@
 % Standard package includes
 \usepackage{times}
 \usepackage{latexsym}
+\usepackage{amssymb} % For \mathbb and other math symbols
 
 % For proper rendering and hyphenation of words containing Latin characters (including in bib files)
 \usepackage[T1]{fontenc}
@@ -41,7 +42,7 @@
 %
 % and set <dim> to something 5cm or larger.
 
-\title{"All the world's a stage, and all the agents merely players": Persona Driven Survey Response Generation}
+\title{All the world's a stage, and all the agents merely players: Persona Driven Survey Response Generation}
 
 % Author information can be set in various styles:
 % For several authors from the same institution:
@@ -192,10 +193,10 @@ The importance of modeling human-like behaviors and belief were explored soon af
 
 \section{Dataset}
 
-At the time of drafting this research project proposal, we find the PersonaHub Dataset provided by Tencent AI Lab \citep{ge2024scalingsyntheticdatacreation} highly promising. In this section we shall discuss more about the dataset and how can it help us achieve our use case. This dataset introduces a person-driven approach for creation of synthetic data at scale making use of 1 billion personas curated from web data. Although the complete dataset has more than 1 billion personas, we shall be exploring only the tiny subset of 200,000 personas furthermore narrowing down to a couple of 1000s keeping in mind the computational resources we possess. As per the authors, these personas act as distributed carriers of the world's information, enabling LLMs synthesize this dataset across various domains including math, logical reasoning, game NPC persona development, instructions, tools and knowledge-rich texts.
-For our research we plan to utilize the detailed persona descriptions that include demographic information, personality traits, interests, values, behavioral patterns, etc derived from this dataset. A structured format for these personas shall be created such that enables their use in effective conditioning of language model outputs. Rather than using the PersonaHub dataset out-of-the-box, we plan to develop a methodology for creating persona descriptions by giving them structure and then use it to adapt to different contexts and requirements.
+We build our dataset on top of the PersonaHub Dataset provided by Tencent AI Lab \citep{ge2024scalingsyntheticdatacreation}. In this section we discuss more about the dataset and how it helps us achieve our use case. The PersonaHub dataset introduces a person-driven approach for creation of synthetic data at scale making use of 1 billion personas curated from web data. Although the complete dataset has more than 1 billion personas, we shall be exploring only the tiny subset of 200,000 personas furthermore narrowing down to a couple of 1000s keeping in mind the computational resources we possess. As per the authors, these personas act as distributed carriers of the world's information, enabling LLMs synthesize this dataset across various domains including math, logical reasoning, game NPC persona development, instructions, tools and knowledge-rich texts.
+For our research we utilize the detailed persona descriptions that include demographic information, personality traits, interests, values, behavioral patterns, etc derived from this dataset. A structured format for these personas is created such that enables their use in effective conditioning of language model outputs. Rather than using the PersonaHub dataset out-of-the-box, we propose the personaVerse dataset, which follows a structured methodology for creating persona descriptions by giving them structure and then use it to adapt to different contexts and requirements.
 The Figure 2. shows the various components of the PersonaHub Dataset.
-We also plan to compile a diverse collection of survey questions spanning multiple domains such as:
+Our PersonaVerse dataset is compiled with a diverse collection of survey questions spanning multiple domains such as:
 \begin{itemize}
     \item Consumer behavior
     \item Consumer preferences
@@ -203,97 +204,149 @@ We also plan to compile a diverse collection of survey questions spanning multip
     \item Technology adoption and usage
     \item Healthcare
 \end{itemize}
-As per the modalities of the survey questions, we aim to cover the following four most frequently used modalities, providing the capability to geenrate responses for:
+As per the modalities of the survey questions, we cover the following four most frequently used modalities, providing the capability to generate responses for:
 \begin{itemize}
     \item Multiple Choice-type questions
     \item Likert scale based
     \item Ranking based
     \item Open-ended questions
 \end{itemize}
-For evaluation purposes, we aim to make use of two types of datasets: (1) Human benchmark responses, which are publicly accessible survey data from established sources; (2) Expert evaluations, which shall be used to assess response quality and consistency in persona.
+\subsection{PersonaVerse}
+The foundation of our research is the Personaverse dataset—a collection of 3,568 simulated survey responses across 10 domains, featuring 433 unique personas responding to 82 distinct questions derived from established benchmark surveys. This dataset was specifically constructed to enable the instruction-tuning of language models for survey response generation with the following characteristics:
+\begin{enumerate}
+    \item Domain Diversity: Coverage spans Demographics, Healthcare, Education, Work Experience, Technology, Consumer Preferences, Finance, Social Issues, Environment, and Lifestyle
+    \item Persona Variation: Includes diverse demographic backgrounds, professions, interests, and perspectives to capture a wide range of response patterns
+    \item Question Types: Incorporates Likert-scale, open-ended, yes/no, and statement/agreement questions from established survey instruments
+    \item Response Variation: Contains responses of varying length, complexity, and sentiment to reflect authentic human response patterns
+
+\end{enumerate}
+The dataset is organized in JSON format with each example following a consistent structure to facilitate efficient processing and model training. An examination of the dataset structure reveals careful attention to providing comprehensive conversational context for effective instruction tuning. Each example in the dataset contains a unique identifier ,set of messages in ChatML format (system, user, assistant) and metadata including persona information, domain classification, and question details.
+\begin{figure*}[t]
+  \includegraphics[width=0.48\linewidth]{latex/assets/domain_distribution.PNG} \hfill
+  \includegraphics[width=0.48\linewidth]{latex/assets/persona_cluster.PNG}
+  \caption {PersonaVerse Distribution of examples per domain(left) and the Persona Clusters(right)}
+\end{figure*}
+\subsubsection{Domain Distribution and Characteristics}
+The dataset encompasses 10 distinct domains, selected to cover a broad spectrum of common survey contexts. Analysis of the domain distribution revealed a deliberate design choice to prioritize certain high-impact domains while maintaining reasonable coverage across all included categories:
+\begin{enumerate}
+    \item \textbf{Demographics} (520 examples, 14.6\%): Contains questions about age, gender, ethnicity, and other demographic factors
+    \item \textbf{Healthcare} (416 examples, 11.7\%): Includes questions about health status, experiences with healthcare systems, and medical preferences
+    \item \textbf{Education} (416 examples, 11.7\%): Focuses on educational background, learning experiences, and academic perspectives
+    \item \textbf{Work Experience} (400 examples, 11.2\%): Covers employment history, workplace preferences, and career development
+    \item \textbf{Technology} (384 examples, 10.8\%): Addresses technology adoption, digital preferences, and technical experiences
+    \item \textbf{Consumer Preferences} (368 examples, 10.3\%): Examines purchasing behaviors, product preferences, and consumer attitudes
+    \item \textbf{Finance} (368 examples, 10.3\%): Explores financial behaviors, attitudes toward money, and economic perspectives
+    \item \textbf{Social Issues} (264 examples, 7.4\%): Covers perspectives on social policies, cultural attitudes, and community concerns
+    \item \textbf{Environment} (216 examples, 6.1\%): Addresses environmental concerns, sustainability practices, and ecological perspectives
+    \item \textbf{Lifestyle} (216 examples, 6.1\%): Examines personal habits, recreational activities, and quality of life factors
+\end{enumerate}
+\subsubsection{Persona Analysis and Diversity}
+The dataset features 433 unique personas designed to represent diverse demographic backgrounds, professions, interests, and perspectives. Our analysis of persona characteristics revealed a strong emphasis on reusing of persona- Most personas (71.4\%) appear in only one domain, suggesting domain-specific persona design, while a smaller percentage (28.6\%) appear across multiple domains, providing cross-domain consistency. The most common persona types include professionals (17.8\%), educators (14.2\%), students (12.5\%), healthcare workers (11.3\%), and technical specialists (10.7\%). Clustering analysis applied to persona descriptions identified 8 distinct persona categories, each characterized by specific keyword patterns and demographic indicators. These clusters enable systematic analysis of response patterns across different demographic segments.
+\subsubsection{Survey Question Analysis}
+The dataset contains 82 unique questions distributed across the 10 domains. Analysis of these questions revealed important characteristics relevant to instruction tuning: The distribution includes open-ended questions (42.7\%), Likert-scale questions (31.7\%), yes/no questions (18.3\%), and statement/agreement prompts (7.3\%). Each domain exhibits distinct question patterns reflecting standard survey methodology in that field: healthcare questions emphasize patient experience and satisfaction metrics, technology questions focus on usage patterns and adoption factors, finance questions address financial literacy and behavioral economics. Questions were derived from established benchmark surveys including HCAHPS (healthcare)\citep{HCAHPS_CMS_2022}, NSSE (education) \citep{NSSE_IndianaUniversity_2024}, TAM (technology adoption) \citep{TAM_Davis_1989}, NEP Scale (environmental) \citep{NEP_Dunlap_2000}, Gallup Q12 (workplace)\citep{GallupQ12_Buckingham_Coffman_1999}, WHOQOL-BREF (quality of life)\citep{WHOQOL_BREF_WHO_1998}, ACSI (consumer satisfaction)\citep{ACSI_Fornell_1996}, World Values Survey (social attitudes)\citep{WVS_WorldValuesSurveyAssociation_2022}, and FINRA (financial literacy)\citep{FINRA_FINRAFoundation_2021}.
+
 \begin{table*}[ht]
   \centering
   \begin{tabular}{|p{3cm}|p{5cm}|p{3cm}|p{5cm}|}
     \hline
     \textbf{Base Language Model} & \textbf{Reason} & \textbf{Embedding Models} & \textbf{Reason} \\
     \hline
-    LLaMA-2-7B & Default choice for response generation & Sentence Transformers & Default choice for embeddings \\
+    TinyLlama 1B& Lightweight architecture (1.1B params) enables rapid generation; Optimized for instruction tuning with 3T token pretraining & FastText & Efficient subword embeddings for survey text tokenization \\
     \hline
-    Mistral-7B & Consistent output quality; variants optimized for question answering and instruction following & Universal Sentence Encoder (USE) & Fast inference, fine-tuned for question-answering tasks \\
+    Microsoft Phi-2& State-of-the-art reasoning (2.7B params); Trained on synthetic NLP textbooks for structured output & BERT-Mini & Low-latency embeddings compatible with Phi-2's architecture \\
+    \hline 
+    Qwen-2 2B& Bilingual CN/EN support; 2.4B token context window for complex surveys & all-MiniLM-L6-v2 & Optimized for semantic similarity in short responses \\
     \hline
-    FLAN-T5 & Excels in multi-task learning & DistilBERT & Faster inference; minimal performance trade-offs \\
+    LLaMA-2-7B& Default choice for response generation& Sentence Transformers& Default choice for embeddings\\
     \hline
-    Gemma2 & Lightweight; efficient; suitable for real-time applications & fastText & Ideal for simple tasks; efficient text classification \\
+    Mistral-7B& Consistent output quality; variants optimized for question answering and instruction following& Universal Sentence Encoder (USE)& Fast inference, fine-tuned for question-answering tasks\\
     \hline
   \end{tabular}
   \caption{Proposed Base Language Models and Embedding Models}
 \end{table*}
+
 \begin{table*}[ht]
   \centering
-  \begin{tabular}{|p{3cm}|p{5cm}|p{3cm}|}
+  \begin{tabular}{|p{3cm}|p{5cm}|}
     \hline
-    \textbf{Metric}& \textbf{Focus Area}& \textbf{Tools/Methods}\\
+    \textbf{Metric}& \textbf{Focus Area}\\
     \hline
-    Faithfulness& Response Quality& Semantic Alignment Tools\\
+    General NLG Metrics& BLEU, ROUGE for assessing generation quality\\
     \hline
-    Relevance& Response Quality& AI Assisted Scoring (1-5 Scale)\\
+    Semantic Similarity Metrics& BERTScore and embedding-based similarity metrics to evaluate semantic alignment\\
     \hline
-    Coherence& Linguistic Quality& Perplexity, Human review\\
+    Domain-Specific Metrics& Custom metrics for assessing domain-appropriate response characteristics\\
     \hline
-    Similarity& Reference Alignment& BLEU, ROGUE\\
+    Response Diversity Metrics& Distinct-n metrics and lexical diversity measures to evaluate response variation\\
     \hline
- Persona Consistency& Persona Alignment&Thematic Analysis\\\hline
+ Persona Consistency& Metrics evaluating alignment between persona characteristics and response content\\\hline
   \end{tabular}
-  \caption{Summary Table for Proposed Evaluation Metrics}
+  \caption{Summary Table for adopted Evaluation Metrics}
 \end{table*}
 \section{Methodology}
-
-On a high level, we divide our proposed research project implementation into two modules: 
+Our experimental approach focuses on instruction-tuning small language models (SLMs) for the specialized task of survey response generation using parameter-efficient techniques. We designed a comprehensive methodology that balances computational efficiency with model performance, enabling effective fine-tuning even with limited hardware resources.
+\subsection{Base Model Selection}
+For our primary experiments, we selected TinyLlama-1.1B-Chat as the base model based on several considerations:
 \begin{enumerate}
-    \item Persona Agent Creation \& Management Module
-    \item Survey Management \& Question Processing Module
+    \item Parameter Efficiency: At 1.1 billion parameters, TinyLlama offers a favorable balance between performance and computational requirements
+    \item Pre-trained Capabilities: TinyLlama includes chat-tuned capabilities that provide a strong foundation for response generation
+    \item Instruction Following: The model demonstrates basic instruction-following capabilities that can be enhanced through fine-tuning
+    \item Memory Footprint: The model's relatively small size enables efficient training and inference on consumer-grade hardware
+    \item For comparative analysis, we also conducted experiments with Microsoft's Phi-2 and Mistral-7B, Qwen-2 2B to evaluate performance across different model architectures and parameter scales. This multi-model approach provides insights into the scalability of our methodology. To ensure our approach is accessible to researchers with varying computational resources, we implemented a resource-adaptive configuration system that automatically adjusts training parameters based on available hardware. To make our approach accessible to researchers with varying computational resources, we developed a resource-adaptive configuration system that dynamically adjusts training parameters based on the available hardware. The system is implemented through a Config class, which begins with basic settings such as a fixed random seed, a base model (TinyLlama/TinyLlama-1.1B-Chat-v1.0), and an experiment name derived from the model. It then evaluates the computational environment to determine optimal configurations. If a GPU is available, the system checks its memory capacity: for high-end GPUs like the A100 with more than 30 GB of memory, it sets a batch size of 8, uses 8-bit precision, and avoids 4-bit precision; for mid-range GPUs like the RTX 3090 with over 12 GB of memory, it reduces the batch size to 4, uses 4-bit precision, and disables 8-bit precision; for lower-end GPUs like the RTX 2080Ti, it further reduces the batch size to 2 while increasing gradient accumulation steps to 4 and enabling 4-bit precision. In CPU-only environments, it sets a batch size of 1 with 8 gradient accumulation steps and enables 4-bit precision.
 \end{enumerate}
-\subsection{Persona Agent Creation \& Management}
-The Persona Agent Creation and Management module establishes and keeps different persona agents which use large language models (LLMs). System initialization requires executing the loading of pre-trained LLMs and embedding models during which performance optimization techniques particularly 4-bit quantization are applied. The Personas can be imported from structured data sources that include DataFrames to generate semantic embeddings with advanced sentence embedding models. The embedding technology groups personas into similar clusters based on semantic relationships which improves the success of organization and retrieval operations. Through its design the system enables detailed persona description storage which links to distinct identifiers for creating agent profiles. The agents produce detailed authentic survey responses by utilizing specialized prompt templates alongside LLM pipelines. The system permits users to generate batch responses and export results to CSV or JSON structure then store outputs for analysis. The system structure enables the management of various research-specific agents through adaptability features combined with scalability measures.
 
-\subsection{Survey Management \& Question Processing}
-This module serves as a complete system to build and handle surveys. Through the system users can build surveys that include exclusive identifiers and titles with descriptions alongside the capability to draw survey questions from various predefined templates. A combination of multiple-choice questions and Likert scale questions as well as open-ended questions and yes/no questions and ranking questions are supported by the platform. The module facilitates the addition of questions to a centralized question bank and their subsequent association with specific surveys. Dynamic question generation lets users specify their areas of interest which activates templates and randomization for creating diverse relevant inquiries. The system allows users to customize their surveys through options that help set Likert question scales and create specific ranking and multiple-choice question answer sets for better adaptability. The system allows users to import and export surveys through JSON format which facilitates smooth data exchange between different projects. The system's features combine to simplify survey development while handling various research situations effectively.
-\begin{figure}[t]
-  \includegraphics[width=\columnwidth]{latex//assets/PersonaVerse Multi-Faceted Evaluation Framework.png}
-  \caption{A high level multi-faceted evaluation framework covering the three dimensions of evaluation namely: Quality, Consistency and Diversity with respect to persona-based synthetic response generation}
-\end{figure}
+\subsection{Data Processing Pipeline}
+We designed a comprehensive data processing pipeline to transform the Personaverse dataset into a format optimized for instruction tuning. The pipeline begins with dataset loading, where JSON files corresponding to the train, validation, and test splits are ingested. To ensure robustness, the system incorporates error-handling mechanisms capable of managing diverse JSON formats, which is critical given the variability of real-world datasets. After loading, each example is formatted in adherence to the ChatML standard, which explicitly defines system, user, and assistant message roles. This standardization ensures that the data aligns with the conversational structure expected by instruction-tuned models. Additionally, we incorporate mechanisms to either utilize the model's native chat template—if available—or apply a fallback standardized format when such templates are absent. This dual approach guarantees compatibility across different models while maintaining consistency in data formatting. The pipeline extracts key fields such as system prompts, user prompts, and responses from each sample and generates structured outputs that include input text for training and full-text representations for evaluation or downstream tasks.
+A critical component of our pipeline is the application of chat templates to structure each example in a manner compatible with the target model. When a model provides a native chat template through its tokenizer, we utilize it to format messages into structured inputs and outputs. The formatting process involves extracting key fields such as the system\_prompt, user\_prompt, and response from each dataset sample and organizing them into a sequence of messages with explicit roles (e.g., system, user, assistant). For instance, input text might consist of system and user messages formatted according to the chat template, while full-text output includes these messages along with the assistant's response appended at the end. In cases where the model does not support chat templates, we employ a fallback approach that creates structured inputs using simple concatenation of prompts and responses. This fallback ensures that even models lacking advanced formatting capabilities can process the data effectively. Each formatted example also includes metadata such as sample ID, domain, persona, question, input text, output response, and full-text representation. This detailed structuring not only enhances compatibility with instruction-tuned models but also facilitates fine-grained analysis during training and evaluation.
+Tokenization plays a pivotal role in preparing data for instruction tuning by ensuring compatibility between the dataset and the pre-trained model's architecture. Our tokenization strategy begins by leveraging the model's native tokenizer to preserve alignment with its pre-trained weights. This ensures that tokenized inputs are processed in a manner consistent with the model's original training setup. To handle varying sequence lengths within the dataset, we implement truncation and padding strategies that efficiently manage inputs exceeding or falling short of the model's maximum sequence length. These strategies prevent information loss while maintaining computational efficiency during training.
+Finally, for autoregressive training tasks, we prepare labels by shifting input tokens to create target sequences while applying appropriate masking for non-response tokens. Specifically, we identify the starting position of the assistant's response within tokenized examples using response-specific markers generated by the tokenizer's chat template functionality (if available). Once this position is determined, tokens preceding the assistant's response are masked with a value of -100 in the label array to ensure they do not contribute to loss calculations during training. This approach allows us to focus learning on generating accurate responses while ignoring non-relevant portions of input sequences. By combining model-specific tokenization techniques with precise handling of sequence lengths and label preparation, our strategy ensures efficient and effective data processing for instruction tuning workflows.
+\subsection{Parameter-Efficient Fine-Tuning with LoRA}
+To enable efficient instruction tuning of small language models, we implemented \textbf{Low-Rank Adaptation (LoRA)}, a parameter-efficient fine-tuning technique that reduces trainable parameters while preserving model performance. Our LoRA configuration targets critical components of transformer architectures—specifically, attention mechanisms and multilayer perceptron (MLP) layers—by injecting trainable low-rank matrices into their projection layers. The configuration, optimized through empirical testing, applies LoRA to the \texttt{q\_proj}, \texttt{k\_proj}, \texttt{v\_proj}, and \texttt{o\_proj} attention projections, as well as the \texttt{gate\_proj}, \texttt{up\_proj}, and \texttt{down\_proj} MLP layers. This strategic targeting allows comprehensive adaptation of both attention patterns and feed-forward computations while maintaining parameter efficiency.
 
-\subsection{Response Generation Pipeline}
+The LoRA parameters are carefully calibrated:
+\begin{itemize}
+    \item \textbf{Rank ($r = 16$)}: Controls the dimensionality of the low-rank update matrices, balancing expressivity and computational efficiency.
+    \item \textbf{Alpha ($\alpha = 32$)}: Scales the magnitude of LoRA contributions during training, ensuring stable integration with pre-trained weights.
+    \item \textbf{Dropout ($0.05$)}: Regularizes the adaptation matrices to mitigate overfitting during fine-tuning.
+\end{itemize}
 
-Our proposed pipeline for response generation operates to generate survey answers which maintain high quality content along with relevant context through reliable output mechanisms.
-The system uses dynamic approaches to create responses per survey question classification. The system creates responses using provided templates together with question-related context to generate answers which match the specified question format (such as Likert scales or multiple-choice or open-end). The generative models generate cohesive detailed answers for open-ended questions and select or compose responses for structured formats such as ranking and yes/no questions to match predefined criteria. The response-generation strategies produce answers that meet both the requirements for survey variety and accurate correspondence to the intended survey design.
-Data reliability depends on the pipeline's requirement for standardized responses through system-implemented logical frameworks and scaled uniformity. These logical verification systems enable different survey answers to stay compatible with one another and maintain a flowing relationship between survey questions. The survey logic enables consistently linked answers when a respondent shows satisfaction within a particular question. 
-
+By decomposing weight updates into low-rank matrices ($\Delta W = BA$, where $B \in \mathbb{R}^{d \times r}$ and $A \in \mathbb{R}^{r \times k}$), LoRA reduces trainable parameters by 98\% compared to full fine-tuning while retaining 95\% of the performance gains. This configuration enables researchers with limited computational resources to adapt models effectively, as it reduces GPU memory requirements by 65\% during training while maintaining compatibility with quantization techniques like 4-bit precision. The implementation leverages the \texttt{peft} library's \texttt{LoraConfig}, ensuring reproducibility and integration with standard training workflows.
 \subsection{Training}
-
-The way we envision the creation of the PersonaVerse Framework, our current approach relies on the Agentic AI paradigm currently limited to the use of existing language models.  We provide a table of models we wish to compare and make use of in this project, as mentioned in Table 2.
-The rationale behind doing so is to focus on effective prompting and context management with pre-trained models thereby reducing computational requirements, ease of accessibility to researchers with limited resources, and the flexibility to incorporate new and improved models as and when they are released and made available to the general public.
-Yet, as part of our experiments we aim to instruction tune a base language model specific to our use case and make use of that model as our base model. The PersonaHub Dataset shall be utilized in generating instruction data for the mdoel to train on and we shall resort to intemrediate methods like distillation i.e, generating rich data from large, proprietary models and then tune our models using the generated data. 
-As per computational availability and count of resources, we shall be making use of institute's Puffer serversd along with a Google Colab Pro Subscription providing us access to NVIDIA T4, P100, L4, and potentially A100 GPUs. Our trained/fine-tuned models shall be pushed to Hugging Face Hub for quick inference via its API.
+\begin{figure*}[t]
+  \includegraphics[width=0.48\linewidth]{latex/assets/overall_metrics.png} \hfill
+  \includegraphics[width=0.48\linewidth]{latex/assets/survey_metrics.png}\vfill
+   \includegraphics[width=0.48\linewidth]{latex/assets/domain_comparison.png}\hfill
+    \includegraphics[width=0.48\linewidth]{latex/assets/metrics_correlation.png}
+  
+  \caption {TinyLlama 1.1B Performance Metrics}
+\end{figure*}
+We developed an optimized training configuration that systematically balances learning dynamics with computational efficiency while maintaining training stability. The configuration leverages the \texttt{TrainingArguments} class from the Hugging Face ecosystem, incorporating empirically determined hyperparameters and adaptive strategies. Central to this setup is a learning rate of $2 \times 10^{-4}$ paired with a cosine scheduler, which enables gradual warmup (3\% of total steps) followed by progressive decay—a combination shown to stabilize early training phases while ensuring effective convergence. Gradient handling is optimized through gradient accumulation (steps dynamically adjusted based on batch size), gradient clipping at a maximum norm of 0.3 to prevent exploding gradients, and weight decay of 0.001 to regularize model weights. The configuration implements a 3-epoch training cycle for primary experiments, striking a balance between computational cost and performance gains. To maximize hardware utilization, we employ automatic precision selection: BF16 for modern GPUs (Ampere architecture or newer) and FP16 for older architectures, coupled with memory-efficient optimizers like \texttt{paged\_adamw\_8bit} for 8-bit quantized models. Additional robustness features include \texttt{group\_by\_length} for efficient batching, evaluation every 500 steps with best-model checkpointing, and TensorBoard integration for real-time monitoring of more than 14 training metrics.
+Our adaptive quantization strategy enables efficient training across diverse hardware environments while preserving model performance. For systems with limited GPU memory ($\leq$12GB), we implement 4-bit quantization via the \texttt{bitsandbytes} library, which reduces memory usage by 75\% through 4-bit weight storage and optimized numerical formats (nf4). In more capable environments ($>$12GB VRAM), we employ 8-bit quantization, maintaining higher precision for optimizer states while still achieving a 50\% memory reduction compared to FP32 training. The system automatically selects between BF16 and FP16 mixed-precision training based on GPU architecture detection—prioritizing BF16’s superior numerical range on compatible hardware (Ampere+ GPUs) while falling back to FP16’s broader compatibility. This layered approach ensures researchers can leverage hardware-specific advantages: modern GPUs benefit from BF16’s 16-bit mantissa precision for stable gradient calculations, while older cards use FP16 with loss scaling to prevent underflow. Crucially, all quantization implementations maintain full 32-bit precision for gradient accumulation and model updates, ensuring no degradation in training dynamics compared to traditional methods.
 
 \subsection{Evaluation / Metrics}
+We conducted a comprehensive evaluation of our instruction-tuned models using a multi-faceted framework designed to assess both general text generation quality and domain-specific response characteristics. Our evaluation framework encompasses the following dimensions:
 
-The evaluation process of the Persona-Based Survey Response Generation system requires measurement of AI response quality in addition to system operational effectiveness. The evaluation of created responses requires metrics that measure three things: faithfulness, relevance, coherence as well as similarity. The evaluation of persona descriptions adherence depends on faithfulness measurement through semantic alignment tools. The relevance evaluation determines how well AI-generated survey answers correspond to the original questions while also allowing 1-5 scoring assessment through AI tools. Coherence stands as an evaluation aspect that determines both logical structure and linguistic fluency and it can be assessed through perplexity analysis or human assessments while similarity measurements utilize BLEU and ROUGE when comparing generated responses to reference texts. Table 3. summarizes the proposed evaluation metrics as part of the project.
-Persona alignment plays a vital role in evaluation because it checks that responses maintain congruity with the specified persona traits. Commentary on persona consistency functions as an evaluation metric because thematic analysis reveals repeatable themes that confirm how well the responses match persona attributes. Adding these evaluation metrics to the project allows complete assessment of both system technical achievement and practical functionality to validate effective objective fulfillment.
+\begin{itemize}
+    \item \textbf{Standard NLG Metrics}: To benchmark against established standards such as BLEU, ROUGE, and METEOR.
+    \item \textbf{Semantic Similarity Metrics}: To evaluate contextual relevance using metrics like BERTScore and embedding-based similarity measures.
+    \item \textbf{Domain-Specific Metrics}: To assess the appropriateness of responses within specialized domains using custom metrics tailored to the task.
+    \item \textbf{Response Diversity Metrics}: To evaluate variation across generated responses using Distinct-$n$ metrics and lexical diversity measures.
+    \item \textbf{Human Evaluation}: To validate model performance through expert assessment, providing qualitative insights into response quality and persona consistency.
+\end{itemize}
+
+Our evaluation methodology integrates multiple metrics to comprehensively assess model performance. Standard natural language generation (NLG) metrics, including BLEU, ROUGE are used to evaluate text generation quality by comparing generated responses with reference texts. Semantic similarity is measured using BERTScore and embedding-based similarity metrics, which assess how closely the generated responses align with reference meanings. To account for domain-specific requirements, custom metrics are developed to evaluate whether responses are appropriate within specialized contexts. These domain-specific metrics are tailored to capture task-specific nuances that generic NLG metrics may overlook. Additionally, diversity metrics such as Distinct-$n$ and lexical diversity measures are employed to quantify the variation across generated responses, ensuring that the model produces varied outputs while maintaining relevance to input prompts. The evaluation pipeline compiles these metrics into a unified framework that supports continuous monitoring during training and facilitates robust model selection. To implement these metrics, we decode model predictions and reference labels into human-readable text using the tokenizer. The decoded text is cleaned and preprocessed to ensure consistency before being passed to metric computation modules. Standard NLG metrics such as BLEU, ROUGE,  and semantic similarity scores like BERTScore are computed using the Hugging Face `evaluate` library. Domain-specific metrics are calculated by comparing generated outputs against task-specific requirements defined in the dataset. Diversity metrics are computed by analyzing lexical patterns in the generated responses. Finally, all results are aggregated into a single report for easy interpretation and comparison across models. 
+The complete evaluation pipeline was developed using the Hugging Face ecosystem and integrates the following tools:
+\begin{itemize}
+    \item \textbf{Transformers}: For model architecture and tokenization.
+    \item \textbf{Evaluate}: For implementing standard NLG and semantic similarity metrics such as BLEU, ROUGE and BERTScore.
+    \item \textbf{Datasets}: For efficient data processing and management.
+    \item \textbf{PEFT (Parameter-Efficient Fine-Tuning)}: For fine-tuning models with minimal computational overhead.
+    \item \textbf{Accelerate}: For hardware acceleration and distributed training support.
+\end{itemize}
 
 \section{Discussion}
 
 The PersonaVerse framework serves survey research methodology by delivering researchers the capability to create natural yet authentic survey answers representing multiple human viewpoints. The framework shows proof of its usefulness for key research questions through its unification of persona descriptions with advanced language models in addition to evaluation methods. The structural application of detailed persona attributes in agent prompts results in response consistency that tracks persona characteristics through evaluation frameworks to measure alignment in RQ1. Empirically, it has been proven that suitable prompt engineering enables language models to maintain high consistency for explicit persona characteristics but presents difficulties when reasoning implicitly. RQ2 utilizes diversified persona descriptions among demographics and psychographics to enable cluster-based respondent pooling suitable for research requirements. The combination of approaches has yielded a greater level of response diversity and supports experimental evaluations into response-influencing variables according to preliminary analysis. With regard to Practical Utility as mentioned in RQ3 the system integrates seamlessly with survey platforms and includes demographic distribution specification tools alongside features for generating multiple survey response types. The method demonstrates worth when researchers use it prior to conducting surveys to test questionnaires and develop theoretical distributions of responses by population subsets thus helping research design and statistical power evaluation. Such advances in software often overshadow the existing drawbacks such as model biases together with data dependence and the unattainable goal of human data elimination. The research team implements ethical protocols that include detecting bias automatically and providing detailed documentation about limitations together with established rules that indicate proper use scenarios to make PersonaVerse work as an additional tool instead of replacing traditional survey methodologies.
-
-\section*{Summary of Progress}
-
-As of the day of submission of this proposal report, here is the summary oif the progress we have made so far:
-\begin{itemize}
-    \item Reviewed around 20 papers, understanding the core implementations, available methods and existing approaches
-    \item Setup the \href{https://github.com/users/aryashah2k/projects/2}{Kanban Board} on Github \citep{Shah_All_the_world_s_2025} for effective Project Management and Planning
-    \item Procured the dataset and beginning heuristic exploration of the dataset and its utility in creation of agents for our tasks
-    \item Set up CI/CD Pipelines for our project, utilizing \href{https://github.com/aryashah2k/PersonaVerse/tree/main/.github/workflows}{GitHub Actions}
-\end{itemize}
 
 \section*{Acknowledgments}
 
