@@ -1,15 +1,18 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { useDispatch } from 'react-redux';
 import userReducer from './slices/userSlice';
 import fileReducer from './slices/fileSlice';
-import personaReducer from './slices/personaSlice';
-import processReducer from './slices/processSlice';
+// import personaReducer from './slices/personaSlice';
+import authReducer from './slices/authSlice';
+import formReducer from './slices/formSlice'
 
 export const store = configureStore({
   reducer: {
     user: userReducer,
     file: fileReducer,
-    persona: personaReducer,
-    process: processReducer,
+    // persona: personaReducer,
+    auth: authReducer,
+    form: formReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -19,3 +22,6 @@ export const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+export const useAppDispatch = () => useDispatch<AppDispatch>();
+
+export default store;

@@ -1,36 +1,101 @@
-import { Provider } from 'react-redux';
-import { RouterProvider } from 'react-router-dom';
-import { router } from '@/routes';
-import { store } from '@/store';
-import { useEffect } from 'react';
-import { checkAndRestoreSession, setupAuthListener } from '@/lib/auth';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { ThemeProvider } from "@mui/material/styles";
+import { CssBaseline, Box } from "@mui/material";
+import { Provider } from "react-redux";
+import { store } from "./store";
+import theme from "./styles/theme";
 
-// Component to handle auth state changes and session persistence
-function AuthHandler() {
-  useEffect(() => {
-    // Check for existing session on page load/refresh
-    const restoreSession = async () => {
-      await checkAndRestoreSession();
-    };
+// Pages
+import Home from "./pages/home/Home";
+import Dashboard from "./components/dashboard/Dashboard";
+import Profile from "./pages/profile/Profile";
+import History from "./pages/history/History";
+import Pricing from "./pages/pricing/Pricing";
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
+import NotFound from "./pages/notFound/NotFound";
 
-    // Run session check
-    restoreSession();
+// Auth
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import PublicRoute from "./components/auth/PublicRoute";
+import About from "./pages/about/About";
 
-    // Set up auth state change listener
-    const cleanup = setupAuthListener();
+// Dummy login credentials (don't display on website)
+// Email: test@example.com
+// Password: password
 
-    // Clean up listener on unmount
-    return cleanup;
-  }, []);
-
-  return null;
-}
-
-export default function App() {
+const App: React.FC = () => {
   return (
     <Provider store={store}>
-      <AuthHandler />
-      <RouterProvider router={router} />
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box sx={{ width: "100vw", overflowX: "hidden" }}>
+          <Router>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/about" element={<About />} />
+
+              {/* Auth Routes */}
+              <Route
+                path="/login"
+                element={
+                  <PublicRoute>
+                    <Login />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/signup"
+                element={
+                  <PublicRoute>
+                    <Signup />
+                  </PublicRoute>
+                }
+              />
+
+              {/* Protected Routes */}
+              <Route
+                path="/dashboard"
+                element={
+                  //<ProtectedRoute>
+                  <Dashboard />
+                  // </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/history"
+                element={
+                  <ProtectedRoute>
+                    <History />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* 404 and Redirects */}
+              <Route path="/404" element={<NotFound />} />
+              <Route path="*" element={<Navigate replace to="/404" />} />
+            </Routes>
+          </Router>
+        </Box>
+      </ThemeProvider>
     </Provider>
   );
-}
+};
+
+export default App;
