@@ -44,6 +44,7 @@ jobs:
 
       - name: Release the Container
         run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
           heroku container:release ${{ secrets.FRONTEND_IMAGE_TAG }} --app ${{ secrets.HEROKU_APP_NAME_FRONTEND }}
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
