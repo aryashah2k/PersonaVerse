@@ -31,20 +31,19 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: registry.heroku.com
-          username: ${{ secrets.HEROKU_EMAIL }}
+          username: _
           password: ${{ secrets.HEROKU_API_KEY }}
+        if: success()
 
       - name: Build and Push Docker Image To HCR
         run: |
-          docker build -t registry.heroku.com/${{ secrets.FRONTEND_IMAGE_NAME }}/${{ secrets.FRONTEND_IMAGE_TAG }} .
-          docker push registry.heroku.com/${{ secrets.FRONTEND_IMAGE_NAME }}/${{ secrets.FRONTEND_IMAGE_TAG }}:latest
-        working-directory: ./app/client
+          docker build -t registry.heroku.com/${{ secrets.HEROKU_APP_NAME_FRONTEND }}/${{ secrets.FRONTEND_IMAGE_TAG }} .
+          docker push registry.heroku.com/${{ secrets.HEROKU_APP_NAME_FRONTEND }}/${{ secrets.FRONTEND_IMAGE_TAG }}
         if: success()
 
       - name: Release the Container
+        run: |
+          heroku container:release ${{ secrets.FRONTEND_IMAGE_TAG }} --app ${{ secrets.HEROKU_APP_NAME_FRONTEND }}
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: |
-          curl https://cli-assets.heroku.com/install.sh | sh
-          heroku container:release ${{ secrets.FRONTEND_IMAGE_TAG }} --app ${{ secrets.FRONTEND_IMAGE_NAME }}
         if: success()
