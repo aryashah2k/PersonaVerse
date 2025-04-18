@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-
+import logo from "../../assets/logo.svg";
 interface LogoProps {
   height?: number;
   vertical?: boolean;
@@ -67,7 +67,7 @@ const Logo: React.FC<LogoProps> = ({
           p: 2,
         }}
       >
-        <img src="../../assets/logo.svg" alt="" />
+        <img src={logo} alt="" />
       </Box>
     );
   }
@@ -75,7 +75,7 @@ const Logo: React.FC<LogoProps> = ({
   return (
     <LogoContainer sx={{ flexDirection: vertical ? "column" : "row" }}>
       <LogoIcon sx={{ ...logoSize, mb: vertical ? 1 : 0 }}>
-        <img src="../../assets/logo.svg" alt="" />
+        <img src={logo} alt="" />
       </LogoIcon>
 
       {!hideText && (
