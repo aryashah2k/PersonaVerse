@@ -2,10 +2,10 @@ export default interface Profile {
     id: string;
     name: string;
     username: string;
-    profile_image: string | null;
+    profileImage: string | null;
     tokens: number;
-    plan_type: string;
-    created_at: string;
+    planType: string;
+    createdAt: string;
 }
 
 export function copyWith(data: any): Profile {
@@ -13,9 +13,9 @@ export function copyWith(data: any): Profile {
         id: data.id,
         name: data.name,
         username: data.username,
-        profile_image: data.profile_image || null,
+        profileImage: data.profile_image || null,
         tokens: data.tokens,
-        plan_type: data.plan_type,
-        created_at: data.created_at,
+        planType: data.plan_type,
+        createdAt: data.created_at,
     };
 }

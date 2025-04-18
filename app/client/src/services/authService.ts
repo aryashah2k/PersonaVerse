@@ -1,4 +1,5 @@
 import { supabase } from "../utils/supabase/supabase";
+import { fetchProfile } from "./api/profileApi";
 
 type LoginParams = {
     email: string;
@@ -57,4 +58,8 @@ export const authService = {
         const user = localStorage.getItem('personaverse_current_user');
         return user ? JSON.parse(user) : null;
     },
+    getProfile: async () => {
+        const response = await fetchProfile();
+        return response.data ? response.data : null;
+    }
 };

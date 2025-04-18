@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -20,15 +20,15 @@ import {
   ListItemText,
   ListItemIcon,
   CircularProgress,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Cancel';
-import TokenIcon from '@mui/icons-material/Token';
-import Layout from '../../components/layout/Layout';
-import { useAuth } from '../../hooks/useAuth';
-import { useUserProfile } from '../../hooks/useUserProfile';
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
+import CancelIcon from "@mui/icons-material/Cancel";
+import TokenIcon from "@mui/icons-material/Token";
+import Layout from "../../components/layout/Layout";
+import { useAuth } from "../../hooks/useAuth";
+import { useUserProfile } from "../../hooks/useUserProfile";
 
 const ProfileCard = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(4),
@@ -42,7 +42,7 @@ const ProfileAvatar = styled(Avatar)(({ theme }) => ({
   marginRight: theme.spacing(3),
   boxShadow: theme.shadows[3],
   border: `4px solid ${theme.palette.background.paper}`,
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     width: theme.spacing(10),
     height: theme.spacing(10),
     marginRight: theme.spacing(2),
@@ -50,11 +50,11 @@ const ProfileAvatar = styled(Avatar)(({ theme }) => ({
 }));
 
 const InfoRow = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'flex-start',
+  display: "flex",
+  alignItems: "flex-start",
   marginBottom: theme.spacing(2),
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
   },
 }));
 
@@ -62,14 +62,14 @@ const InfoLabel = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
   minWidth: 120,
   marginRight: theme.spacing(4),
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     marginBottom: theme.spacing(1),
   },
 }));
 
 const TokenDisplay = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
+  display: "flex",
+  alignItems: "center",
   backgroundColor: theme.palette.primary.light,
   color: theme.palette.primary.contrastText,
   padding: theme.spacing(1, 2),
@@ -78,12 +78,13 @@ const TokenDisplay = styled(Box)(({ theme }) => ({
 }));
 
 const Profile: React.FC = () => {
-  const { isAuthenticated } = useAuth();
-  const { profile, isLoadingProfile, error, loadProfile, updateUserProfile } = useUserProfile();
+  const { isAuthenticated, user, profile } = useAuth();
+  const { isLoadingProfile, error, loadProfile, updateUserProfile } =
+    useUserProfile();
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    username: '',
+    name: "",
+    username: "",
   });
 
   useEffect(() => {
@@ -103,8 +104,8 @@ const Profile: React.FC = () => {
     if (editing) {
       // Cancel editing
       setFormData({
-        name: profile?.name || '',
-        username: profile?.username || '',
+        name: profile?.name || "",
+        username: profile?.username || "",
       });
     }
     setEditing(!editing);
@@ -131,35 +132,15 @@ const Profile: React.FC = () => {
   const getPlanDisplay = () => {
     if (!profile) return null;
 
-    switch(profile.plan) {
-      case 'free':
-        return (
-          <Chip
-            label="Free"
-            color="default"
-          />
-        );
-      case 'standard':
-        return (
-          <Chip
-            label="Standard"
-            color="primary"
-          />
-        );
-      case 'premium':
-        return (
-          <Chip
-            label="Premium"
-            color="secondary"
-          />
-        );
+    switch (profile.planType) {
+      case "free":
+        return <Chip label="Free" color="default" />;
+      case "standard":
+        return <Chip label="Standard" color="primary" />;
+      case "premium":
+        return <Chip label="Premium" color="secondary" />;
       default:
-        return (
-          <Chip
-            label="Free"
-            color="default"
-          />
-        );
+        return <Chip label="Free" color="default" />;
     }
   };
 
@@ -167,7 +148,11 @@ const Profile: React.FC = () => {
     return (
       <Layout>
         <Container>
-          <Typography variant="h5" color="text.secondary" sx={{ textAlign: 'center', mt: 8 }}>
+          <Typography
+            variant="h5"
+            color="text.secondary"
+            sx={{ textAlign: "center", mt: 8 }}
+          >
             Please log in to view your profile
           </Typography>
         </Container>
@@ -181,16 +166,31 @@ const Profile: React.FC = () => {
         <Container>
           <ProfileCard>
             <CardContent sx={{ p: 4 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <Skeleton variant="circular" width={96} height={96} sx={{ mr: 3 }} />
+              <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+                <Skeleton
+                  variant="circular"
+                  width={96}
+                  height={96}
+                  sx={{ mr: 3 }}
+                />
                 <Box>
                   <Skeleton variant="text" width={200} height={32} />
                   <Skeleton variant="text" width={120} height={24} />
                 </Box>
               </Box>
               <Divider sx={{ my: 3 }} />
-              <Skeleton variant="text" width="100%" height={40} sx={{ mb: 2 }} />
-              <Skeleton variant="text" width="100%" height={40} sx={{ mb: 2 }} />
+              <Skeleton
+                variant="text"
+                width="100%"
+                height={40}
+                sx={{ mb: 2 }}
+              />
+              <Skeleton
+                variant="text"
+                width="100%"
+                height={40}
+                sx={{ mb: 2 }}
+              />
               <Skeleton variant="text" width="100%" height={40} />
             </CardContent>
           </ProfileCard>
@@ -219,23 +219,35 @@ const Profile: React.FC = () => {
 
         <ProfileCard>
           <CardContent sx={{ p: 4 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-              <ProfileAvatar src={`https://ui-avatars.com/api/?name=${profile?.name || 'User'}&background=6366f1&color=fff&size=120`} />
+            <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+              <ProfileAvatar
+                src={
+                  profile?.profileImage
+                    ? profile.profileImage
+                    : `https://ui-avatars.com/api/?name=${
+                        profile?.name || "User"
+                      }&background=6366f1&color=fff&size=120`
+                }
+              />
               <Box>
                 <Typography variant="h5" gutterBottom>
                   {profile?.name}
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Typography variant="body1" color="text.secondary" sx={{ mr: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Typography
+                    variant="body1"
+                    color="text.secondary"
+                    sx={{ mr: 2 }}
+                  >
                     @{profile?.username}
                   </Typography>
                   {getPlanDisplay()}
                 </Box>
               </Box>
-              <Box sx={{ ml: 'auto' }}>
+              <Box sx={{ ml: "auto" }}>
                 <TokenDisplay>
                   <TokenIcon sx={{ mr: 1 }} />
-                  {profile?.tokensAvailable} Tokens
+                  {profile?.tokens} Tokens
                 </TokenDisplay>
               </Box>
             </Box>
@@ -269,13 +281,19 @@ const Profile: React.FC = () => {
                     <TextField
                       fullWidth
                       label="Email"
-                      value={profile?.email}
+                      value={user?.email}
                       disabled
                       helperText="Email cannot be changed"
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        mt: 2,
+                      }}
+                    >
                       <Button
                         variant="outlined"
                         color="error"
@@ -309,14 +327,18 @@ const Profile: React.FC = () => {
                 </InfoRow>
                 <InfoRow>
                   <InfoLabel color="text.secondary">Email:</InfoLabel>
-                  <Typography>{profile?.email}</Typography>
+                  <Typography>{user?.email}</Typography>
                 </InfoRow>
                 <InfoRow>
                   <InfoLabel color="text.secondary">Plan:</InfoLabel>
-                  <Typography sx={{ textTransform: 'capitalize' }}>{profile?.plan}</Typography>
+                  <Typography sx={{ textTransform: "capitalize" }}>
+                    {profile?.planType}
+                  </Typography>
                 </InfoRow>
 
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+                <Box
+                  sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}
+                >
                   <Button
                     variant="outlined"
                     startIcon={<EditIcon />}
@@ -340,7 +362,7 @@ const Profile: React.FC = () => {
                 <TokenIcon color="primary" />
               </ListItemIcon>
               <ListItemText
-                primary={`${profile?.tokensAvailable} tokens available`}
+                primary={`${profile?.tokens} tokens available`}
                 secondary="Tokens are used to generate AI responses"
               />
               <Button

@@ -10,8 +10,10 @@ import {
   signupFailure,
   logout as logoutAction,
   clearError,
+  setProfileState,
 } from '../store/slices/authSlice';
 import { authService } from '../services/authService';
+import { User } from '@supabase/supabase-js';
 
 export interface LoginCredentials {
   email: string;
@@ -27,8 +29,7 @@ export interface SignupData {
 
 export const useAuth = () => {
   const dispatch = useDispatch();
-  const { isAuthenticated, user, loading, error } = useAppSelector((state) => state.auth)
-  const { profile } = useAppSelector((state) => state.profile)
+  const { isAuthenticated, user, profile, loading, error } = useAppSelector((state) => state.auth)
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
@@ -54,8 +55,16 @@ export const useAuth = () => {
         dispatch(loginStart());
         const user = await authService.login(credentials);
         dispatch(loginSuccess(user));
-
-        return { success: true };
+        const profileData = await authService.getProfile();
+        if (profileData) {
+          dispatch(setProfileState(profileData));
+          return { success: true };
+        }
+        else {
+          await authService.logout();
+          dispatch(logoutAction());
+          dispatch(loginFailure('Failed to fetch profile data'));
+        }
       } catch (error) {
         dispatch(loginFailure(error instanceof Error ? error.message : 'Login failed'));
         return { success: false, error: error instanceof Error ? error.message : 'Login failed' };
@@ -90,6 +99,34 @@ export const useAuth = () => {
     }
   }, [dispatch]);
 
+  const handleRefresh = useCallback(
+    async (user: User | null) => {
+      try {
+        if (user) {
+          dispatch(loginSuccess(user));
+          const profileData = await authService.getProfile();
+          if (profileData) {
+            dispatch(setProfileState(profileData));
+            return { success: true };
+          }
+          else {
+            await authService.logout();
+            dispatch(logoutAction());
+            dispatch(loginFailure('Failed to fetch profile data'));
+          }
+        }
+        else {
+          dispatch(logoutAction());
+          dispatch(loginFailure('User is null'));
+        }
+      } catch (error) {
+        dispatch(loginFailure(error instanceof Error ? error.message : 'Login failed'));
+        return { success: false, error: error instanceof Error ? error.message : 'Login failed' };
+      }
+    },
+    [dispatch]
+  );
+
   const clearAuthError = useCallback(() => {
     dispatch(clearError());
   }, [dispatch]);
@@ -103,7 +140,9 @@ export const useAuth = () => {
     login,
     signup,
     logout,
+    profile,
     clearAuthError,
+    handleRefresh,
   };
 };
 

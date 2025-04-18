@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -8,7 +8,7 @@ import {
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline, Box } from "@mui/material";
 import { Provider } from "react-redux";
-import { store } from "./store";
+import { store, useAppSelector } from "./store";
 import theme from "./styles/theme";
 
 // Pages
@@ -25,11 +25,11 @@ import NotFound from "./pages/notFound/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import PublicRoute from "./components/auth/PublicRoute";
 import About from "./pages/about/About";
+import useAuth from "./hooks/useAuth";
 
 // Dummy login credentials (don't display on website)
 // Email: test@example.com
 // Password: password
-
 const App: React.FC = () => {
   return (
     <Provider store={store}>

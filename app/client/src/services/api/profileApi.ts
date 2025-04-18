@@ -1,7 +1,7 @@
 
-import Profile, { copyWith } from "../model/profile"
-import { ResponseWrapper } from "../model/responseWrapper"
-import { supabase } from "../utils/supabase/supabase"
+import Profile, { copyWith } from "../../model/profile"
+import { ResponseWrapper } from "../../model/responseWrapper"
+import { supabase } from "../../utils/supabase/supabase"
 
 export async function fetchProfile(): Promise<ResponseWrapper<Profile>> {
     const {

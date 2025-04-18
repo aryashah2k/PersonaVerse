@@ -1,5 +1,10 @@
-import React, { useState, ReactNode } from "react";
-import { Link as RouterLink, useLocation } from "react-router-dom";
+import React, { useState, ReactNode, useEffect } from "react";
+import {
+  Navigate,
+  Link as RouterLink,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import {
   AppBar,
   Box,
@@ -27,6 +32,7 @@ import PriceCheckIcon from "@mui/icons-material/PriceCheck";
 import Logo from "../ui/Logo";
 import Footer from "./Footer";
 import { useAuth } from "../../hooks/useAuth";
+import { supabase } from "../../utils/supabase/supabase";
 
 interface LayoutProps {
   children: ReactNode;
@@ -34,7 +40,8 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
-  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
+  const { isAuthenticated, profile, logout, handleRefresh } = useAuth();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -55,6 +62,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     logout();
     handleProfileMenuClose();
   };
+
+  const setUser = async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) {
+      logout();
+      navigate("/");
+    } else {
+      handleRefresh(data.user);
+    }
+  };
+
+  useEffect(() => {
+    setUser();
+  }, [isAuthenticated]);
 
   const menuItems = [
     {
@@ -200,8 +221,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onClick={handleProfileMenuOpen}
                 color="inherit"
               >
-                <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
-                  {user?.name?.charAt(0) || user?.username?.charAt(0) || "U"}
+                <Avatar
+                  sx={{ width: 32, height: 32, bgcolor: "primary.main" }}
+                  src={profile?.profileImage || undefined}
+                >
+                  {profile?.name?.charAt(0) ||
+                    profile?.username?.charAt(0) ||
+                    "U"}
                 </Avatar>
               </IconButton>
               <Menu

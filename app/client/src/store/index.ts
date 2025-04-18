@@ -5,7 +5,6 @@ import fileReducer from './slices/fileSlice';
 // import personaReducer from './slices/personaSlice';
 import authReducer from './slices/authSlice';
 import formReducer from './slices/formSlice';
-import profileReducer from './slices/profileSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,7 +13,6 @@ export const store = configureStore({
     // persona: personaReducer,
     auth: authReducer,
     form: formReducer,
-    profile: profileReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
