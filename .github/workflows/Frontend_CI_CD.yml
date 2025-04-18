@@ -3,7 +3,7 @@ name: Continuous Delivery Pipeline For Frontend
 on:
   push:
     branches:
-      - RELEASE
+      - main
   workflow_dispatch:
 
 jobs:
@@ -17,10 +17,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Switch to RELEASE branch
+      - name: Switch to main branch
         run: |
-          git checkout RELEASE
-          git pull origin RELEASE
+          git checkout main
+          git pull origin main
         if: success()
 
       - name: Set up Docker Buildx
