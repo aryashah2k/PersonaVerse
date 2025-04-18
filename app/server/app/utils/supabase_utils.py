@@ -3,14 +3,14 @@ import jwt
 import requests
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
-JWT_SECRET = SUPABASE_KEY
+JWT_SECRET = SUPABASE_SERVICE_ROLE_KEY
 
 def get_user_data_from_token(token: str):
     headers = {
-        "Authorization": f"Bearer {SUPABASE_KEY}",
-        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+        "apikey": SUPABASE_SERVICE_ROLE_KEY,
     }
 
     try:

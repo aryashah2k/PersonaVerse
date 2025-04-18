@@ -5,7 +5,7 @@ from anthropic import Anthropic
 from deepseek import DeepSeek
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-CLAUDE_API_KEY = os.getenv("CLAUDE_API_KEY")
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 
 OPENAI_MODELS = ["gpt-4o-mini", "gpt-4o"]
@@ -53,7 +53,7 @@ def call_openai(model_name, questions, personas, instructions):
 
 def call_claude(model_name, questions, personas, instructions):
     prompt = build_prompt(questions, personas, instructions)
-    client = Anthropic(api_key=CLAUDE_API_KEY)
+    client = Anthropic(api_key=ANTHROPIC_API_KEY)
     response = client.messages.create(
         model=model_name,
         messages=[{"role": "user", "content": prompt}]
