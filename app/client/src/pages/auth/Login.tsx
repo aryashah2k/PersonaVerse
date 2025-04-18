@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
   Container,
@@ -13,37 +13,37 @@ import {
   Divider,
   Alert,
   CircularProgress,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import EmailIcon from '@mui/icons-material/Email';
-import LockIcon from '@mui/icons-material/Lock';
-import LoginIcon from '@mui/icons-material/Login';
-import Logo from '../../components/ui/Logo';
-import { useAuth } from '../../hooks/useAuth';
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import EmailIcon from "@mui/icons-material/Email";
+import LockIcon from "@mui/icons-material/Lock";
+import LoginIcon from "@mui/icons-material/Login";
+import Logo from "../../components/ui/Logo";
+import { useAuth } from "../../hooks/useAuth";
 
 const AuthContainer = styled(Container)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '100vh',
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: "100vh",
   padding: theme.spacing(3),
 }));
 
 const AuthPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
-  [theme.breakpoints.up('sm')]: {
+  [theme.breakpoints.up("sm")]: {
     padding: theme.spacing(6),
   },
-  width: '100%',
+  width: "100%",
   maxWidth: 450,
   borderRadius: theme.shape.borderRadius * 2,
 }));
 
-const AuthForm = styled('form')(({ theme }) => ({
-  width: '100%',
+const AuthForm = styled("form")(({ theme }) => ({
+  width: "100%",
   marginTop: theme.spacing(3),
 }));
 
@@ -62,25 +62,28 @@ const Login: React.FC = () => {
   const location = useLocation();
   const { login, error, loading, clearAuthError } = useAuth();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [formErrors, setFormErrors] = useState<{ email?: string; password?: string }>({});
+  const [formErrors, setFormErrors] = useState<{
+    email?: string;
+    password?: string;
+  }>({});
 
   const validateForm = () => {
     const errors: { email?: string; password?: string } = {};
     let isValid = true;
 
     if (!email) {
-      errors.email = 'Email is required';
+      errors.email = "Email is required";
       isValid = false;
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = 'Email is invalid';
+      errors.email = "Email is invalid";
       isValid = false;
     }
 
     if (!password) {
-      errors.password = 'Password is required';
+      errors.password = "Password is required";
       isValid = false;
     }
 
@@ -100,7 +103,7 @@ const Login: React.FC = () => {
 
     if (success) {
       // Get the redirect path from location state or default to dashboard
-      const from = location.state?.from?.pathname || '/dashboard';
+      const from = location.state?.from?.pathname || "/dashboard";
       navigate(from, { replace: true });
     }
   };
@@ -112,8 +115,8 @@ const Login: React.FC = () => {
   return (
     <AuthContainer maxWidth={false}>
       <AuthPaper elevation={6}>
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
-          <RouterLink to="/" style={{ textDecoration: 'none' }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
+          <RouterLink to="/" style={{ textDecoration: "none" }}>
             <Logo height={50} />
           </RouterLink>
         </Box>
@@ -121,16 +124,17 @@ const Login: React.FC = () => {
         <Typography variant="h4" align="center" gutterBottom>
           Welcome Back
         </Typography>
-        <Typography variant="body1" align="center" color="text.secondary" paragraph>
+        <Typography
+          variant="body1"
+          align="center"
+          color="text.secondary"
+          paragraph
+        >
           Sign in to your PersonaVerse account
         </Typography>
 
         {error && (
-          <Alert
-            severity="error"
-            sx={{ mb: 3 }}
-            onClose={clearAuthError}
-          >
+          <Alert severity="error" sx={{ mb: 3 }} onClose={clearAuthError}>
             {error}
           </Alert>
         )}
@@ -159,7 +163,7 @@ const Login: React.FC = () => {
             fullWidth
             label="Password"
             variant="outlined"
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             error={!!formErrors.password}
@@ -185,7 +189,7 @@ const Login: React.FC = () => {
             disabled={loading}
           />
 
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
             <Link component={RouterLink} to="/forgot-password" variant="body2">
               Forgot password?
             </Link>
@@ -200,7 +204,7 @@ const Login: React.FC = () => {
             disabled={loading}
             startIcon={loading ? <CircularProgress size={20} /> : <LoginIcon />}
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? "Signing in..." : "Sign In"}
           </AuthButton>
 
           <Divider sx={{ my: 3 }}>
@@ -209,9 +213,9 @@ const Login: React.FC = () => {
             </Typography>
           </Divider>
 
-          <Box sx={{ textAlign: 'center' }}>
+          <Box sx={{ textAlign: "center" }}>
             <Typography variant="body2" color="text.secondary">
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <Link component={RouterLink} to="/signup" fontWeight="bold">
                 Sign Up
               </Link>

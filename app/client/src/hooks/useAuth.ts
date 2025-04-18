@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../store';
+import { useDispatch } from 'react-redux';
+import { useAppSelector } from '../store';
 import {
   loginStart,
   loginSuccess,
@@ -11,7 +11,7 @@ import {
   logout as logoutAction,
   clearError,
 } from '../store/slices/authSlice';
-import { authService } from '../services/api';
+import { authService } from '../services/authService';
 
 export interface LoginCredentials {
   email: string;
@@ -27,7 +27,8 @@ export interface SignupData {
 
 export const useAuth = () => {
   const dispatch = useDispatch();
-  const { isAuthenticated, user, loading, error } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, user, loading, error } = useAppSelector((state) => state.auth)
+  const { profile } = useAppSelector((state) => state.profile)
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
@@ -53,6 +54,7 @@ export const useAuth = () => {
         dispatch(loginStart());
         const user = await authService.login(credentials);
         dispatch(loginSuccess(user));
+
         return { success: true };
       } catch (error) {
         dispatch(loginFailure(error instanceof Error ? error.message : 'Login failed'));

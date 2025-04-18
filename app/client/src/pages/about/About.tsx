@@ -23,7 +23,9 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import SpeedIcon from "@mui/icons-material/Speed";
 import Layout from "../../components/layout/Layout";
-
+import SuriImg from "../../assets/Suryansh.jpg";
+import AryaImg from "../../assets/Arya.png";
+import Swaraj from "../../assets/Swaraj.png";
 const MissionSection = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(6),
   marginTop: theme.spacing(6),
@@ -98,7 +100,8 @@ const About: React.FC = () => {
     {
       name: "Suryansh Srivastava",
       role: "Full Stack Developer",
-      avatar: `https://ui-avatars.com/api/?name=Suryansh+Srivastava&background=6366f1&color=fff&size=120`,
+      avatar: SuriImg,
+      // avatar: `https://ui-avatars.com/api/?name=Suryansh+Srivastava&background=6366f1&color=fff&size=120`,
       bio: "Experienced full stack developer with expertise in React, TypeScript, and modern web technologies.",
       github: "https://github.com/Suryansh2204",
       linkedin: "www.linkedin.com/in/suryansh-srivastava-3662771ab",
@@ -108,7 +111,8 @@ const About: React.FC = () => {
     {
       name: "Arya Shah",
       role: "AI Specialist",
-      avatar: `https://ui-avatars.com/api/?name=Arya+Shah&background=10b981&color=fff&size=120`,
+      avatar: AryaImg,
+      // avatar: `https://ui-avatars.com/api/?name=Arya+Shah&background=10b981&color=fff&size=120`,
       bio: "AI researcher focused on natural language processing and building AI-powered solutions.",
       github: "https://github.com/aryashah2k",
       linkedin: "https://www.linkedin.com/in/arya--shah/",
@@ -118,7 +122,8 @@ const About: React.FC = () => {
     {
       name: "Swaraj Bhanja",
       role: "Infrastructure Engineer",
-      avatar: `https://ui-avatars.com/api/?name=Swaraj+Bhanja&background=f97316&color=fff&size=120`,
+      avatar: Swaraj,
+      // avatar: `https://ui-avatars.com/api/?name=Swaraj+Bhanja&background=f97316&color=fff&size=120`,
       bio: "Cloud infrastructure specialist with expertise in scalable systems and deployment pipelines.",
       github: "https://github.com/st125052",
       linkedin: "https://www.linkedin.com/in/swarajbhanja/",
@@ -238,7 +243,11 @@ const About: React.FC = () => {
                         textAlign: "center",
                       }}
                     >
-                      <TeamAvatar src={member.avatar} alt={member.name} />
+                      <TeamAvatar
+                        src={member.avatar}
+                        alt={member.name}
+                        sx={{ height: "18.75rem", width: "18.75rem" }}
+                      />
                       <Typography variant="h5" component="h3" gutterBottom>
                         {member.name}
                       </Typography>

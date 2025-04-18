@@ -133,7 +133,7 @@ const Pricing: React.FC = () => {
 
   const getAdjustedPrice = (price: number) => {
     const adjusted = annualBilling ? price * 10 : price;
-    return parseFloat(adjusted.toFixed(1));
+    return Math.ceil(parseFloat(adjusted.toFixed(1)));
   };
 
   const getBillingLabel = () => {
@@ -262,13 +262,14 @@ const Pricing: React.FC = () => {
                   sx={{ ml: 1 }}
                 >
                   Annual
-                  <Chip
-                    label={`Save ${getDiscountPercentage()}%`}
-                    size="small"
-                    color="primary"
-                    sx={{ ml: 1, height: 20, fontSize: "0.7rem" }}
-                  />
                 </Typography>
+                <Chip
+                  label={`Save ${getDiscountPercentage()}%`}
+                  size="small"
+                  color="primary"
+                  sx={{ ml: 1, height: 20, fontSize: "0.7rem" }}
+                  disabled={!annualBilling}
+                />
               </Box>
             }
             labelPlacement="end"

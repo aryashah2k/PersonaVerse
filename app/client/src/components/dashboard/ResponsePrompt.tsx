@@ -20,10 +20,9 @@ import {
 import TokenIcon from "@mui/icons-material/Token";
 import SendIcon from "@mui/icons-material/Send";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import { useAppDispatch } from "../../store";
+import { useAppDispatch, useAppSelector } from "../../store";
 import { setResponsePrompt } from "../../store/slices/formSlice";
-import submitSurvey from "../../api/survey";
+import submitSurvey from "../../api/surveyApi";
 import { FormResponse } from "../../model/response";
 import { deductTokens } from "../../store/slices/userSlice";
 

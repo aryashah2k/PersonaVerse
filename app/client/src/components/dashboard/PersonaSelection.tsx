@@ -24,8 +24,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { Persona } from "../../model/persona";
 import { AIModel } from "../../model/AIModel";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import { useAppDispatch } from "../../store";
+import { useAppDispatch, useAppSelector } from "../../store";
 import { setModel, setPersona } from "../../store/slices/formSlice";
 
 const mockPersonas: Persona[] = [

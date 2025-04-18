@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import User from '../../model/user';
+import { User } from '@supabase/supabase-js';
+
 
 interface AuthState {
   isAuthenticated: boolean;
