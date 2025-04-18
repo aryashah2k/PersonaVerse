@@ -67,7 +67,7 @@ const Logo: React.FC<LogoProps> = ({
           p: 2,
         }}
       >
-        <img src="/src/assets/logo.svg" alt="" />
+        <img src="../../assets/logo.svg" alt="" />
       </Box>
     );
   }
@@ -75,7 +75,7 @@ const Logo: React.FC<LogoProps> = ({
   return (
     <LogoContainer sx={{ flexDirection: vertical ? "column" : "row" }}>
       <LogoIcon sx={{ ...logoSize, mb: vertical ? 1 : 0 }}>
-        <img src="/src/assets/logo.svg" alt="" />
+        <img src="../../assets/logo.svg" alt="" />
       </LogoIcon>
 
       {!hideText && (
