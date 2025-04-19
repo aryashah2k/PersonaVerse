@@ -1,8 +1,8 @@
+import io
+import os
 import pandas as pd
 from docx import Document
 from fpdf import FPDF
-import io
-import os
 
 def generate_response_file(file_storage, questions, answers):
     filename = file_storage.filename

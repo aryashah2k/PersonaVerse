@@ -3,16 +3,24 @@ import os
 import requests
 from .env_utils import get_required_env_var
 
+def get_supabase_config():
+    return {
+        "url": get_required_env_var("VITE_SUPABASE_URL"),
+        "service_role_key": get_required_env_var("VITE_SUPABASE_SERVICE_ROLE_KEY"),
+        "jwt_secret": get_required_env_var("VITE_SUPABASE_JWT_SECRET")
+    }
+
 def get_user_data_from_token(token: str):
+    config = get_supabase_config()
     headers = {
-        "Authorization": f"Bearer {VITE_SUPABASE_SERVICE_ROLE_KEY}",
-        "apikey": VITE_SUPABASE_JWT_SECRET,
+        "Authorization": f"Bearer {config['service_role_key']}",
+        "apikey": config['jwt_secret'],
     }
 
     try:
         payload = jwt.decode(
             token,
-            key=VITE_SUPABASE_JWT_SECRET,
+            key=config['jwt_secret'],
             algorithms=["HS256"],
             options={"verify_signature": True}
         )
@@ -21,7 +29,7 @@ def get_user_data_from_token(token: str):
         raise ValueError(f"Invalid token: {e}")
 
     response = requests.get(
-        f"{VITE_SUPABASE_URL}/rest/v1/user_profiles?user_id=eq.{user_id}",
+        f"{config['url']}/rest/v1/user_profiles?user_id=eq.{user_id}",
         headers={**headers, "Accept": "application/json"},
     )
 
@@ -54,7 +62,3 @@ MODEL_OUTPUT_TOKENS = {
     "claude-3.5": 1024,
     "claude-3.7": 2048,
 }
-
-VITE_SUPABASE_URL = get_required_env_var("VITE_SUPABASE_URL")
-VITE_SUPABASE_SERVICE_ROLE_KEY = get_required_env_var("VITE_SUPABASE_SERVICE_ROLE_KEY")
-VITE_SUPABASE_JWT_SECRET = get_required_env_var("VITE_SUPABASE_JWT_SECRET")

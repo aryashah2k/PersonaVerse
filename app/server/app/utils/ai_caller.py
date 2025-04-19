@@ -5,14 +5,18 @@ from anthropic import Anthropic
 from deepseek import DeepSeekAPI
 from .env_utils import get_required_env_var
 
-OPENAI_API_KEY = get_required_env_var("OPENAI_API_KEY")
-ANTHROPIC_API_KEY = get_required_env_var("ANTHROPIC_API_KEY")
-DEEPSEEK_API_KEY = get_required_env_var("DEEPSEEK_API_KEY")
+def get_api_config():
+    return {
+        "openai": get_required_env_var("OPENAI_API_KEY"),
+        "anthropic": get_required_env_var("ANTHROPIC_API_KEY"),
+        "deepseek": get_required_env_var("DEEPSEEK_API_KEY")
+    }
 
 try:
-    openai.api_key = OPENAI_API_KEY
-    anthropic_client = Anthropic(api_key=ANTHROPIC_API_KEY)
-    deepseek_client = DeepSeekAPI(api_key=DEEPSEEK_API_KEY)
+    config = get_api_config()
+    openai.api_key = config["openai"]
+    anthropic_client = Anthropic(api_key=config["anthropic"])
+    deepseek_client = DeepSeekAPI(api_key=config["deepseek"])
 except Exception as e:
     raise EnvironmentError(f"Failed to initialize API clients: {str(e)}")
 
