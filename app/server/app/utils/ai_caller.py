@@ -14,7 +14,7 @@ def get_api_config():
 
 try:
     config = get_api_config()
-    openai.api_key = config["openai"]
+    client = openai.OpenAI(api_key=config["openai"])
     anthropic_client = Anthropic(api_key=config["anthropic"])
     deepseek_client = DeepSeekAPI(api_key=config["deepseek"])
 except Exception as e:
@@ -49,7 +49,7 @@ def estimate_tokens(prompt: str, model_name: str = "gpt-4o"):
 
 def call_openai(model_name, questions, personas, instructions):
     prompt = build_prompt(questions, personas, instructions)
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model=model_name,
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
@@ -57,7 +57,7 @@ def call_openai(model_name, questions, personas, instructions):
         ],
         temperature=0.7
     )
-    return extract_answers(response['choices'][0]['message']['content'], len(questions))
+    return extract_answers(response.choices[0].message.content, len(questions))
 
 def call_claude(model_name, questions, personas, instructions):
     prompt = build_prompt(questions, personas, instructions)
