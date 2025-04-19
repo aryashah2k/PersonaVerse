@@ -1,11 +1,15 @@
+import os
 from flask import Flask
 from flask_cors import CORS
-from routes import api
-import instance.config as config
+from .routes import api
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(config)
-    CORS(app, origins=config.FRONTEND_URLS)
+
+    frontend_urls = os.getenv("FRONTEND_URLS").split(",")
+
+    CORS(app, origins=frontend_urls)
+
     app.register_blueprint(api)
+
     return app

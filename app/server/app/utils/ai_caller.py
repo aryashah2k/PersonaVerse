@@ -1,8 +1,12 @@
+import os
 import openai
 import tiktoken
 from anthropic import Anthropic
-from deepseek import DeepSeek
-from instance import config
+from deepseek import DeepSeekAPI
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 
 OPENAI_MODELS = ["gpt-4o-mini", "gpt-4o"]
 CLAUDE_MODELS = ["claude-3.5", "claude-3.7"]
@@ -32,7 +36,7 @@ def estimate_tokens(prompt: str, model_name: str = "gpt-4o"):
     return len(encoding.encode(prompt))
 
 def call_openai(model_name, questions, personas, instructions):
-    openai.api_key = config.OPENAI_API_KEY
+    openai.api_key = OPENAI_API_KEY
     prompt = build_prompt(questions, personas, instructions)
     response = openai.ChatCompletion.create(
         model=model_name,
@@ -46,7 +50,7 @@ def call_openai(model_name, questions, personas, instructions):
 
 def call_claude(model_name, questions, personas, instructions):
     prompt = build_prompt(questions, personas, instructions)
-    client = Anthropic(api_key=config.CLAUDE_API_KEY)
+    client = Anthropic(api_key=ANTHROPIC_API_KEY)
     response = client.messages.create(
         model=model_name,
         max_tokens=1024,
@@ -56,7 +60,7 @@ def call_claude(model_name, questions, personas, instructions):
 
 def call_deepseek(model_name, questions, personas, instructions):
     prompt = build_prompt(questions, personas, instructions)
-    client = DeepSeek(api_key=config.DEEPSEEK_API_KEY)
+    client = DeepSeekAPI(api_key=DEEPSEEK_API_KEY)
     response = client.chat.completions.create(
         model=model_name,
         messages=[{"role": "user", "content": prompt}]

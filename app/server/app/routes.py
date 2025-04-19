@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 from app.utils.file_parser import parse_file
@@ -9,16 +10,18 @@ from app.utils.supabase_utils import (
 )
 from app.utils.ai_caller import call_ai_model, build_prompt, estimate_tokens
 from app.utils.response_generator import generate_response_file
-import instance.config as config
-import io
 
 api = Blueprint("api", __name__)
 
-@api.route(config.HEALTH_CHECK_ROUTE, methods=['GET'])
+HEALTH_ROUTE = os.getenv("HEALTH_ROUTE")
+FILL_SURVEY_ROUTE = os.getenv("FILL_SURVEY_ROUTE")
+DEMO_ROUTE = os.getenv("DEMO_ROUTE")
+
+@api.route(HEALTH_ROUTE, methods=['GET'])
 def health_check():
     return jsonify({"status": "healthy"}), 200
 
-@api.route(config.DEMO_ROUTE, methods=['POST'])
+@api.route(DEMO_ROUTE, methods=['POST'])
 def demo_fill_survey():
     data = request.get_json()
     questions = data.get("questions", [])
@@ -49,7 +52,7 @@ def demo_fill_survey():
         "qa_pairs": [{"question": q, "answer": a} for q, a in zip(questions, answers)]
     })
 
-@api.route(config.FILL_SURVEY_ROUTE, methods=['POST'])
+@api.route(FILL_SURVEY_ROUTE, methods=['POST'])
 def fill_survey_form():
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
     if not token:

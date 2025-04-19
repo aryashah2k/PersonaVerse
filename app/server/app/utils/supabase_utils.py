@@ -1,11 +1,10 @@
 import jwt
+import os
 import requests
-from instance import config
 
-# Config values
-VITE_SUPABASE_URL = config.VITE_SUPABASE_URL
-VITE_SUPABASE_SERVICE_ROLE_KEY = config.VITE_SUPABASE_SERVICE_ROLE_KEY
-VITE_SUPABASE_JWT_SECRET = config.VITE_SUPABASE_JWT_SECRET
+VITE_SUPABASE_URL = os.getenv("VITE_SUPABASE_URL")
+VITE_SUPABASE_SERVICE_ROLE_KEY = os.getenv("VITE_SUPABASE_SERVICE_ROLE_KEY")
+VITE_SUPABASE_JWT_SECRET = os.getenv("VITE_SUPABASE_JWT_SECRET")
 
 def get_user_data_from_token(token: str):
     headers = {
