@@ -21,7 +21,7 @@ except Exception as e:
     raise EnvironmentError(f"Failed to initialize API clients: {str(e)}")
 
 OPENAI_MODELS = ["gpt-4o-mini", "gpt-4o"]
-CLAUDE_MODELS = ["claude-3.5", "claude-3.7"]
+CLAUDE_MODELS = ["claude-3-7-sonnet-20250219"]
 DEEPSEEK_MODELS = ["deepseek-chat"]
 
 def call_ai_model(model_name, questions, personas, instructions):
@@ -49,7 +49,7 @@ def estimate_tokens(prompt: str, model_name: str = "gpt-4o"):
 
 def get_system_prompt():
     system_prompt = """You are a helpful assistant that answers questions based on the provided personas and instructions. 
-    Answer only in the way you are instructed to. Do not add any additional commentary or explanations unless specifically requested."""
+    Answer only in the way you are instructed to. Do not add any additional commentary or explanations."""
     return system_prompt
 
 def call_openai(model_name, questions, personas, instructions):
@@ -69,7 +69,10 @@ def call_claude(model_name, questions, personas, instructions):
     response = anthropic_client.messages.create(
         model=model_name,
         max_tokens=1024,
-        messages=[{"role": "user", "content": prompt}]
+        system=get_system_prompt(),
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
     )
     return extract_answers(response.content[0].text, len(questions))
 
