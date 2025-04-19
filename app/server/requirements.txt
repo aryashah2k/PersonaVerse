@@ -5,8 +5,11 @@ pandas
 openpyxl
 python-docx
 striprtf
+pdfplumber
+fpdf
 requests
 PyJWT
 tiktoken
+openai
 anthropic
 deepseek

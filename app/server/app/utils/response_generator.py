@@ -1,7 +1,6 @@
 import pandas as pd
 from docx import Document
-from striprtf.striprtf import rtf_to_text
-from striprtf.striprtf import text_to_rtf
+from fpdf import FPDF
 import io
 import os
 
@@ -38,18 +37,22 @@ def generate_response_file(file_storage, questions, answers):
         output.seek(0)
         return output, ext
 
-    elif ext == '.txt':
-        output = io.StringIO()
+    elif ext == '.txt' or ext == '.rtf':
+        output_text = ""
         for q, a in zip(questions, answers):
-            output.write(f"Q: {q}\nA: {a}\n\n")
-        return io.BytesIO(output.getvalue().encode()), ext
+            output_text += f"Q: {q}\nA: {a}\n\n"
+        return io.BytesIO(output_text.encode()), ext
 
-    elif ext == '.rtf':
-        plain_text = ""
-        for q, a in zip(questions, answers):
-            plain_text += f"Q: {q}\nA: {a}\n\n"
-        rtf_content = text_to_rtf(plain_text)
-        return io.BytesIO(rtf_content.encode()), ext
+    elif ext == '.pdf':
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        for i, (q, a) in enumerate(zip(questions, answers), 1):
+            pdf.multi_cell(0, 10, txt=f"Q{i}: {q}\nA{i}: {a}\n", border=0)
+        output = io.BytesIO()
+        pdf.output(output)
+        output.seek(0)
+        return output, ext
 
     else:
         raise ValueError("Unsupported file type for response generation.")
