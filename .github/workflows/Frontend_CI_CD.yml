@@ -38,7 +38,7 @@ jobs:
             -u "$AZURE_CLIENT_ID" \
             -p "$AZURE_CLIENT_SECRET" \
             --tenant "$AZURE_TENANT_ID" \
-            --only-show-errors
+            --only-show-errors > /dev/null
           echo "✅ Login success"
         continue-on-error: false
         working-directory: ./app/client
