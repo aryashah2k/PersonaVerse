@@ -16,7 +16,7 @@ export async function fetchProfile(): Promise<ResponseWrapper<Profile>> {
         }
     }
 
-    const { data, error } = await supabase.from('Profiles').select('*')
+    const { data, error } = await supabase.from('Profiles').select('*').eq('id', session.user.id)
 
     if (error) {
         return {

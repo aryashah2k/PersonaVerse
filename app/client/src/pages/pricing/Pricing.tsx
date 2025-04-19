@@ -37,6 +37,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import Layout from "../../components/layout/Layout";
 import { pricingService } from "../../services/api";
 import { useAuth } from "../../hooks/useAuth";
+import useSubscription from "../../hooks/useSubscription";
 
 interface PricingPlan {
   id: string;
@@ -99,8 +100,9 @@ const Pricing: React.FC = () => {
   const theme = useTheme();
   const { isAuthenticated } = useAuth();
   const [annualBilling, setAnnualBilling] = useState(false);
-  const [plans, setPlans] = useState<PricingPlan[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [plans, setPlans] = useState<PricingPlan[]>([]);
+  const { subscription } = useSubscription();
+  const [isLoading, setIsLoading] = useState(false);
   const [openStripeDialog, setOpenStripeDialog] = useState(false);
   const [paymentFormData, setPaymentFormData] = useState<PaymentFormData>({
     cardNumber: "",
@@ -112,20 +114,20 @@ const Pricing: React.FC = () => {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchPlans = async () => {
-      try {
-        const pricingPlans = await pricingService.getPricingPlans();
-        setPlans(pricingPlans);
-      } catch (error) {
-        console.error("Failed to fetch pricing plans:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchPlans = async () => {
+  //     try {
+  //       const pricingPlans = await pricingService.getPricingPlans();
+  //       setPlans(pricingPlans);
+  //     } catch (error) {
+  //       console.error("Failed to fetch pricing plans:", error);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    fetchPlans();
-  }, []);
+  //   fetchPlans();
+  // }, []);
 
   const handleBillingChange = () => {
     setAnnualBilling(!annualBilling);
@@ -277,35 +279,41 @@ const Pricing: React.FC = () => {
         </Box>
 
         <Grid container spacing={4} alignItems="stretch">
-          {plans.map((plan) => (
+          {subscription.map((plan) => (
             <Grid item xs={12} md={4} key={plan.id}>
               <StyledCard
-                elevation={plan.popular ? 6 : 1}
+                elevation={plan.id == "standard" ? 6 : 1}
                 sx={{
-                  transform: plan.popular ? "scale(1.05)" : "none",
-                  border: plan.popular
-                    ? `2px solid ${theme.palette.primary.main}`
-                    : "none",
-                  zIndex: plan.popular ? 1 : 0,
+                  transform: plan.id == "standard" ? "scale(1.05)" : "none",
+                  border:
+                    plan.id == "standard"
+                      ? `2px solid ${theme.palette.primary.main}`
+                      : "none",
+                  zIndex: plan.id == "standard" ? 1 : 0,
                   [theme.breakpoints.down("md")]: {
                     transform: "none",
                   },
                 }}
               >
-                {plan.popular && (
+                {plan.id == "standard" && (
                   <PopularBadge color="primary" label="Most Popular" />
                 )}
 
                 <CardHeader
                   title={
-                    <Typography variant="h5" component="h2" fontWeight={600}>
-                      {plan.name}
+                    <Typography
+                      variant="h5"
+                      component="h2"
+                      fontWeight={600}
+                      sx={{ textTransform: "capitalize" }}
+                    >
+                      {plan.id}
                     </Typography>
                   }
                   subheader={
                     <TokenChip
                       icon={<TokenIcon />}
-                      label={`${plan.tokenAmount} Tokens`}
+                      label={`${plan.tokens} Tokens`}
                     />
                   }
                   sx={{ pb: 0 }}
@@ -314,21 +322,19 @@ const Pricing: React.FC = () => {
                 <CardContent sx={{ flexGrow: 1, pb: 0 }}>
                   <Box sx={{ my: 2 }}>
                     <Typography variant="h3" component="p" fontWeight={700}>
-                      ${getAdjustedPrice(plan.price)}
+                      {plan.currencySymbol}
+                      {getAdjustedPrice(plan.monthlyPrice)}
                       <Typography
                         component="span"
                         variant="body1"
                         color="text.secondary"
                         fontWeight={400}
                       >
-                        {getBillingLabel()}
+                        {plan.monthlyPrice == 0
+                          ? " free forever"
+                          : getBillingLabel()}
                       </Typography>
                     </Typography>
-                    {plan.price === 0 && (
-                      <Typography variant="body2" color="text.secondary">
-                        Free forever
-                      </Typography>
-                    )}
                   </Box>
 
                   <Divider sx={{ my: 2 }} />
@@ -357,7 +363,7 @@ const Pricing: React.FC = () => {
                 </CardContent>
 
                 <CardActions sx={{ p: 3 }}>
-                  {plan.price === 0 ? (
+                  {plan.monthlyPrice === 0 ? (
                     <Button
                       fullWidth
                       variant="outlined"
@@ -372,7 +378,7 @@ const Pricing: React.FC = () => {
                   ) : (
                     <Button
                       fullWidth
-                      variant={plan.popular ? "contained" : "outlined"}
+                      variant={plan.id == "standard" ? "contained" : "outlined"}
                       size="large"
                       color="primary"
                       endIcon={<ArrowForwardIcon />}

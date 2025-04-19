@@ -25,7 +25,7 @@ import SpeedIcon from "@mui/icons-material/Speed";
 import Layout from "../../components/layout/Layout";
 import SuriImg from "../../assets/Suryansh.jpg";
 import AryaImg from "../../assets/Arya.png";
-import Swaraj from "../../assets/Swaraj.png";
+import SwarajImg from "../../assets/Swaraj.png";
 const MissionSection = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(6),
   marginTop: theme.spacing(6),
@@ -122,7 +122,7 @@ const About: React.FC = () => {
     {
       name: "Swaraj Bhanja",
       role: "Infrastructure Engineer",
-      avatar: Swaraj,
+      avatar: SwarajImg,
       // avatar: `https://ui-avatars.com/api/?name=Swaraj+Bhanja&background=f97316&color=fff&size=120`,
       bio: "Cloud infrastructure specialist with expertise in scalable systems and deployment pipelines.",
       github: "https://github.com/st125052",

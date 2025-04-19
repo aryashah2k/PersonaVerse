@@ -68,7 +68,7 @@ const Footer: React.FC = () => {
       <Container>
         <Grid container spacing={4}>
           <Grid item xs={12} md={4}>
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 3, display: "flex", alignItems: "center" }}>
               <Logo height={40} />
             </Box>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
