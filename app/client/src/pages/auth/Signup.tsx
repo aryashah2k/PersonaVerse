@@ -24,8 +24,8 @@ import { useAuth } from "../../hooks/useAuth";
 import Logo from "../../components/ui/Logo";
 
 interface FormData {
-  name?: string;
-  username?: string;
+  // name?: string;
+  // username?: string;
   email: string;
   password: string;
   confirmPassword: string;
