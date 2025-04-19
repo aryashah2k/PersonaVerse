@@ -13,11 +13,11 @@ from app.utils.response_generator import generate_response_file
 
 api = Blueprint("api", __name__)
 
-HEALTH_ROUTE = os.getenv("HEALTH_ROUTE")
+HEALTH_CHECK_ROUTE = os.getenv("HEALTH_CHECK_ROUTE")
 FILL_SURVEY_ROUTE = os.getenv("FILL_SURVEY_ROUTE")
 DEMO_ROUTE = os.getenv("DEMO_ROUTE")
 
-@api.route(HEALTH_ROUTE, methods=['GET'])
+@api.route(HEALTH_CHECK_ROUTE, methods=['GET'])
 def health_check():
     return jsonify({"status": "healthy"}), 200
 

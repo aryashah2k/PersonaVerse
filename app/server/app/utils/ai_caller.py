@@ -3,10 +3,18 @@ import openai
 import tiktoken
 from anthropic import Anthropic
 from deepseek import DeepSeekAPI
+from .env_utils import get_required_env_var
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
+OPENAI_API_KEY = get_required_env_var("OPENAI_API_KEY")
+ANTHROPIC_API_KEY = get_required_env_var("ANTHROPIC_API_KEY")
+DEEPSEEK_API_KEY = get_required_env_var("DEEPSEEK_API_KEY")
+
+try:
+    openai.api_key = OPENAI_API_KEY
+    anthropic_client = Anthropic(api_key=ANTHROPIC_API_KEY)
+    deepseek_client = DeepSeekAPI(api_key=DEEPSEEK_API_KEY)
+except Exception as e:
+    raise EnvironmentError(f"Failed to initialize API clients: {str(e)}")
 
 OPENAI_MODELS = ["gpt-4o-mini", "gpt-4o"]
 CLAUDE_MODELS = ["claude-3.5", "claude-3.7"]
@@ -36,7 +44,6 @@ def estimate_tokens(prompt: str, model_name: str = "gpt-4o"):
     return len(encoding.encode(prompt))
 
 def call_openai(model_name, questions, personas, instructions):
-    openai.api_key = OPENAI_API_KEY
     prompt = build_prompt(questions, personas, instructions)
     response = openai.ChatCompletion.create(
         model=model_name,
@@ -50,8 +57,7 @@ def call_openai(model_name, questions, personas, instructions):
 
 def call_claude(model_name, questions, personas, instructions):
     prompt = build_prompt(questions, personas, instructions)
-    client = Anthropic(api_key=ANTHROPIC_API_KEY)
-    response = client.messages.create(
+    response = anthropic_client.messages.create(
         model=model_name,
         max_tokens=1024,
         messages=[{"role": "user", "content": prompt}]
@@ -60,8 +66,7 @@ def call_claude(model_name, questions, personas, instructions):
 
 def call_deepseek(model_name, questions, personas, instructions):
     prompt = build_prompt(questions, personas, instructions)
-    client = DeepSeekAPI(api_key=DEEPSEEK_API_KEY)
-    response = client.chat.completions.create(
+    response = deepseek_client.chat.completions.create(
         model=model_name,
         messages=[{"role": "user", "content": prompt}]
     )

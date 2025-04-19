@@ -1,10 +1,7 @@
 import jwt
 import os
 import requests
-
-VITE_SUPABASE_URL = os.getenv("VITE_SUPABASE_URL")
-VITE_SUPABASE_SERVICE_ROLE_KEY = os.getenv("VITE_SUPABASE_SERVICE_ROLE_KEY")
-VITE_SUPABASE_JWT_SECRET = os.getenv("VITE_SUPABASE_JWT_SECRET")
+from .env_utils import get_required_env_var
 
 def get_user_data_from_token(token: str):
     headers = {
@@ -57,3 +54,7 @@ MODEL_OUTPUT_TOKENS = {
     "claude-3.5": 1024,
     "claude-3.7": 2048,
 }
+
+VITE_SUPABASE_URL = get_required_env_var("VITE_SUPABASE_URL")
+VITE_SUPABASE_SERVICE_ROLE_KEY = get_required_env_var("VITE_SUPABASE_SERVICE_ROLE_KEY")
+VITE_SUPABASE_JWT_SECRET = get_required_env_var("VITE_SUPABASE_JWT_SECRET")
