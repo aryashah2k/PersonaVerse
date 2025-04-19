@@ -14,7 +14,6 @@ export const useSubscription = () => {
         const fetchSubscriptions = async () => {
             try {
                 const res = await fetchSubscriptionPlans()
-                console.log("Subscription Plans: ", res.data);
 
                 if (res.error || res.data === null || res.data.length === 0) {
                     throw new Error(res.error ? res.error : "No plans available");

@@ -31,13 +31,22 @@ export const authService = {
     register: async ({ name, username, email, password }: SignUpParams) => {
 
         let { data, error } = await supabase.auth.signUp({
-            email: name,
+            email: email,
             password: password,
         })
+        if (error) {
+
+            throw new Error(error.message);
+        }
         if (data?.user && data?.session) {
             // Store in localStorage to persist session
             localStorage.setItem('personaverse_current_user', JSON.stringify(data.user));
             localStorage.setItem('personaverse_current_session', JSON.stringify(data.session));
+            let res = await supabase.functions.invoke('update-profile', {
+                body: { id: data.user.id, name: name, username: username },
+            })
+            console.log(res.error);
+
             return data.user;
         }
         else {
