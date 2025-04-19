@@ -56,6 +56,7 @@ def call_openai(model_name, questions, personas, instructions):
     prompt = build_prompt(questions, personas, instructions)
     response = openai_client.chat.completions.create(
         model=model_name,
+        max_tokens=1024,
         messages=[
             {"role": "system", "content": get_system_prompt()},
             {"role": "user", "content": prompt}
