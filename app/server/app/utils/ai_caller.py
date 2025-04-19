@@ -3,16 +3,20 @@ import openai
 import tiktoken
 from anthropic import Anthropic
 from deepseek import DeepSeekAPI
+from instance import config
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
+OPENAI_API_KEY = config.OPENAI_API_KEY
+ANTHROPIC_API_KEY = config.ANTHROPIC_API_KEY
+DEEPSEEK_API_KEY = config.DEEPSEEK_API_KEY
 
+CUSTOM_MODEL = ["TinyLlama"]
 OPENAI_MODELS = ["gpt-4o-mini", "gpt-4o"]
 CLAUDE_MODELS = ["claude-3.5", "claude-3.7"]
 DEEPSEEK_MODELS = ["deepseek-chat"]
 
 def call_ai_model(model_name, questions, personas, instructions):
+    if model_name in CUSTOM_MODEL:
+        return call_custom_model(model_name, questions, personas, instructions)
     if model_name in OPENAI_MODELS:
         return call_openai(model_name, questions, personas, instructions)
     elif model_name in CLAUDE_MODELS:
