@@ -23,7 +23,7 @@ import { supabase } from "./utils/supabase/supabase";
 import { logout } from "./store/slices/authSlice";
 
 const App: React.FC = () => {
-  const { isAuthenticated, handleRefresh } = useAuth();
+  const { isAuthenticated, profile, handleRefresh } = useAuth();
   const navigate = useNavigate();
   const setUser = async () => {
     const { data, error } = await supabase.auth.getUser();
@@ -36,8 +36,10 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    // if (profile == null && isAuthenticated) {
     setUser();
-  }, [supabase.auth.onAuthStateChange]);
+    // }
+  }, [supabase.auth.onAuthStateChange, isAuthenticated]);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
