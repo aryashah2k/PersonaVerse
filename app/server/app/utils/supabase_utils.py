@@ -2,15 +2,15 @@ import os
 import jwt
 import requests
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+VITE_SUPABASE_URL = os.getenv("VITE_SUPABASE_URL")
+VITE_SUPABASE_SERVICE_ROLE_KEY = os.getenv("VITE_SUPABASE_SERVICE_ROLE_KEY")
 
-JWT_SECRET = SUPABASE_SERVICE_ROLE_KEY
+JWT_SECRET = VITE_SUPABASE_SERVICE_ROLE_KEY
 
 def get_user_data_from_token(token: str):
     headers = {
-        "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
-        "apikey": SUPABASE_SERVICE_ROLE_KEY,
+        "Authorization": f"Bearer {VITE_SUPABASE_SERVICE_ROLE_KEY}",
+        "apikey": VITE_SUPABASE_SERVICE_ROLE_KEY,
     }
 
     try:
@@ -20,7 +20,7 @@ def get_user_data_from_token(token: str):
         raise ValueError(f"Invalid token: {e}")
 
     response = requests.get(
-        f"{SUPABASE_URL}/rest/v1/user_profiles?user_id=eq.{user_id}",
+        f"{VITE_SUPABASE_URL}/rest/v1/user_profiles?user_id=eq.{user_id}",
         headers={**headers, "Accept": "application/json"},
     )
 
