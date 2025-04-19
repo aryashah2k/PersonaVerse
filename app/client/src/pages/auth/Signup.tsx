@@ -1,5 +1,5 @@
-import React, { useState, FormEvent, useEffect } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import React, { useState, FormEvent, useEffect } from "react";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {
   Container,
   Box,
@@ -13,15 +13,15 @@ import {
   IconButton,
   Alert,
   CircularProgress,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import GoogleIcon from '@mui/icons-material/Google';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import PersonIcon from '@mui/icons-material/Person';
-import { useAuth } from '../../hooks/useAuth';
-import Logo from '../../components/ui/Logo';
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import GoogleIcon from "@mui/icons-material/Google";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import PersonIcon from "@mui/icons-material/Person";
+import { useAuth } from "../../hooks/useAuth";
+import Logo from "../../components/ui/Logo";
 
 interface FormData {
   name: string;
@@ -32,11 +32,11 @@ interface FormData {
 }
 
 const AuthContainer = styled(Container)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '100vh',
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: "100vh",
   padding: theme.spacing(2),
 }));
 
@@ -44,7 +44,7 @@ const AuthPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   borderRadius: theme.shape.borderRadius * 2,
   boxShadow: theme.shadows[3],
-  [theme.breakpoints.up('sm')]: {
+  [theme.breakpoints.up("sm")]: {
     padding: theme.spacing(6),
   },
 }));
@@ -53,33 +53,33 @@ const SocialButton = styled(Button)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   padding: theme.spacing(1.2),
   borderRadius: theme.shape.borderRadius,
-  width: '100%',
-  justifyContent: 'flex-start',
-  textTransform: 'none',
+  width: "100%",
+  justifyContent: "flex-start",
+  textTransform: "none",
   fontWeight: 600,
-  '& .MuiButton-startIcon': {
+  "& .MuiButton-startIcon": {
     marginRight: theme.spacing(2),
   },
 }));
 
 const LogoContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
   marginBottom: theme.spacing(4),
 }));
 
 const OrDivider = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  width: '100%',
+  display: "flex",
+  alignItems: "center",
+  width: "100%",
   margin: theme.spacing(3, 0),
-  '&::before, &::after': {
+  "&::before, &::after": {
     content: '""',
     flex: 1,
     borderBottom: `1px solid ${theme.palette.divider}`,
   },
-  '& .MuiTypography-root': {
+  "& .MuiTypography-root": {
     padding: theme.spacing(0, 1),
     color: theme.palette.text.secondary,
   },
@@ -89,11 +89,11 @@ const Signup: React.FC = () => {
   const navigate = useNavigate();
   const { signup, error, loading, clearAuthError, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState<FormData>({
-    name: '',
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [formErrors, setFormErrors] = useState<Partial<FormData>>({});
@@ -101,7 +101,7 @@ const Signup: React.FC = () => {
   useEffect(() => {
     // Redirect if already authenticated
     if (isAuthenticated) {
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
 
@@ -117,36 +117,36 @@ const Signup: React.FC = () => {
     let isValid = true;
 
     if (!formData.name.trim()) {
-      errors.name = 'Name is required';
+      errors.name = "Name is required";
       isValid = false;
     }
 
     if (!formData.username.trim()) {
-      errors.username = 'Username is required';
+      errors.username = "Username is required";
       isValid = false;
-    } else if (formData.username.includes(' ')) {
-      errors.username = 'Username cannot contain spaces';
+    } else if (formData.username.includes(" ")) {
+      errors.username = "Username cannot contain spaces";
       isValid = false;
     }
 
     if (!formData.email.trim()) {
-      errors.email = 'Email is required';
+      errors.email = "Email is required";
       isValid = false;
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = 'Email is invalid';
+      errors.email = "Email is invalid";
       isValid = false;
     }
 
     if (!formData.password) {
-      errors.password = 'Password is required';
+      errors.password = "Password is required";
       isValid = false;
     } else if (formData.password.length < 6) {
-      errors.password = 'Password must be at least 6 characters';
+      errors.password = "Password must be at least 6 characters";
       isValid = false;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
+      errors.confirmPassword = "Passwords do not match";
       isValid = false;
     }
 
@@ -174,7 +174,7 @@ const Signup: React.FC = () => {
     const result = await signup(signupData);
 
     if (result.success) {
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   };
 
@@ -187,7 +187,12 @@ const Signup: React.FC = () => {
       <AuthPaper>
         <LogoContainer>
           <Logo height={50} />
-          <Typography variant="h5" component="h1" gutterBottom sx={{ mt: 2, fontWeight: 700 }}>
+          <Typography
+            variant="h5"
+            component="h1"
+            gutterBottom
+            sx={{ mt: 2, fontWeight: 700 }}
+          >
             Create your account
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -195,7 +200,7 @@ const Signup: React.FC = () => {
           </Typography>
         </LogoContainer>
 
-        <Box sx={{ mb: 3 }}>
+        {/* <Box sx={{ mb: 3 }}>
           <SocialButton
             variant="outlined"
             startIcon={<GoogleIcon />}
@@ -214,9 +219,13 @@ const Signup: React.FC = () => {
 
         <OrDivider>
           <Typography variant="body2">OR</Typography>
-        </OrDivider>
+        </OrDivider> */}
 
-        {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
 
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <TextField
@@ -272,7 +281,7 @@ const Signup: React.FC = () => {
             fullWidth
             name="password"
             label="Password"
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             id="password"
             autoComplete="new-password"
             value={formData.password}
@@ -299,7 +308,7 @@ const Signup: React.FC = () => {
             fullWidth
             name="confirmPassword"
             label="Confirm Password"
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             id="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleInputChange}
@@ -315,13 +324,13 @@ const Signup: React.FC = () => {
             disabled={loading}
             startIcon={loading ? <CircularProgress size={20} /> : null}
           >
-            {loading ? 'Creating Account...' : 'Sign Up'}
+            {loading ? "Creating Account..." : "Sign Up"}
           </Button>
 
           <Grid container justifyContent="center">
             <Grid item>
               <Typography variant="body2" align="center">
-                Already have an account?{' '}
+                Already have an account?{" "}
                 <Link component={RouterLink} to="/login" variant="body2">
                   Sign in
                 </Link>
@@ -331,12 +340,16 @@ const Signup: React.FC = () => {
         </Box>
       </AuthPaper>
 
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 4, mb: 4, textAlign: 'center' }}>
-        By signing up, you agree to our{' '}
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ mt: 4, mb: 4, textAlign: "center" }}
+      >
+        By signing up, you agree to our{" "}
         <Link component={RouterLink} to="/terms" color="inherit">
           Terms of Service
-        </Link>{' '}
-        and{' '}
+        </Link>{" "}
+        and{" "}
         <Link component={RouterLink} to="/privacy" color="inherit">
           Privacy Policy
         </Link>
