@@ -1,6 +1,6 @@
 import os
-import openai
 import tiktoken
+from openai import OpenAI
 from anthropic import Anthropic
 from deepseek import DeepSeekAPI
 from .env_utils import get_required_env_var
@@ -14,7 +14,7 @@ def get_api_config():
 
 try:
     config = get_api_config()
-    client = openai.OpenAI(api_key=config["openai"])
+    openai_client = OpenAI(api_key=config["openai"])
     anthropic_client = Anthropic(api_key=config["anthropic"])
     deepseek_client = DeepSeekAPI(api_key=config["deepseek"])
 except Exception as e:
@@ -47,12 +47,17 @@ def estimate_tokens(prompt: str, model_name: str = "gpt-4o"):
         encoding = tiktoken.get_encoding("cl100k_base")
     return len(encoding.encode(prompt))
 
+def get_system_prompt():
+    system_prompt = """You are a helpful assistant that answers questions based on the provided personas and instructions. 
+    Answer only in the way you are instructed to. Do not add any additional commentary or explanations unless specifically requested."""
+    return system_prompt
+
 def call_openai(model_name, questions, personas, instructions):
     prompt = build_prompt(questions, personas, instructions)
-    response = client.chat.completions.create(
+    response = openai_client.chat.completions.create(
         model=model_name,
         messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "system", "content": get_system_prompt()},
             {"role": "user", "content": prompt}
         ],
         temperature=0.7
