@@ -1,12 +1,19 @@
 import os
 
 VITE_SUPABASE_URL = os.getenv("VITE_SUPABASE_URL")
+VITE_SUPABASE_KEY = os.getenv("VITE_SUPABASE_KEY")
 VITE_SUPABASE_SERVICE_ROLE_KEY = os.getenv("VITE_SUPABASE_SERVICE_ROLE_KEY")
+VITE_SUPABASE_JWT_SECRET = os.getenv("VITE_SUPABASE_JWT_SECRET")
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+CLAUDE_API_KEY = os.getenv("CLAUDE_API_KEY")
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
+
 FRONTEND_URLS = os.getenv("FRONTEND_URLS", "").split(",")
+
 HEALTH_CHECK_ROUTE = os.getenv("HEALTH_CHECK_ROUTE")
 DEMO_ROUTE = os.getenv("DEMO_ROUTE")
 FILL_SURVEY_ROUTE = os.getenv("FILL_SURVEY_ROUTE")
-PORT = os.getenv("PORT")
+
+PORT = int(os.getenv("PORT", 5000))
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"

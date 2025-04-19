@@ -5,6 +5,8 @@ pandas
 openpyxl
 python-docx
 striprtf
+pdfplumber
+fpdf
 requests
 PyJWT
 tiktoken

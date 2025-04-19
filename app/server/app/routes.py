@@ -9,34 +9,18 @@ from app.utils.supabase_utils import (
 )
 from app.utils.ai_caller import call_ai_model, build_prompt, estimate_tokens
 from app.utils.response_generator import generate_response_file
+import instance.config as config
 import io
-import os
-from instance import config
 
 api = Blueprint("api", __name__)
 
-HEALTH_CHECK_ROUTE = config.HEALTH_CHECK_ROUTE
-DEMO_ROUTE = config.DEMO_ROUTE
-FILL_SURVEY_ROUTE = config.FILL_SURVEY_ROUTE
-
-def get_mime_type(ext):
-    return {
-        ".csv": "text/csv",
-        ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        ".xls": "application/vnd.ms-excel",
-        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        ".txt": "text/plain",
-        ".rtf": "application/rtf"
-    }.get(ext, "application/octet-stream")
-
-@api.route(HEALTH_CHECK_ROUTE, methods=['GET'])
+@api.route(config.HEALTH_CHECK_ROUTE, methods=['GET'])
 def health_check():
     return jsonify({"status": "healthy"}), 200
 
-@api.route(DEMO_ROUTE, methods=['POST'])
+@api.route(config.DEMO_ROUTE, methods=['POST'])
 def demo_fill_survey():
     data = request.get_json()
-
     questions = data.get("questions", [])
     model_name = data.get("model_name")
     instructions = data.get("instructions", "")
@@ -65,7 +49,7 @@ def demo_fill_survey():
         "qa_pairs": [{"question": q, "answer": a} for q, a in zip(questions, answers)]
     })
 
-@api.route(FILL_SURVEY_ROUTE, methods=['POST'])
+@api.route(config.FILL_SURVEY_ROUTE, methods=['POST'])
 def fill_survey_form():
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
     if not token:
@@ -134,7 +118,14 @@ def fill_survey_form():
 
     return send_file(
         filled_file,
-        mimetype=get_mime_type(file_ext),
+        mimetype={
+            ".csv": "text/csv",
+            ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ".xls": "application/vnd.ms-excel",
+            ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".txt": "text/plain",
+            ".rtf": "application/rtf"
+        }.get(file_ext, "application/octet-stream"),
         as_attachment=True,
         download_name=f"filled_survey{file_ext}"
     )

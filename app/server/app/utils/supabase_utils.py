@@ -1,21 +1,25 @@
-import os
 import jwt
 import requests
 from instance import config
 
+# Config values
 VITE_SUPABASE_URL = config.VITE_SUPABASE_URL
 VITE_SUPABASE_SERVICE_ROLE_KEY = config.VITE_SUPABASE_SERVICE_ROLE_KEY
-
-JWT_SECRET = VITE_SUPABASE_SERVICE_ROLE_KEY
+VITE_SUPABASE_JWT_SECRET = config.VITE_SUPABASE_JWT_SECRET
 
 def get_user_data_from_token(token: str):
     headers = {
         "Authorization": f"Bearer {VITE_SUPABASE_SERVICE_ROLE_KEY}",
-        "apikey": VITE_SUPABASE_SERVICE_ROLE_KEY,
+        "apikey": VITE_SUPABASE_JWT_SECRET,
     }
 
     try:
-        payload = jwt.decode(token, options={"verify_signature": True}, algorithms=["HS256"], key=JWT_SECRET)
+        payload = jwt.decode(
+            token,
+            key=VITE_SUPABASE_JWT_SECRET,
+            algorithms=["HS256"],
+            options={"verify_signature": True}
+        )
         user_id = payload.get("sub")
     except Exception as e:
         raise ValueError(f"Invalid token: {e}")
@@ -45,9 +49,7 @@ def can_use_model(tier: str, model: str) -> bool:
     return model in tier_access.get(tier, [])
 
 def is_form_upload_allowed(tier: str, form_usage_count: int) -> bool:
-    if tier == "Free":
-        return form_usage_count < 5
-    return True
+    return form_usage_count < 5 if tier == "Free" else True
 
 MODEL_OUTPUT_TOKENS = {
     "gpt-4o-mini": 512,
