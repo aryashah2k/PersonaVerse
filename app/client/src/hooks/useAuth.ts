@@ -21,8 +21,8 @@ export interface LoginCredentials {
 }
 
 export interface SignupData {
-  name: string;
-  username: string;
+  // name: string;
+  // username: string;
   email: string;
   password: string;
 }

@@ -24,8 +24,8 @@ import { useAuth } from "../../hooks/useAuth";
 import Logo from "../../components/ui/Logo";
 
 interface FormData {
-  name: string;
-  username: string;
+  // name?: string;
+  // username?: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -89,8 +89,8 @@ const Signup: React.FC = () => {
   const navigate = useNavigate();
   const { signup, error, loading, clearAuthError, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState<FormData>({
-    name: "",
-    username: "",
+    // name: "",
+    // username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -116,18 +116,18 @@ const Signup: React.FC = () => {
     const errors: Partial<FormData> = {};
     let isValid = true;
 
-    if (!formData.name.trim()) {
-      errors.name = "Name is required";
-      isValid = false;
-    }
+    // if (!formData.name.trim()) {
+    //   errors.name = "Name is required";
+    //   isValid = false;
+    // }
 
-    if (!formData.username.trim()) {
-      errors.username = "Username is required";
-      isValid = false;
-    } else if (formData.username.includes(" ")) {
-      errors.username = "Username cannot contain spaces";
-      isValid = false;
-    }
+    // if (!formData.username.trim()) {
+    //   errors.username = "Username is required";
+    //   isValid = false;
+    // } else if (formData.username.includes(" ")) {
+    //   errors.username = "Username cannot contain spaces";
+    //   isValid = false;
+    // }
 
     if (!formData.email.trim()) {
       errors.email = "Email is required";
@@ -228,7 +228,7 @@ const Signup: React.FC = () => {
         )}
 
         <Box component="form" onSubmit={handleSubmit} noValidate>
-          <TextField
+          {/* <TextField
             margin="normal"
             required
             fullWidth
@@ -261,7 +261,7 @@ const Signup: React.FC = () => {
             onChange={handleInputChange}
             error={!!formErrors.username}
             helperText={formErrors.username}
-          />
+          /> */}
           <TextField
             margin="normal"
             required
