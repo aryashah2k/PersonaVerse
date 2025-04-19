@@ -43,8 +43,8 @@ jobs:
             -p "$AZURE_CLIENT_SECRET" \
             --tenant "$AZURE_TENANT_ID" > /dev/null
 
-          working-directory: ./app/client
-          if: success()
+        working-directory: ./app/client
+        if: success()
 
       - name: Fetch and Remap Secrets from Azure Key Vault
         run: |
