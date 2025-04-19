@@ -29,20 +29,22 @@ jobs:
 
       - name: Azure Login
         run: |
-          echo "Setting Azure Credentials"
-          {
-            AZURE_CLIENT_ID="${{ fromJSON(secrets.AZURE_CREDENTIALS).clientId }}"
-            AZURE_CLIENT_SECRET="${{ fromJSON(secrets.AZURE_CREDENTIALS).clientSecret }}"
-            AZURE_TENANT_ID="${{ fromJSON(secrets.AZURE_CREDENTIALS).tenantId }}"
-            ACR_NAME="${{ secrets.ESG_REPORT_REGISTRY }}"
+          echo "AZURE_CLIENT_ID=${{ fromJSON(secrets.AZURE_SUBSCRIPTION).clientId }}" >> creds.env
+          echo "AZURE_CLIENT_SECRET=${{ fromJSON(secrets.AZURE_SUBSCRIPTION).clientSecret }}" >> creds.env
+          echo "AZURE_TENANT_ID=${{ fromJSON(secrets.AZURE_SUBSCRIPTION).tenantId }}" >> creds.env
 
-            az login --service-principal \
-              -u "$AZURE_CLIENT_ID" \
-              -p "$AZURE_CLIENT_SECRET" \
-              --tenant "$AZURE_TENANT_ID" > /dev/null
-          } 2>/dev/null
-        working-directory: ./app/client
-        if: success()
+          set -a
+          source creds.env
+          set +a
+          rm creds.env
+
+          az login --service-principal \
+            -u "$AZURE_CLIENT_ID" \
+            -p "$AZURE_CLIENT_SECRET" \
+            --tenant "$AZURE_TENANT_ID" > /dev/null
+
+          working-directory: ./app/client
+          if: success()
 
       - name: Fetch and Remap Secrets from Azure Key Vault
         run: |
