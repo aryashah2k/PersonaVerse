@@ -29,9 +29,9 @@ jobs:
 
       - name: Azure Login
         run: |
-          echo "AZURE_CLIENT_ID=${{ fromJSON(secrets.AZURE_SUBSCRIPTION).clientId }}" >> creds.env
-          echo "AZURE_CLIENT_SECRET=${{ fromJSON(secrets.AZURE_SUBSCRIPTION).clientSecret }}" >> creds.env
-          echo "AZURE_TENANT_ID=${{ fromJSON(secrets.AZURE_SUBSCRIPTION).tenantId }}" >> creds.env
+          echo "AZURE_CLIENT_ID=${{ fromJSON(secrets.AZURE_CREDENTIALS).clientId }}" >> creds.env
+          echo "AZURE_CLIENT_SECRET=${{ fromJSON(secrets.AZURE_CREDENTIALS).clientSecret }}" >> creds.env
+          echo "AZURE_TENANT_ID=${{ fromJSON(secrets.AZURE_CREDENTIALS).tenantId }}" >> creds.env
 
           set -a
           source creds.env
