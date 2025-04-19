@@ -1,9 +1,7 @@
-import pandas as pd
-from docx import Document
-from striprtf.striprtf import rtf_to_text
-from striprtf.striprtf import text_to_rtf
 import io
 import os
+import pandas as pd
+from docx import Document
 
 def generate_response_file(file_storage, questions, answers):
     filename = file_storage.filename
@@ -48,8 +46,7 @@ def generate_response_file(file_storage, questions, answers):
         plain_text = ""
         for q, a in zip(questions, answers):
             plain_text += f"Q: {q}\nA: {a}\n\n"
-        rtf_content = text_to_rtf(plain_text)
-        return io.BytesIO(rtf_content.encode()), ext
+        return io.BytesIO(plain_text.encode('utf-8')), ext
 
     else:
         raise ValueError("Unsupported file type for response generation.")

@@ -23,6 +23,10 @@ def get_mime_type(ext):
         ".rtf": "application/rtf"
     }.get(ext, "application/octet-stream")
 
+@api.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+
 @api.route('/fill-survey-form', methods=['POST'])
 def fill_survey_form():
     token = request.headers.get("Authorization", "").replace("Bearer ", "")

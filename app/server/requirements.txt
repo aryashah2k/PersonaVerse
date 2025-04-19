@@ -8,5 +8,6 @@ striprtf
 requests
 PyJWT
 tiktoken
+openai
 anthropic
 deepseek

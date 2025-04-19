@@ -2,7 +2,7 @@ import os
 import openai
 import tiktoken
 from anthropic import Anthropic
-from deepseek import DeepSeek
+from deepseek import DeepSeekAPI
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
@@ -62,7 +62,7 @@ def call_claude(model_name, questions, personas, instructions):
 
 def call_deepseek(model_name, questions, personas, instructions):
     prompt = build_prompt(questions, personas, instructions)
-    client = DeepSeek(api_key=DEEPSEEK_API_KEY)
+    client = DeepSeekAPI(api_key=DEEPSEEK_API_KEY)
     response = client.chat.completions.create(
         model=model_name,
         messages=[{"role": "user", "content": prompt}]
