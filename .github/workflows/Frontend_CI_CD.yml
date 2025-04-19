@@ -28,11 +28,15 @@ jobs:
         if: success()
 
       - name: Azure Login
+        env:
+          AZURE_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS).clientId }}
+          AZURE_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDENTIALS).clientSecret }}
+          AZURE_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS).tenantId }}
         run: |
           az login --service-principal \
-            -u "${{ fromJSON(secrets.AZURE_CREDENTIALS).clientId }}" \
-            -p "${{ fromJSON(secrets.AZURE_CREDENTIALS).clientSecret }}" \
-            --tenant "${{ fromJSON(secrets.AZURE_CREDENTIALS).tenantId }}"
+            -u "$AZURE_CLIENT_ID" \
+            -p "$AZURE_CLIENT_SECRET" \
+            --tenant "$AZURE_TENANT_ID" > /dev/null
         working-directory: ./app/client
         if: success()
 
