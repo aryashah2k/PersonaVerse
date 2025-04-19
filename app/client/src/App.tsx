@@ -37,7 +37,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     setUser();
-  }, [isAuthenticated]);
+  }, [supabase.auth.onAuthStateChange]);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

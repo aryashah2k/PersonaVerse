@@ -98,7 +98,7 @@ const BillingSwitch = styled(FormControlLabel)(({ theme }) => ({
 
 const Pricing: React.FC = () => {
   const theme = useTheme();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, profile } = useAuth();
   const [annualBilling, setAnnualBilling] = useState(false);
   // const [plans, setPlans] = useState<PricingPlan[]>([]);
   const { subscription } = useSubscription();
@@ -282,11 +282,13 @@ const Pricing: React.FC = () => {
           {subscription.map((plan) => (
             <Grid item xs={12} md={4} key={plan.id}>
               <StyledCard
-                elevation={plan.id == "standard" ? 6 : 1}
+                elevation={plan.id === "standard" ? 6 : 1}
                 sx={{
-                  transform: plan.id == "standard" ? "scale(1.05)" : "none",
+                  transform: `${
+                    plan.id === "standard" ? "scale(1.05)" : "none"
+                  }`,
                   border:
-                    plan.id == "standard"
+                    plan.id === "standard"
                       ? `2px solid ${theme.palette.primary.main}`
                       : "none",
                   zIndex: plan.id == "standard" ? 1 : 0,
@@ -295,7 +297,7 @@ const Pricing: React.FC = () => {
                   },
                 }}
               >
-                {plan.id == "standard" && (
+                {plan.id === "standard" && (
                   <PopularBadge color="primary" label="Most Popular" />
                 )}
 
@@ -310,12 +312,12 @@ const Pricing: React.FC = () => {
                       {plan.id}
                     </Typography>
                   }
-                  subheader={
-                    <TokenChip
-                      icon={<TokenIcon />}
-                      label={`${plan.tokens} Tokens`}
-                    />
-                  }
+                  // subheader={
+                  //   <TokenChip
+                  //     icon={<TokenIcon />}
+                  //     label={`${plan.tokens} Tokens`}
+                  //   />
+                  // }
                   sx={{ pb: 0 }}
                 />
 
@@ -340,6 +342,12 @@ const Pricing: React.FC = () => {
                   <Divider sx={{ my: 2 }} />
 
                   <FeatureList>
+                    <TokenChip
+                      icon={<TokenIcon />}
+                      label={`${plan.tokens} Tokens${
+                        plan.id === "free" ? " only" : "/month"
+                      }`}
+                    />
                     {plan.features.map((feature, index) => (
                       <ListItem
                         key={index}
@@ -363,7 +371,7 @@ const Pricing: React.FC = () => {
                 </CardContent>
 
                 <CardActions sx={{ p: 3 }}>
-                  {plan.monthlyPrice === 0 ? (
+                  {/* {profile?.planType === plan.id ? (
                     <Button
                       fullWidth
                       variant="outlined"
@@ -375,18 +383,25 @@ const Pricing: React.FC = () => {
                     >
                       {isAuthenticated ? "Go to Dashboard" : "Get Started"}
                     </Button>
-                  ) : (
-                    <Button
-                      fullWidth
-                      variant={plan.id == "standard" ? "contained" : "outlined"}
-                      size="large"
-                      color="primary"
-                      endIcon={<ArrowForwardIcon />}
-                      onClick={handleCheckout}
-                    >
-                      Subscribe Now
-                    </Button>
-                  )}
+                  ) : ( */}
+                  <Button
+                    fullWidth
+                    variant={plan.id == "standard" ? "contained" : "outlined"}
+                    size="large"
+                    color="primary"
+                    endIcon={
+                      profile?.planType === plan.id ? null : (
+                        <ArrowForwardIcon />
+                      )
+                    }
+                    onClick={handleCheckout}
+                    disabled={profile?.planType === plan.id}
+                  >
+                    {profile?.planType === plan.id
+                      ? "Subscribed"
+                      : "Subscribe Now"}
+                  </Button>
+                  {/* )} */}
                 </CardActions>
               </StyledCard>
             </Grid>
