@@ -12,4 +12,4 @@ PyJWT
 tiktoken
 openai
 anthropic
-deepseek
+google-genai

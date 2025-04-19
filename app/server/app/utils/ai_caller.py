@@ -1,27 +1,33 @@
 import os
+import random
 import tiktoken
 from openai import OpenAI
 from anthropic import Anthropic
-from deepseek import DeepSeekAPI
+from google import genai
+from google.genai import types, Client
 from .env_utils import get_required_env_var
 
 def get_api_config():
     return {
         "openai": get_required_env_var("OPENAI_API_KEY"),
         "anthropic": get_required_env_var("ANTHROPIC_API_KEY"),
-        "deepseek": get_required_env_var("DEEPSEEK_API_KEY")
+        "gemini": get_required_env_var("GEMINI_API_KEY"),
+        "deepseek": get_required_env_var("DEEPSEEK_API_KEY"),
+        "deepseek_base_url": get_required_env_var("DEEPSEEK_BASE_URL")
     }
 
 try:
     config = get_api_config()
     openai_client = OpenAI(api_key=config["openai"])
     anthropic_client = Anthropic(api_key=config["anthropic"])
-    deepseek_client = DeepSeekAPI(api_key=config["deepseek"])
+    gemini_client = Client(api_key=config["gemini"])
+    deepseek_client = OpenAI(api_key=config["deepseek"], base_url=config["deepseek_base_url"])
 except Exception as e:
     raise EnvironmentError(f"Failed to initialize API clients: {str(e)}")
 
 OPENAI_MODELS = ["gpt-4o-mini", "gpt-4o"]
 CLAUDE_MODELS = ["claude-3-7-sonnet-20250219"]
+GEMINI_MODELS = ["gemini-2.0-flash-lite", "gemini-2.0-flash"]
 DEEPSEEK_MODELS = ["deepseek-chat"]
 
 def call_ai_model(model_name, questions, personas, instructions):
@@ -29,10 +35,15 @@ def call_ai_model(model_name, questions, personas, instructions):
         return call_openai(model_name, questions, personas, instructions)
     elif model_name in CLAUDE_MODELS:
         return call_claude(model_name, questions, personas, instructions)
+    elif model_name in GEMINI_MODELS:
+        return call_gemini(model_name, questions, personas, instructions)
     elif model_name in DEEPSEEK_MODELS:
         return call_deepseek(model_name, questions, personas, instructions)
     else:
         raise ValueError(f"Unsupported model: {model_name}")
+    
+def get_randomized_temperature():
+    return random.uniform(0.5, 1.0)
 
 def build_prompt(questions, personas, instructions):
     persona_text = f"The following response should reflect the personas: {', '.join(personas)}.\n" if personas else ""
@@ -61,7 +72,7 @@ def call_openai(model_name, questions, personas, instructions):
             {"role": "system", "content": get_system_prompt()},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.7
+        temperature=get_randomized_temperature()
     )
     return extract_answers(response.choices[0].message.content, len(questions))
 
@@ -74,14 +85,34 @@ def call_claude(model_name, questions, personas, instructions):
         messages=[
             {"role": "user", "content": prompt}
         ],
+        temperature=get_randomized_temperature()
     )
     return extract_answers(response.content[0].text, len(questions))
+
+def call_gemini(model_name, questions, personas, instructions):
+    prompt = build_prompt(questions, personas, instructions)
+    response = gemini_client.models.generate_content(
+        model=model_name,
+        config=types.GenerateContentConfig(
+            system_instruction=get_system_prompt(),
+            response_mime_type="text/plain",
+            max_output_tokens=500,
+            temperature=get_randomized_temperature()
+        ),
+        contents=prompt
+    )
+    return extract_answers(response.text, len(questions))
 
 def call_deepseek(model_name, questions, personas, instructions):
     prompt = build_prompt(questions, personas, instructions)
     response = deepseek_client.chat.completions.create(
         model=model_name,
-        messages=[{"role": "user", "content": prompt}]
+        max_tokens=1024,
+        messages=[
+            {"role": "system", "content": get_system_prompt()},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=get_randomized_temperature()
     )
     return extract_answers(response.choices[0].message.content, len(questions))
 
