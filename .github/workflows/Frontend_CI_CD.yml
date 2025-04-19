@@ -28,21 +28,19 @@ jobs:
         if: success()
 
       - name: Azure Login
+        shell: bash
         run: |
-          echo "AZURE_CLIENT_ID=${{ fromJSON(secrets.AZURE_CREDENTIALS).clientId }}" >> creds.env
-          echo "AZURE_CLIENT_SECRET=${{ fromJSON(secrets.AZURE_CREDENTIALS).clientSecret }}" >> creds.env
-          echo "AZURE_TENANT_ID=${{ fromJSON(secrets.AZURE_CREDENTIALS).tenantId }}" >> creds.env
-
-          set -a
-          source creds.env
-          set +a
-          rm creds.env
-
+          echo '${{ secrets.AZURE_CREDENTIALS }}' > azure-credentials.json
+          export AZURE_CLIENT_ID=$(jq -r '.clientId' azure-credentials.json)
+          export AZURE_CLIENT_SECRET=$(jq -r '.clientSecret' azure-credentials.json)
+          export AZURE_TENANT_ID=$(jq -r '.tenantId' azure-credentials.json)
           az login --service-principal \
             -u "$AZURE_CLIENT_ID" \
             -p "$AZURE_CLIENT_SECRET" \
-            --tenant "$AZURE_TENANT_ID" > /dev/null
-
+            --tenant "$AZURE_TENANT_ID" \
+            --only-show-errors
+          echo "✅ Login success"
+        continue-on-error: false
         working-directory: ./app/client
         if: success()
 
