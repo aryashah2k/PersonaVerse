@@ -127,9 +127,11 @@ def fill_survey_form():
             ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             ".xls": "application/vnd.ms-excel",
             ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".doc": "application/msword",
             ".txt": "text/plain",
             ".rtf": "application/rtf",
-            ".pdf": "application/pdf"
+            ".pdf": "application/pdf",
+            ".xml": "application/xml"
         }.get(file_ext, "application/octet-stream"),
         as_attachment=True,
         download_name=f"filled_survey{file_ext}"

@@ -54,6 +54,8 @@ MODEL_OUTPUT_TOKENS = {
     "gpt-4o-mini": 512,
     "gpt-4o": 1024,
     "deepseek-chat": 800,
-    "claude-3.5": 1024,
-    "claude-3.7": 2048,
+    "claude-3-5-sonnet-20240620": 1024,
+    "claude-3-7-sonnet-20250219": 1024,
+    "gemini-2.0-flash-lite": 512,
+    "gemini-2.0-flash": 1024,
 }
