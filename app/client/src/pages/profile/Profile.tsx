@@ -29,6 +29,8 @@ import TokenIcon from "@mui/icons-material/Token";
 import Layout from "../../components/layout/Layout";
 import { useAuth } from "../../hooks/useAuth";
 import { useUserProfile } from "../../hooks/useUserProfile";
+import { supabase } from "../../utils/supabase/supabase";
+import { copyWith } from "../../model/profile";
 
 const ProfileCard = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(4),
@@ -86,7 +88,8 @@ const Profile: React.FC = () => {
     name: "",
     username: "",
   });
-
+  const [pageError, setPageError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   useEffect(() => {
     loadProfile();
   }, [loadProfile]);
@@ -111,22 +114,45 @@ const Profile: React.FC = () => {
     setEditing(!editing);
   };
 
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setPageError(null);
+    if (
+      profile?.name === formData.name &&
+      profile.username === formData.username
+    ) {
+      setEditing(!editing);
+    } else if (formData?.name === "" || formData?.username === "") {
+      setPageError(
+        "Username and Name are compulsory fields and cannot be left empty"
+      );
+    } else {
+      const body = {
+        name: formData?.name,
+        username: formData?.username,
+      };
+      const res = await supabase.functions.invoke("update-profile", {
+        body: JSON.stringify(body),
+      });
+      console.log(res.error);
+      if (res.error) {
+        setPageError(res.error.message);
+      } else {
+        setPageError(null);
+        updateUserProfile(copyWith(res.data.data[0]));
+        setEditing(!editing);
+      }
+    }
+    setIsLoading(false);
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
     });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (profile) {
-      const success = await updateUserProfile(formData);
-      if (success) {
-        setEditing(false);
-      }
-    }
   };
 
   const getPlanDisplay = () => {
@@ -211,9 +237,9 @@ const Profile: React.FC = () => {
           </Typography>
         </Box>
 
-        {error && (
+        {(error || pageError) && (
           <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
+            {error || pageError}
           </Alert>
         )}
 
@@ -239,7 +265,7 @@ const Profile: React.FC = () => {
                     color="text.secondary"
                     sx={{ mr: 2 }}
                   >
-                    @{profile?.username}
+                    {profile?.username}
                   </Typography>
                   {getPlanDisplay()}
                 </Box>
@@ -255,7 +281,7 @@ const Profile: React.FC = () => {
             <Divider sx={{ my: 3 }} />
 
             {editing ? (
-              <Box component="form" onSubmit={handleSubmit}>
+              <Box component="form" onSubmit={handleUpdate}>
                 <Grid container spacing={3}>
                   <Grid item xs={12} md={6}>
                     <TextField
@@ -308,8 +334,9 @@ const Profile: React.FC = () => {
                         variant="contained"
                         color="primary"
                         startIcon={<SaveIcon />}
+                        disabled={isLoading}
                       >
-                        Save Changes
+                        {isLoading ? "Saving Changes..." : "Save Changes"}
                       </Button>
                     </Box>
                   </Grid>
@@ -323,7 +350,7 @@ const Profile: React.FC = () => {
                 </InfoRow>
                 <InfoRow>
                   <InfoLabel color="text.secondary">Username:</InfoLabel>
-                  <Typography>@{profile?.username}</Typography>
+                  <Typography>{profile?.username}</Typography>
                 </InfoRow>
                 <InfoRow>
                   <InfoLabel color="text.secondary">Email:</InfoLabel>

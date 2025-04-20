@@ -13,6 +13,8 @@ import {
   changePlan as changePlanAction,
 } from '../store/slices/userSlice';
 import { userService, historyService } from '../services/api';
+import { setProfileState } from '../store/slices/authSlice';
+import Profile from '../model/profile';
 
 export const useUserProfile = () => {
   const dispatch = useDispatch();
@@ -46,16 +48,16 @@ export const useUserProfile = () => {
     }
   }, [dispatch]);
 
+
   const updateUserProfile = useCallback(
-    async (userData: { name: string; username: string }) => {
+    async (profile: Profile | null) => {
       try {
-        const updatedProfile = await userService.updateUserProfile(userData);
-        dispatch(updateProfile(updatedProfile));
-        return true;
+        if (profile) {
+          dispatch(setProfileState(profile));
+          return { success: true };
+        }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to update profile';
-        dispatch(loadProfileFailure(errorMessage));
-        return false;
+        return { success: false, error: error instanceof Error ? error.message : 'Failed to update Profile' };
       }
     },
     [dispatch]

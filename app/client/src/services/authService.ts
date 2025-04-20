@@ -7,8 +7,8 @@ type LoginParams = {
 };
 
 type SignUpParams = {
-    // name?: string;
-    // username?: string;
+    name: string;
+    username: string;
     email: string;
     password: string;
 }
@@ -28,22 +28,27 @@ export const authService = {
     },
 
 
-    // register: async ({ name, username, email, password }: SignUpParams) => {
-    register: async ({ email, password }: SignUpParams) => {
+    register: async ({ name, username, email, password }: SignUpParams) => {
+        // register: async ({ email, password }: SignUpParams) => {
 
         let { data, error } = await supabase.auth.signUp({
             email: email,
             password: password,
         })
         if (error) {
-
             throw new Error(error.message);
         }
         if (data?.user && data?.session) {
             // Store in localStorage to persist session
             localStorage.setItem('personaverse_current_user', JSON.stringify(data.user));
             localStorage.setItem('personaverse_current_session', JSON.stringify(data.session));
-
+            const body = {
+                name: name,
+                username: username
+            }
+            const res = await supabase.functions.invoke('create-user', {
+                body: JSON.stringify(body),
+            })
             return data.user;
         }
         else {
