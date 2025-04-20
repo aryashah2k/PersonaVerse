@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, jsonify, request, send_file
 from werkzeug.utils import secure_filename
 from app.utils.ai_caller import build_prompt, call_ai_model, estimate_tokens
@@ -9,7 +10,7 @@ from app.utils.supabase_utils import (
     get_user_data_from_token,
     is_form_upload_allowed,
 )
-from app.utils.env_utils import get_required_env_var
+from utils.env_utils import get_required_env_var
 
 api = Blueprint("api", __name__)
 

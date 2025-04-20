@@ -26,7 +26,7 @@ except Exception as e:
     raise EnvironmentError(f"Failed to initialize API clients: {str(e)}")
 
 OPENAI_MODELS = ["gpt-4o-mini", "gpt-4o"]
-CLAUDE_MODELS = ["claude-3-7-sonnet-20250219"]
+CLAUDE_MODELS = ["claude-3-7-sonnet-20250219", "claude-3-5-sonnet-20240620"]
 GEMINI_MODELS = ["gemini-2.0-flash-lite", "gemini-2.0-flash"]
 DEEPSEEK_MODELS = ["deepseek-chat"]
 

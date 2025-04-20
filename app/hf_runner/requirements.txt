@@ -1,0 +1,15 @@
+Flask
+flask-cors
+python-dotenv
+pandas
+openpyxl
+python-docx
+striprtf
+pdfplumber
+fpdf
+requests
+PyJWT
+tiktoken
+transformers
+torch
+accelerate
