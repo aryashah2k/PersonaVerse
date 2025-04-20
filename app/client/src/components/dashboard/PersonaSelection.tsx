@@ -26,209 +26,8 @@ import { Persona } from "../../model/persona";
 import { AIModel } from "../../model/AIModel";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { setModel, setPersona } from "../../store/slices/formSlice";
-
-const mockPersonas: Persona[] = [
-  {
-    id: "1",
-    name: "John Smith",
-    age: 35,
-    gender: "Male",
-    job: "Marketing Manager",
-    location: "New York, USA",
-    background: "MBA graduate, worked in tech for 10 years",
-    description:
-      "Tech-savvy professional with 10+ years experience in marketing.",
-  },
-  {
-    id: "2",
-    name: "Sarah Johnson",
-    age: 28,
-    gender: "Female",
-    job: "UX/UI Designer",
-    location: "San Francisco, USA",
-    background: "Design school graduate, 5 years in tech startups",
-    description:
-      "Creative designer focused on user experience and accessibility.",
-  },
-  {
-    id: "3",
-    name: "David Chen",
-    age: 42,
-    gender: "Male",
-    job: "Chief Technology Officer",
-    location: "Boston, USA",
-    background: "Computer Science PhD, former startup founder",
-    description: "Strategic decision-maker with strong technical background.",
-  },
-  {
-    id: "4",
-    name: "Emily Rodriguez",
-    age: 31,
-    gender: "Female",
-    job: "Market Research Analyst",
-    location: "Chicago, USA",
-    background: "Economics degree, certified data analyst",
-    description: "Data-driven analyst with expertise in consumer behavior.",
-  },
-  {
-    id: "5",
-    name: "Michael Grant",
-    age: 55,
-    gender: "Male",
-    job: "University Professor",
-    location: "Austin, USA",
-    background: "PhD in Sociology, 25 years in academia",
-    description: "Thought leader with traditional academic perspective.",
-  },
-  {
-    id: "6",
-    name: "Lisa Wong",
-    age: 24,
-    gender: "Female",
-    job: "Graduate Student",
-    location: "Portland, USA",
-    background: "Studying Human-Computer Interaction",
-    description:
-      "Digital native with progressive views and high tech literacy.",
-  },
-  {
-    id: "7",
-    name: "Robert Garcia",
-    age: 38,
-    gender: "Male",
-    job: "Small Business Owner",
-    location: "Miami, USA",
-    background: "Owned a local grocery store for 12 years",
-    description:
-      "Practical, budget-conscious entrepreneur focused on community.",
-  },
-  {
-    id: "8",
-    name: "Jennifer Wilson",
-    age: 45,
-    gender: "Female",
-    job: "Healthcare Administrator",
-    location: "Minneapolis, USA",
-    background: "Nursing background with 15 years in healthcare management",
-    description:
-      "Detail-oriented professional with strong focus on compliance and safety.",
-  },
-  {
-    id: "9",
-    name: "Tyler Jackson",
-    age: 22,
-    gender: "Male",
-    job: "College Student",
-    location: "Atlanta, USA",
-    background: "Business major, part-time barista",
-    description:
-      "Value-conscious consumer balancing education and work responsibilities.",
-  },
-  {
-    id: "10",
-    name: "Karen Thompson",
-    age: 67,
-    gender: "Female",
-    job: "Retired Teacher",
-    location: "Seattle, USA",
-    background: "35 years teaching high school English",
-    description:
-      "Traditional consumer who values quality, service, and familiarity.",
-  },
-  {
-    id: "11",
-    name: "James Liu",
-    age: 33,
-    gender: "Male",
-    job: "Software Engineer",
-    location: "San Jose, USA",
-    background: "CS degree, worked at 3 major tech companies",
-    description:
-      "Early adopter of new technologies with high technical expertise.",
-  },
-  {
-    id: "12",
-    name: "Maria Gonzalez",
-    age: 29,
-    gender: "Female",
-    job: "Social Media Manager",
-    location: "Los Angeles, USA",
-    background: "Communications degree, influencer marketing",
-    description:
-      "Trend-conscious professional who values brand image and engagement.",
-  },
-  {
-    id: "13",
-    name: "Jamal Williams",
-    age: 41,
-    gender: "Male",
-    job: "Construction Foreman",
-    location: "Detroit, USA",
-    background: "20 years in construction industry",
-    description:
-      "Practical decision-maker who values durability and reliability.",
-  },
-  {
-    id: "14",
-    name: "Sophia Kim",
-    age: 27,
-    gender: "Female",
-    job: "Environmental Scientist",
-    location: "Denver, USA",
-    background: "Master's in environmental science, climate researcher",
-    description:
-      "Eco-conscious professional with strong focus on sustainability.",
-  },
-  {
-    id: "15",
-    name: "Daniel Murphy",
-    age: 52,
-    gender: "Male",
-    job: "Financial Advisor",
-    location: "Philadelphia, USA",
-    background: "MBA in Finance, former investment banker",
-    description:
-      "Risk-aware professional who values long-term planning and stability.",
-  },
-];
-const mockModels: AIModel[] = [
-  {
-    id: "1",
-    name: "GPT-Mini",
-    description: "Fast, efficient responses for basic surveys",
-    tokenCost: 5,
-  },
-  {
-    id: "2",
-    name: "GPT-4o",
-    description: "Advanced model with human-like understanding",
-    tokenCost: 15,
-  },
-  {
-    id: "3",
-    name: "DeepSeek",
-    description: "Specialized for detailed, nuanced responses",
-    tokenCost: 10,
-  },
-  {
-    id: "4",
-    name: "Claude",
-    description: "Best for complex reasoning and explanation",
-    tokenCost: 20,
-  },
-  {
-    id: "5",
-    name: "Llama-3",
-    description: "Balanced performance and accuracy for general surveys",
-    tokenCost: 12,
-  },
-  {
-    id: "6",
-    name: "Mistral-8x7B",
-    description: "Excellent for multilingual surveys and cultural sensitivity",
-    tokenCost: 18,
-  },
-];
+import usePersonasAI from "../../hooks/usePersonasAI";
+import useAuth from "../../hooks/useAuth";
 
 const PersonaCard = styled(Card)(({ theme }) => ({
   height: "100%",
@@ -269,8 +68,8 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const models = mockModels;
-  const personas = mockPersonas;
+  const { models, personas } = usePersonasAI();
+  const { profile } = useAuth();
   const selectedModel = useAppSelector((state) => state.form.model);
   const selectedPersonas = useAppSelector((state) => state.form.personas);
   const dispatch = useAppDispatch();
@@ -325,11 +124,13 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({
             label="Select AI Model"
             onChange={handleModelChange}
           >
-            {models.map((model) => (
-              <MenuItem key={model.id} value={model.id}>
-                {model.name} - {model.description}
-              </MenuItem>
-            ))}
+            {models
+              .filter((model) => model.usageType?.includes(profile!.planType))
+              .map((model) => (
+                <MenuItem key={model.id} value={model.id}>
+                  {model.name} - {model.description}
+                </MenuItem>
+              ))}
           </Select>
           <FormHelperText>
             Different AI models offer varying levels of response quality and
@@ -386,6 +187,7 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({
                       >
                         <Chip size="small" label={`${persona.age} years`} />
                         <Chip size="small" label={persona.gender} />
+                        <Chip size="small" label={persona.location} />
                       </Box>
                       <Box sx={{ mt: 1 }}>
                         <Typography

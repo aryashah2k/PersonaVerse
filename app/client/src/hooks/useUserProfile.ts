@@ -60,8 +60,7 @@ export const useUserProfile = () => {
         return { success: false, error: error instanceof Error ? error.message : 'Failed to update Profile' };
       }
     },
-    [dispatch]
-  );
+    [dispatch]);
 
   const addUserTokens = useCallback(
     async (amount: number) => {

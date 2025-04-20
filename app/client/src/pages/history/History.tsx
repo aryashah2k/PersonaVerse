@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -22,20 +22,23 @@ import {
   Tooltip,
   TextField,
   InputAdornment,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import DownloadIcon from '@mui/icons-material/Download';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import SearchIcon from '@mui/icons-material/Search';
-import SortIcon from '@mui/icons-material/Sort';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import FolderIcon from '@mui/icons-material/Folder';
-import Layout from '../../components/layout/Layout';
-import { useUserProfile } from '../../hooks/useUserProfile';
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import DownloadIcon from "@mui/icons-material/Download";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import SearchIcon from "@mui/icons-material/Search";
+import SortIcon from "@mui/icons-material/Sort";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import FolderIcon from "@mui/icons-material/Folder";
+import Layout from "../../components/layout/Layout";
+import { useUserProfile } from "../../hooks/useUserProfile";
+import useSurveyHistory from "../../hooks/useSurveyHistory";
+import useAuth from "../../hooks/useAuth";
+import usePersonasAI from "../../hooks/usePersonasAI";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   fontWeight: 500,
-  '&.MuiTableCell-head': {
+  "&.MuiTableCell-head": {
     backgroundColor: theme.palette.background.paper,
     color: theme.palette.text.primary,
     fontWeight: 700,
@@ -46,28 +49,30 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 const FileTypeChip = styled(Chip)(({ theme }) => ({
   fontWeight: 600,
   borderRadius: theme.shape.borderRadius,
-  '& .MuiChip-label': {
+  "& .MuiChip-label": {
     paddingLeft: 4,
     paddingRight: 4,
   },
 }));
 
 const EmptyStateContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
   padding: theme.spacing(8),
-  textAlign: 'center',
+  textAlign: "center",
 }));
 
 const History: React.FC = () => {
   const { history, loadHistory, downloadHistoryItem, error } = useUserProfile();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-
+  const { surveyHistory } = useSurveyHistory();
+  const { profile } = useAuth();
+  const { models } = usePersonasAI();
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -84,7 +89,9 @@ const History: React.FC = () => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -103,49 +110,44 @@ const History: React.FC = () => {
   });
 
   const getFileTypeFromUrl = (url: string): string => {
-    const extension = url.split('.').pop()?.toLowerCase() || '';
+    const extension = url.split(".").pop()?.toLowerCase() || "";
     switch (extension) {
-      case 'pdf':
-        return 'PDF';
-      case 'docx':
-        return 'DOCX';
-      case 'xlsx':
-        return 'XLSX';
-      case 'txt':
-        return 'TXT';
+      case "pdf":
+        return "PDF";
+      case "docx":
+        return "DOCX";
+      case "xlsx":
+        return "XLSX";
+      case "txt":
+        return "TXT";
       default:
-        return 'FILE';
+        return "FILE";
     }
   };
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     }).format(date);
-  };
-
-  const getAIModelName = (modelId: string): string => {
-    const modelMap: { [key: string]: string } = {
-      '1': 'GPT-Mini',
-      '2': 'GPT-4o',
-      '3': 'DeepSeek',
-      '4': 'Claude',
-      '5': 'Llama-3',
-      '6': 'Mistral-8x7B',
-    };
-    return modelMap[modelId] || 'Unknown Model';
   };
 
   if (isLoading) {
     return (
       <Layout>
         <Container>
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: "60vh",
+            }}
+          >
             <CircularProgress />
           </Box>
         </Container>
@@ -191,7 +193,15 @@ const History: React.FC = () => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                sx={{
+                  display: "flex",
+                  justifyContent: { xs: "flex-start", md: "flex-end" },
+                }}
+              >
                 <Tooltip title="Sort">
                   <IconButton size="small" sx={{ mr: 1 }}>
                     <SortIcon />
@@ -208,60 +218,90 @@ const History: React.FC = () => {
         </Card>
 
         {filteredHistory.length > 0 ? (
-          <Paper sx={{ width: '100%', overflow: 'hidden', borderRadius: 2, mb: 4 }}>
-            <TableContainer sx={{ maxHeight: 'calc(100vh - 300px)' }}>
+          <Paper
+            sx={{ width: "100%", overflow: "hidden", borderRadius: 2, mb: 4 }}
+          >
+            <TableContainer sx={{ maxHeight: "calc(100vh - 300px)" }}>
               <Table stickyHeader>
                 <TableHead>
                   <TableRow>
                     <StyledTableCell>Title</StyledTableCell>
                     <StyledTableCell>Date</StyledTableCell>
                     <StyledTableCell>AI Model</StyledTableCell>
-                    <StyledTableCell>Personas</StyledTableCell>
+                    {/* <StyledTableCell>Personas</StyledTableCell> */}
                     <StyledTableCell>Tokens Used</StyledTableCell>
                     <StyledTableCell align="center">Actions</StyledTableCell>
                   </TableRow>
                 </TableHead>
+                {profile?.planType == "free" && (
+                  <TableBody>
+                    <TableRow>
+                      <TableCell colSpan={5} align="center">
+                        <Typography variant="caption" fontWeight={500}>
+                          Upgrade to a premium plan to enable saving and
+                          accessing your survey files.
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                )}
                 <TableBody>
-                  {filteredHistory
+                  {surveyHistory
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((item) => (
                       <TableRow
                         key={item.id}
                         hover
                         sx={{
-                          '&:last-child td, &:last-child th': { border: 0 },
-                          transition: 'background-color 0.2s',
+                          "&:last-child td, &:last-child th": { border: 0 },
+                          transition: "background-color 0.2s",
                         }}
                       >
                         <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
                             <Typography variant="body2" fontWeight={500}>
-                              {item.title}
+                              {item.fileName}
                             </Typography>
                           </Box>
-                          <FileTypeChip
+                          {/* <FileTypeChip
                             size="small"
                             label={getFileTypeFromUrl(item.fileUrl)}
                             color="primary"
                             variant="outlined"
                             sx={{ mt: 0.5 }}
-                          />
+                          /> */}
                         </TableCell>
                         <TableCell>
-                          <Typography variant="body2">{formatDate(item.createdAt)}</Typography>
+                          <Typography variant="body2">
+                            {formatDate(item.createdAt)}
+                          </Typography>
                         </TableCell>
                         <TableCell>
-                          <Typography variant="body2">{getAIModelName(item.modelUsed)}</Typography>
+                          <Typography variant="body2">
+                            {
+                              models.find(
+                                (model) => model.id === item.modelUsed
+                              )?.name
+                            }
+                          </Typography>
                         </TableCell>
+                        {/* <TableCell>
+                          <Typography variant="body2">
+                            {item.personasUsed.length} personas
+                          </Typography>
+                        </TableCell> */}
                         <TableCell>
-                          <Typography variant="body2">{item.personasUsed.length} personas</Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2">{item.tokensCost} tokens</Typography>
+                          <Typography variant="body2">
+                            {item.tokensUsed} tokens
+                          </Typography>
                         </TableCell>
                         <TableCell align="center">
                           <Tooltip title="View">
-                            <IconButton size="small" color="primary" sx={{ mr: 1 }}>
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              sx={{ mr: 1 }}
+                            >
                               <VisibilityIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
@@ -283,7 +323,7 @@ const History: React.FC = () => {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={filteredHistory.length}
+              count={surveyHistory.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}
@@ -292,26 +332,21 @@ const History: React.FC = () => {
           </Paper>
         ) : (
           <EmptyStateContainer>
-            <FolderIcon sx={{ fontSize: 60, color: 'primary.light', mb: 2 }} />
+            <FolderIcon sx={{ fontSize: 60, color: "primary.light", mb: 2 }} />
             <Typography variant="h5" gutterBottom>
               No Responses Yet
             </Typography>
             <Typography variant="body1" paragraph color="text.secondary">
-              {searchTerm ? 'No results match your search' : 'Generate your first response to see your history'}
+              {searchTerm
+                ? "No results match your search"
+                : "Generate your first response to see your history"}
             </Typography>
             {searchTerm ? (
-              <Button
-                variant="outlined"
-                onClick={() => setSearchTerm('')}
-              >
+              <Button variant="outlined" onClick={() => setSearchTerm("")}>
                 Clear Search
               </Button>
             ) : (
-              <Button
-                variant="contained"
-                color="primary"
-                href="/dashboard"
-              >
+              <Button variant="contained" color="primary" href="/dashboard">
                 Create New Response
               </Button>
             )}
