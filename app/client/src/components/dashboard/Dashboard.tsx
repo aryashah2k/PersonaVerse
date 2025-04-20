@@ -24,6 +24,8 @@ import { useUserProfile } from "../../hooks/useUserProfile";
 import { useAppDispatch } from "../../store";
 import { resetFormState } from "../../store/slices/formSlice";
 import useFileUpload from "../../hooks/useFileUpload";
+import useAuth from "../../hooks/useAuth";
+import useForm from "../../hooks/useForm";
 
 const steps = [
   { label: "Upload Survey", icon: <FileUploadIcon /> },
@@ -35,6 +37,7 @@ const steps = [
 const Dashboard: React.FC = () => {
   const { loadProfile } = useUserProfile();
   const { resetUploadState } = useFileUpload();
+  const { fetchSurveyResponseResult } = useForm();
   const [activeStep, setActiveStep] = useState(0);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [responseUrl, setResponseUrl] = useState<string | null>(null);
@@ -66,8 +69,10 @@ const Dashboard: React.FC = () => {
   };
 
   const handleResponsePromptComplete = (url: string) => {
-    setResponseUrl(url);
-    setActiveStep(3);
+    // personaParser();
+    // setResponseUrl(url);
+    //
+    // setActiveStep(3);
   };
 
   const handlePrevious = () => {

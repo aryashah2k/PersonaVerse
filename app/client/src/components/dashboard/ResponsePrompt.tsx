@@ -25,6 +25,7 @@ import { setResponsePrompt } from "../../store/slices/formSlice";
 import submitSurvey from "../../api/surveyApi";
 import { FormResponse } from "../../model/response";
 import { deductTokens } from "../../store/slices/userSlice";
+import useForm from "../../hooks/useForm";
 
 interface ResponsePromptProps {
   fileUrl: string;
@@ -50,7 +51,7 @@ const ResponsePrompt: React.FC<ResponsePromptProps> = ({
   //   estimatedTokenCost,
   //   hasEnoughTokens,
   // } = usePersonaSelection();
-
+  const { fetchSurveyResponseResult } = useForm();
   const selectedModel = useAppSelector((state) => state.form.model);
   const selectedPersonas = useAppSelector((state) => state.form.personas);
   const responsePrompt = useAppSelector((state) => state.form.responsePrompt);
@@ -61,11 +62,13 @@ const ResponsePrompt: React.FC<ResponsePromptProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const estimatedTokenCost = selectedPersonas.length * 5 + 10; // Example token cost calculation
-  const hasEnoughTokens = (profile?.tokensAvailable || 0) >= estimatedTokenCost;
+  const hasEnoughTokens =
+    (profile?.tokensAvailable || 1000) >= estimatedTokenCost;
   const handlePrevious = () => {
     onPrevious();
   };
   const handleSubmit = async () => {
+    fetchSurveyResponseResult();
     // Validate prompt
     if (!responsePrompt.trim()) {
       setPromptError("Please enter a prompt for how personas should respond");
@@ -88,7 +91,7 @@ const ResponsePrompt: React.FC<ResponsePromptProps> = ({
       setPromptError(result.error);
       return;
     }
-    dispatch(deductTokens(result.tokensUsed));
+    // dispatch(deductTokens(result.tokensUsed));
     onSubmitComplete(result.responseUrl);
     // if (result.success && result.responseUrl) {
     //   onSubmitComplete(result.responseUrl);
