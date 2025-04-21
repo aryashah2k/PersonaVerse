@@ -20,8 +20,6 @@ import {
 import TokenIcon from "@mui/icons-material/Token";
 import SendIcon from "@mui/icons-material/Send";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import { useAppDispatch, useAppSelector } from "../../store";
-import { setResponsePrompt } from "../../store/slices/formSlice";
 import submitSurvey from "../../api/surveyApi";
 import { FormResponse } from "../../model/response";
 import { deductTokens } from "../../store/slices/userSlice";
@@ -41,23 +39,16 @@ const ResponsePrompt: React.FC<ResponsePromptProps> = ({
   onPrevious,
 }) => {
   const { profile } = useUserProfile();
-  // const {
-  //   updateResponsePrompt,
-  //   generateResponses,
-  //   isSubmitting,
-  //   error,
-  //   // selectedPersonas,
-  //   // selectedModel,
-  //   estimatedTokenCost,
-  //   hasEnoughTokens,
-  // } = usePersonaSelection();
-  const { fetchSurveyResponseResult } = useForm();
-  const selectedModel = useAppSelector((state) => state.form.model);
-  const selectedPersonas = useAppSelector((state) => state.form.personas);
-  const responsePrompt = useAppSelector((state) => state.form.responsePrompt);
-  const dispatch = useAppDispatch();
-  const [responseFormat, setResponseFormat] = useState("xlsx");
-  const [includeExplanations, setIncludeExplanations] = useState(true);
+  const {
+    submitForm,
+    selectedModel,
+    selectedPersonas,
+    responsePrompt,
+    setResponsePrompt,
+    responseFormat,
+    setResponseFormat,
+  } = useForm();
+  // const dispatch = useAppDispatch();
   const [promptError, setPromptError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +59,7 @@ const ResponsePrompt: React.FC<ResponsePromptProps> = ({
     onPrevious();
   };
   const handleSubmit = async () => {
-    fetchSurveyResponseResult();
+    // submitForm,selectedModel,selectedPersonas,responsePrompt();
     // Validate prompt
     if (!responsePrompt.trim()) {
       setPromptError("Please enter a prompt for how personas should respond");
@@ -190,14 +181,15 @@ const ResponsePrompt: React.FC<ResponsePromptProps> = ({
                   multiline
                   rows={4}
                   value={responsePrompt}
-                  onChange={(e) => dispatch(setResponsePrompt(e.target.value))}
+                  // onChange={(e) => dispatch(setInstruction(e.target.value))}
+                  onChange={(e) => setResponsePrompt(e.target.value)}
                   error={!!promptError}
                   helperText={promptError}
                   required
                 />
               </Grid>
 
-              {/* <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6}>
                 <FormControl fullWidth>
                   <InputLabel id="response-format-label">
                     Response Format
@@ -209,16 +201,14 @@ const ResponsePrompt: React.FC<ResponsePromptProps> = ({
                     label="Response Format"
                     onChange={(e) => setResponseFormat(e.target.value)}
                   >
-                    <MenuItem value="xlsx">Excel Spreadsheet (.xlsx)</MenuItem>
                     <MenuItem value="csv">CSV File (.csv)</MenuItem>
                     <MenuItem value="json">JSON File (.json)</MenuItem>
-                    <MenuItem value="docx">Word Document (.docx)</MenuItem>
                   </Select>
                   <FormHelperText>
                     Format for the generated responses
                   </FormHelperText>
                 </FormControl>
-              </Grid> */}
+              </Grid>
             </Grid>
 
             <Box

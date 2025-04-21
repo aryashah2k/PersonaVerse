@@ -1,16 +1,25 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
-import { fetchSurveyHistory } from '../services/api/surveyHistory';
-import { addSurveyHistory, setSurveyHistory } from '../store/slices/surveyHistorySlice';
-import SurveyHistory from '../model/surveyHistory';
 import { getResponse } from '../services/api/genResponse';
+import { AIModel } from '../model/AIModel';
+import { setFileOutput, setInstruction, setModel, setPersona } from '../store/slices/formSlice';
+import { Persona } from '../model/persona';
 
 
 export const useForm = () => {
     const dispatch = useAppDispatch();
     const { file, fileName } = useAppSelector((state) => state.file)
-    const { model, personas } = useAppSelector((state) => state.form)
+    const { model, personas, responseInJson, instruction: responsePrompt } = useAppSelector((state) => state.form)
+    const [returnFormat, setReturnFormat] = useState("csv");
 
+    useEffect(() => {
+        if (responseInJson) {
+            setReturnFormat("json");
+        } else {
+            setReturnFormat("csv");
+        }
+    }, [responseInJson]);
+    // helper function to submitForm
     const personaParser = (): string[] => {
         return personas.map(
             (persona) =>
@@ -18,16 +27,54 @@ export const useForm = () => {
         );
     };
 
+    const selectModel = useCallback(
+        async (data: AIModel) => {
+            dispatch(setModel(data));
+        },
+        [dispatch]
+    );
+    const selectPersona = useCallback(
+        async (data: Persona) => {
+            dispatch(setPersona(data));
+        },
+        [dispatch]
+    );
+    const setResponsePrompt = useCallback(
+        async (data: string) => {
+            dispatch(setInstruction(data));
+        }, [dispatch]
+    );
+    const setResponseFormat = useCallback(
+        async (data: string) => {
+            if (data === "json") {
+                dispatch(setFileOutput(true));
+            } else {
+                dispatch(setFileOutput(false));
+            }
+        },
+        [dispatch]
+    );
 
-    const fetchSurveyResponseResult = useCallback(
+
+    const submitForm = useCallback(
         async () => {
             const personaDescriptions: string[] = personaParser();
-            const res = await getResponse({ model_name: "gpt-4o-mini", instructions: "something or the other", personaDescriptions: personaDescriptions });
+            const res = await getResponse({ model_name: "gpt-4o-mini", instructions: responsePrompt, personaDescriptions: personaDescriptions, responseInJson });
         },
         [dispatch]);
 
     return {
-        fetchSurveyResponseResult,
+        selectedModel: model,
+        selectedPersonas: personas,
+        uploadedFile: file,
+        uploadedFileName: fileName,
+        responsePrompt,
+        responseFormat: returnFormat,
+        selectModel,
+        selectPersona,
+        setResponsePrompt,
+        setResponseFormat,
+        submitForm,
     };
 };
 

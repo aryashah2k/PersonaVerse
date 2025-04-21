@@ -28,6 +28,7 @@ import { useAppDispatch, useAppSelector } from "../../store";
 import { setModel, setPersona } from "../../store/slices/formSlice";
 import usePersonasAI from "../../hooks/usePersonasAI";
 import useAuth from "../../hooks/useAuth";
+import useForm from "../../hooks/useForm";
 
 const PersonaCard = styled(Card)(({ theme }) => ({
   height: "100%",
@@ -70,9 +71,9 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({
   const [error, setError] = useState<string | null>(null);
   const { models, personas } = usePersonasAI();
   const { profile } = useAuth();
-  const selectedModel = useAppSelector((state) => state.form.model);
-  const selectedPersonas = useAppSelector((state) => state.form.personas);
-  const dispatch = useAppDispatch();
+  const { selectedModel, selectedPersonas, selectPersona, selectModel } =
+    useForm();
+  // const dispatch = useAppDispatch();
 
   useEffect(() => {}, []);
 
@@ -85,11 +86,13 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({
     onPrevious();
   };
   const handlePersonaClick = (persona: Persona) => {
-    dispatch(setPersona(persona));
+    // dispatch(setPersona(persona));
+    selectPersona(persona);
   };
 
   const handleModelChange = (event: SelectChangeEvent<string>) => {
-    dispatch(setModel(models[parseInt(event.target.value) - 1]));
+    // dispatch(setModel(models[parseInt(event.target.value) - 1]));
+    selectModel(models[parseInt(event.target.value) - 1]);
   };
 
   if (loading) {

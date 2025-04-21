@@ -1,13 +1,14 @@
 import { ResponseWrapper } from "../../model/responseWrapper"
 import { supabase } from "../../utils/supabase/supabase"
-import { BackendRoutes } from "./backendRoutes"
+import { BackendRoutes } from "./utils/backendRoutes"
 
 type fnParams = {
     model_name: string,
     instructions: string,
     personaDescriptions: string[],
+    responseInJson?: boolean,
 }
-export async function getResponse({ model_name, instructions, personaDescriptions }: fnParams): Promise<ResponseWrapper<any>> {
+export async function getResponse({ model_name, instructions, personaDescriptions, responseInJson = false }: fnParams): Promise<ResponseWrapper<any>> {
 
     const {
         data: { session },
@@ -42,6 +43,7 @@ export async function getResponse({ model_name, instructions, personaDescription
             model_name: model_name,
             instructions: instructions,
             personas: personaDescriptions,
+            responseInJson: responseInJson,
         }),
     })
 

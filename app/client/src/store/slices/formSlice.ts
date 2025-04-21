@@ -5,7 +5,8 @@ import { AIModel } from '../../model/AIModel';
 interface FormState {
     personas: Persona[];
     model: AIModel | null;
-    responsePrompt: string;
+    instruction: string;
+    responseInJson: boolean;
     isSubmitting: boolean;
     isSubmitted: boolean;
     error: string | null;
@@ -14,7 +15,8 @@ interface FormState {
 const initialState: FormState = {
     personas: [],
     model: null,
-    responsePrompt: '',
+    instruction: '',
+    responseInJson: false,
     isSubmitting: false,
     isSubmitted: false,
     error: null,
@@ -37,8 +39,11 @@ export const formSlice = createSlice({
         setModel: (state, action: PayloadAction<AIModel>) => {
             state.model = action.payload;
         },
-        setResponsePrompt: (state, action: PayloadAction<string>) => {
-            state.responsePrompt = action.payload;
+        setInstruction: (state, action: PayloadAction<string>) => {
+            state.instruction = action.payload;
+        },
+        setFileOutput: (state, action: PayloadAction<boolean>) => {
+            state.responseInJson = action.payload;
         },
         submitStart: (state) => {
             state.isSubmitting = true;
@@ -60,7 +65,8 @@ export const formSlice = createSlice({
 export const {
     setPersona,
     setModel,
-    setResponsePrompt,
+    setInstruction,
+    setFileOutput,
     submitStart,
     submitSuccess,
     submitFailure,

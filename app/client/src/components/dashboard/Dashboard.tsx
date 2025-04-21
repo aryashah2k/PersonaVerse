@@ -37,7 +37,6 @@ const steps = [
 const Dashboard: React.FC = () => {
   const { loadProfile } = useUserProfile();
   const { resetUploadState } = useFileUpload();
-  const { fetchSurveyResponseResult } = useForm();
   const [activeStep, setActiveStep] = useState(0);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [responseUrl, setResponseUrl] = useState<string | null>(null);
