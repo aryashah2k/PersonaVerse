@@ -67,6 +67,7 @@ def fill_survey_form():
     model_name = request.form.get("model_name")
     personas = request.form.get("personas", "")
     instructions = request.form.get("instructions", "")
+    responseInJson = request.form.get("responseInJson", "false").lower() == "true"
 
     if not form_file:
         return jsonify({"error": "No survey form uploaded."}), 400
@@ -115,7 +116,7 @@ def fill_survey_form():
 
     try:
         form_file.stream.seek(0)
-        filled_file, file_ext = generate_response_file(form_file, questions, answers)
+        filled_file, file_ext = generate_response_file(form_file, questions, answers, responseInJson)
     except Exception as e:
         return jsonify({"error": f"Failed to generate completed form: {e}"}), 500
 
