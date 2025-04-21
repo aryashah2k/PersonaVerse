@@ -19,8 +19,8 @@ export async function getResponse({ model_name, instructions, personaDescription
             error: 'User is not authenticated',
         }
     }
-    const baseUrl = import.meta.env.BACKEND_URL as string
-    const path = import.meta.env.DEMO_ROUTE as string
+    const baseUrl = import.meta.env.VITE_BACKEND_URL as string
+    const path = import.meta.env.VITE_DEMO_ROUTE as string
     const url = `${baseUrl}/${path}`
     const res = await fetch("url", {
         method: "POST",
