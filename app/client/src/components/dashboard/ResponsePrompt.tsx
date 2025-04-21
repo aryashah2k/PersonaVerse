@@ -47,11 +47,13 @@ const ResponsePrompt: React.FC<ResponsePromptProps> = ({
     setResponsePrompt,
     responseFormat,
     setResponseFormat,
+    isSubmitted,
+    isSubmitting,
+    error,
   } = useForm();
   // const dispatch = useAppDispatch();
   const [promptError, setPromptError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [pageError, setError] = useState<string | null>(null);
   const estimatedTokenCost = selectedPersonas.length * 5 + 10; // Example token cost calculation
   const hasEnoughTokens =
     (profile?.tokensAvailable || 1000) >= estimatedTokenCost;
@@ -82,8 +84,11 @@ const ResponsePrompt: React.FC<ResponsePromptProps> = ({
       setPromptError(result.error);
       return;
     }
+    submitForm();
     // dispatch(deductTokens(result.tokensUsed));
-    onSubmitComplete(result.responseUrl);
+    if (isSubmitted) {
+      onSubmitComplete(result.responseUrl);
+    }
     // if (result.success && result.responseUrl) {
     //   onSubmitComplete(result.responseUrl);
     // }
@@ -107,9 +112,9 @@ const ResponsePrompt: React.FC<ResponsePromptProps> = ({
             survey
           </Typography>
 
-          {error && (
+          {(pageError || error) && (
             <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
+              {pageError || error}
             </Alert>
           )}
 
