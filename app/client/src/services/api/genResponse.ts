@@ -1,5 +1,6 @@
 import { ResponseWrapper } from "../../model/responseWrapper"
 import { supabase } from "../../utils/supabase/supabase"
+import { BackendRoutes } from "./backendRoutes"
 
 type fnParams = {
     model_name: string,
@@ -19,10 +20,8 @@ export async function getResponse({ model_name, instructions, personaDescription
             error: 'User is not authenticated',
         }
     }
-    const baseUrl = import.meta.env.VITE_BACKEND_URL as string
-    const path = import.meta.env.VITE_DEMO_ROUTE as string
-    const url = `${baseUrl}/${path}`
-    const res = await fetch("url", {
+
+    const res = await fetch(BackendRoutes.DEMO, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
