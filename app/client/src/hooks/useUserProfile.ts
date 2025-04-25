@@ -15,6 +15,7 @@ import {
 import { userService, historyService } from '../services/api';
 import { setProfileState } from '../store/slices/authSlice';
 import Profile from '../model/profile';
+import { getSignedURL } from '../services/api/genResponse';
 
 export const useUserProfile = () => {
   const dispatch = useDispatch();
@@ -92,8 +93,19 @@ export const useUserProfile = () => {
     [dispatch]
   );
 
-  const downloadHistoryItem = useCallback((fileUrl: string) => {
-    historyService.downloadFile(fileUrl);
+  const downloadHistoryItem = useCallback(async (filePath: string) => {
+    const res = await getSignedURL({ expirationTime: 120, storagePath: filePath });
+    if (res.error) {
+      console.error('Error generating signed URL:', res.error);
+    } else if (res.data) {
+      const downloadLink = document.createElement('a');
+      downloadLink.href = res.data;       // the signed URL
+      downloadLink.download = '';          // empty lets it download automatically with correct name
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+
   }, []);
 
   return {

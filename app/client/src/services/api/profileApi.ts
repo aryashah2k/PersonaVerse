@@ -31,3 +31,32 @@ export async function fetchProfile(): Promise<ResponseWrapper<Profile>> {
         error: null,
     }
 }
+
+export async function changePlanType(): Promise<ResponseWrapper<Profile>> {
+    const {
+        data: { session },
+        error: sessionError,
+    } = await supabase.auth.getSession()
+
+    if (!session || sessionError) {
+        return {
+            data: null,
+            error: 'User is not authenticated',
+        }
+    }
+
+    const { data, error } = await supabase.functions.invoke('change-plan-type', {})
+
+    if (error) {
+        return {
+            data: null,
+            error: error.message,
+        }
+    }
+    const profile: Profile = copyWith(data[0])
+
+    return {
+        data: profile,
+        error: null,
+    }
+}

@@ -38,6 +38,7 @@ import Layout from "../../components/layout/Layout";
 import { pricingService } from "../../services/api";
 import { useAuth } from "../../hooks/useAuth";
 import useSubscription from "../../hooks/useSubscription";
+import useAppLoading from "../../hooks/useAppLoading";
 
 interface PricingPlan {
   id: string;
@@ -98,7 +99,7 @@ const BillingSwitch = styled(FormControlLabel)(({ theme }) => ({
 
 const Pricing: React.FC = () => {
   const theme = useTheme();
-  const { isAuthenticated, profile } = useAuth();
+  const { isAuthenticated, profile, changePlanTypeToFree } = useAuth();
   const [annualBilling, setAnnualBilling] = useState(false);
   // const [plans, setPlans] = useState<PricingPlan[]>([]);
   const { subscription } = useSubscription();
@@ -113,6 +114,7 @@ const Pricing: React.FC = () => {
   const [paymentSubmitting, setPaymentSubmitting] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const { setAppLoadingTrue, setAppLoadingFalse } = useAppLoading();
 
   // useEffect(() => {
   //   const fetchPlans = async () => {
@@ -146,13 +148,21 @@ const Pricing: React.FC = () => {
     return 16; // 16% discount for annual billing
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async (selectedPlan: string) => {
+    setAppLoadingTrue();
+    setTimeout(() => {
+      console.log(`Selected plan: ${selectedPlan}`);
+    }, 10);
     if (!isAuthenticated) {
       window.location.href = "/signup";
       return;
     }
-
-    setOpenStripeDialog(true);
+    if (selectedPlan == "free") {
+      await changePlanTypeToFree();
+    } else {
+      setOpenStripeDialog(true);
+    }
+    setAppLoadingFalse();
   };
 
   const handlePaymentFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -282,24 +292,51 @@ const Pricing: React.FC = () => {
           {subscription.map((plan) => (
             <Grid item xs={12} md={4} key={plan.id}>
               <StyledCard
-                elevation={plan.id === "standard" ? 6 : 1}
+                elevation={
+                  (profile?.planType === "premium" && plan.id === "premium") ||
+                  ((profile?.planType === "free" ||
+                    profile?.planType === "standard") &&
+                    plan.id === "standard")
+                    ? 6
+                    : 1
+                }
                 sx={{
                   transform: `${
-                    plan.id === "standard" ? "scale(1.05)" : "none"
+                    (profile?.planType === "premium" &&
+                      plan.id === "premium") ||
+                    ((profile?.planType === "free" ||
+                      profile?.planType === "standard") &&
+                      plan.id === "standard")
+                      ? "scale(1.05)"
+                      : "none"
                   }`,
-                  border:
-                    plan.id === "standard"
+                  border: `${
+                    (profile?.planType === "premium" &&
+                      plan.id === "premium") ||
+                    ((profile?.planType === "free" ||
+                      profile?.planType === "standard") &&
+                      plan.id === "standard")
                       ? `2px solid ${theme.palette.primary.main}`
-                      : "none",
-                  zIndex: plan.id == "standard" ? 1 : 0,
+                      : "none"
+                  }`,
+                  zIndex:
+                    (profile?.planType === "premium" &&
+                      plan.id === "premium") ||
+                    ((profile?.planType === "free" ||
+                      profile?.planType === "standard") &&
+                      plan.id === "standard")
+                      ? 1
+                      : 0,
                   [theme.breakpoints.down("md")]: {
                     transform: "none",
                   },
                 }}
               >
-                {plan.id === "standard" && (
-                  <PopularBadge color="primary" label="Most Popular" />
-                )}
+                {(profile?.planType === "free" ||
+                  profile?.planType === "standard") &&
+                  plan.id === "standard" && (
+                    <PopularBadge color="primary" label="Most Popular" />
+                  )}
 
                 <CardHeader
                   title={
@@ -386,7 +423,13 @@ const Pricing: React.FC = () => {
                   ) : ( */}
                   <Button
                     fullWidth
-                    variant={plan.id == "standard" ? "contained" : "outlined"}
+                    variant={
+                      (plan.id == "premium" &&
+                        profile?.planType == "premium") ||
+                      (plan.id == "standard" && profile?.planType != "premium")
+                        ? "contained"
+                        : "outlined"
+                    }
                     size="large"
                     color="primary"
                     endIcon={
@@ -394,12 +437,31 @@ const Pricing: React.FC = () => {
                         <ArrowForwardIcon />
                       )
                     }
-                    onClick={handleCheckout}
+                    onClick={() => handleCheckout(plan.id)}
                     disabled={profile?.planType === plan.id}
                   >
-                    {profile?.planType === plan.id
-                      ? "Subscribed"
-                      : "Subscribe Now"}
+                    {(() => {
+                      if (!profile?.planType) return "Subscribe"; // fallback
+
+                      if (profile.planType === "free") {
+                        return plan.id === "free"
+                          ? "Subscribed"
+                          : "Subscribe Now";
+                      }
+
+                      if (profile.planType === "standard") {
+                        if (plan.id === "free") return "Downgrade";
+                        if (plan.id === "standard") return "Subscribed";
+                        if (plan.id === "premium") return "Upgrade";
+                      }
+
+                      if (profile.planType === "premium") {
+                        if (plan.id === "premium") return "Subscribed";
+                        return "Downgrade";
+                      }
+
+                      return "Subscribe"; // default fallback
+                    })()}
                   </Button>
                   {/* )} */}
                 </CardActions>

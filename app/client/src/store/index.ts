@@ -7,7 +7,7 @@ import authReducer from './slices/authSlice';
 import formReducer from './slices/formSlice';
 import subscriptionReducer from './slices/subscriptionSlice';
 import surveyHistoryReducer from './slices/surveyHistorySlice';
-
+import appLoadingReducer from './slices/appLoadingSlice';
 export const store = configureStore({
   reducer: {
     user: userReducer,
@@ -17,6 +17,7 @@ export const store = configureStore({
     form: formReducer,
     surveyHistory: surveyHistoryReducer,
     subscription: subscriptionReducer,
+    appLoading: appLoadingReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

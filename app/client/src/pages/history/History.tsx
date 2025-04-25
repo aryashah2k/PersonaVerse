@@ -233,7 +233,7 @@ const History: React.FC = () => {
                     <StyledTableCell align="center">Actions</StyledTableCell>
                   </TableRow>
                 </TableHead>
-                {profile?.planType == "free" && (
+                {profile?.planType != "premium" && (
                   <TableBody>
                     <TableRow>
                       <TableCell colSpan={5} align="center">
@@ -309,7 +309,7 @@ const History: React.FC = () => {
                             <IconButton
                               size="small"
                               color="primary"
-                              onClick={() => handleDownload(item.fileUrl)}
+                              onClick={() => handleDownload(item.filePath)}
                             >
                               <DownloadIcon fontSize="small" />
                             </IconButton>

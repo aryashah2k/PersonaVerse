@@ -64,12 +64,11 @@ export async function getResponse({ file, model_id, instructions, personaDescrip
 
 type SignedURLParams = {
     storagePath: string;
-    expirationTime: number;
 }
-export async function getSignedURL({ storagePath, expirationTime }: SignedURLParams): Promise<ResponseWrapper<string>> {
+export async function getSignedURL({ storagePath }: SignedURLParams): Promise<ResponseWrapper<string>> {
 
     const { data, error } = await supabase.functions.invoke('smooth-endpoint', {
-        body: { storagePath, expirationTime },
+        body: { storagePath, expirationTime: 600 },
     })
     if (error) {
         return {

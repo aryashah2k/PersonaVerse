@@ -1,0 +1,40 @@
+/* SVG loader made by: csozi | Website: www.csozi.hu*/
+
+/*You dont need this "p" style*/
+.text {
+  font-weight: bolder;
+  font-size: 17px;
+  color: black;
+  position: absolute;
+  translate: -50% 0px;
+  top: 20px;
+  left: 50%;
+  text-align: center;
+}
+
+.loader {
+  overflow: visible;
+  height: fit-content;
+  width: fit-content;
+  padding: 20px;
+  display: flex;
+}
+
+.logo {
+  fill: none;
+  stroke-dasharray: 4px;
+  /*<-- Play with this number until it look cool */
+  stroke: #4f46e5;
+  animation: load 15s infinite linear;
+}
+
+@keyframes load {
+  0% {
+    stroke-dashoffset: 50px;
+  }
+
+  100% {
+    stroke-dashoffset: 200px;
+    /* <-- This number should always be 10 times the number up there*/
+  }
+}

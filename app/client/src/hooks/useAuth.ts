@@ -14,6 +14,7 @@ import {
 } from '../store/slices/authSlice';
 import { authService } from '../services/authService';
 import { User } from '@supabase/supabase-js';
+import { changePlanType } from '../services/api/profileApi';
 
 export interface LoginCredentials {
   email: string;
@@ -127,6 +128,21 @@ export const useAuth = () => {
     [dispatch]
   );
 
+  const changePlanTypeToFree = useCallback(async () => {
+    try {
+      const res = await changePlanType();
+      if (res.error) {
+        return { success: false, error: res.error };
+      }
+      else {
+        handleRefresh(user)
+      }
+    } catch (error) {
+      dispatch(loginFailure(error instanceof Error ? error.message : 'Failed to change plan type'));
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to change plan type' };
+    }
+  }, [dispatch]);
+
 
   const clearAuthError = useCallback(() => {
     dispatch(clearError());
@@ -144,6 +160,7 @@ export const useAuth = () => {
     profile,
     clearAuthError,
     handleRefresh,
+    changePlanTypeToFree
   };
 };
 
