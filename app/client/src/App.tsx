@@ -63,7 +63,7 @@ const App: React.FC = () => {
             justifyContent: "center",
             alignItems: "center",
             backgroundColor: "#ffffff75",
-            opacity: 0.8,
+            opacity: 1,
             position: "absolute",
             zIndex: 9999,
             top: 0,

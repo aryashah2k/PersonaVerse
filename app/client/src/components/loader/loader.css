@@ -1,40 +1,87 @@
-/* SVG loader made by: csozi | Website: www.csozi.hu*/
-
-/*You dont need this "p" style*/
-.text {
-  font-weight: bolder;
-  font-size: 17px;
-  color: black;
+.absolute {
   position: absolute;
-  translate: -50% 0px;
-  top: 20px;
-  left: 50%;
-  text-align: center;
+}
+
+.inline-block {
+  display: inline-block;
 }
 
 .loader {
-  overflow: visible;
-  height: fit-content;
-  width: fit-content;
-  padding: 20px;
   display: flex;
+  margin: 0.25em 0;
 }
 
-.logo {
-  fill: none;
-  stroke-dasharray: 4px;
-  /*<-- Play with this number until it look cool */
-  stroke: #4f46e5;
-  animation: load 15s infinite linear;
+.w-2 {
+  width: 0.5em;
 }
 
-@keyframes load {
+/* Animate normal letters (P, R, S, N, A) */
+.dash {
+  animation: dashArray 2s ease-in-out infinite, dashOffset 2s linear infinite;
+}
+
+/* Animate rotating letters (E and O) */
+.spin {
+  animation: spinDashArray 2s ease-in-out infinite, spin 8s ease-in-out infinite,
+    dashOffset 2s linear infinite;
+  transform-origin: center center;
+}
+
+/* Stroke dash array animation for normal letters */
+@keyframes dashArray {
   0% {
-    stroke-dashoffset: 50px;
+    stroke-dasharray: 0 1 359 0;
   }
-
+  50% {
+    stroke-dasharray: 0 359 1 0;
+  }
   100% {
-    stroke-dashoffset: 200px;
-    /* <-- This number should always be 10 times the number up there*/
+    stroke-dasharray: 359 1 0 0;
+  }
+}
+
+/* Stroke dash array animation for rotating letters (E, O) */
+@keyframes spinDashArray {
+  0% {
+    stroke-dasharray: 270 90;
+  }
+  50% {
+    stroke-dasharray: 0 360;
+  }
+  100% {
+    stroke-dasharray: 270 90;
+  }
+}
+
+/* Stroke offset movement */
+@keyframes dashOffset {
+  0% {
+    stroke-dashoffset: 365;
+  }
+  100% {
+    stroke-dashoffset: 5;
+  }
+}
+
+/* Rotation for E and O */
+@keyframes spin {
+  0% {
+    rotate: 0deg;
+  }
+  12.5%,
+  25% {
+    rotate: 270deg;
+  }
+  37.5%,
+  50% {
+    rotate: 540deg;
+  }
+  62.5%,
+  75% {
+    rotate: 810deg;
+  }
+  87.5%,
+  100% {
+    rotate: 1080deg;
   }
 }
