@@ -44,7 +44,7 @@ export async function getResponse({ file, model_id, instructions, personaDescrip
     formData.append("responseInJson", responseInJson.toString())
 
 
-    const res = await fetch(BackendRoutes.DEMO, {
+    const res = await fetch(BackendRoutes.FILL_SURVEY, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

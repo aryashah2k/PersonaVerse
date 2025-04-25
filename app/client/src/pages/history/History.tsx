@@ -233,7 +233,7 @@ const History: React.FC = () => {
                     <StyledTableCell align="center">Actions</StyledTableCell>
                   </TableRow>
                 </TableHead>
-                {profile?.planType != "premium" && (
+                {profile?.planType == "free" && (
                   <TableBody>
                     <TableRow>
                       <TableCell colSpan={5} align="center">
