@@ -94,7 +94,7 @@ export const useUserProfile = () => {
   );
 
   const downloadHistoryItem = useCallback(async (filePath: string) => {
-    const res = await getSignedURL({ expirationTime: 120, storagePath: filePath });
+    const res = await getSignedURL({ storagePath: filePath });
     if (res.error) {
       console.error('Error generating signed URL:', res.error);
     } else if (res.data) {

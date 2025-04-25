@@ -139,6 +139,11 @@ export const userService = {
 
 // History Service
 export const historyService = {
+  downloadFile: (fileUrl: string) => {
+    // In a real app, this would trigger a file download
+    console.log(`Downloading file from: ${fileUrl}`);
+    alert(`In a real app, this would download the file from: ${fileUrl}`);
+  },
   getUserHistory: async () => {
     // Simulate API call
     await delay(1000);
