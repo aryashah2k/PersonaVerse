@@ -13,9 +13,9 @@ from app.utils.env_utils import get_required_env_var
 
 api = Blueprint("api", __name__)
 
-HEALTH_CHECK_ROUTE = get_required_env_var("HEALTH_CHECK_ROUTE")
-FILL_SURVEY_ROUTE = get_required_env_var("FILL_SURVEY_ROUTE")
-DEMO_ROUTE = get_required_env_var("DEMO_ROUTE")
+HEALTH_CHECK_ROUTE = get_required_env_var("VITE_HEALTH_CHECK_ROUTE")
+FILL_SURVEY_ROUTE = get_required_env_var("VITE_FILL_SURVEY_ROUTE")
+DEMO_ROUTE = get_required_env_var("VITE_DEMO_ROUTE")
 
 @api.route(HEALTH_CHECK_ROUTE, methods=['GET'])
 def health_check():
