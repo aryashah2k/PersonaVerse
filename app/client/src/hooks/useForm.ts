@@ -2,14 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { getResponse } from '../services/api/genResponse';
 import { AIModel } from '../model/AIModel';
-import { setFileOutput, setInstruction, setModel, setPersona } from '../store/slices/formSlice';
+import { setFileOutput, setInstruction, setModel, setPersona, submitFailure, submitStart, submitSuccess } from '../store/slices/formSlice';
 import { Persona } from '../model/persona';
 
 
 export const useForm = () => {
     const dispatch = useAppDispatch();
     const { file, fileName } = useAppSelector((state) => state.file)
-    const { model, personas, responseInJson, instruction: responsePrompt } = useAppSelector((state) => state.form)
+    const { model, personas, responseInJson, instruction: responsePrompt, isSubmitting, error, isSubmitted } = useAppSelector((state) => state.form)
     const [returnFormat, setReturnFormat] = useState("csv");
 
     useEffect(() => {
@@ -59,7 +59,13 @@ export const useForm = () => {
     const submitForm = useCallback(
         async () => {
             const personaDescriptions: string[] = personaParser();
+            dispatch(submitStart());
             const res = await getResponse({ model_name: "gpt-4o-mini", instructions: responsePrompt, personaDescriptions: personaDescriptions, responseInJson });
+            if (res.error) {
+                dispatch(submitFailure(res.error));
+            }
+            dispatch(submitSuccess());
+            // set the url here, deduct tokens, and update history if the user has a premium subscription 
         },
         [dispatch]);
 
@@ -75,6 +81,9 @@ export const useForm = () => {
         setResponsePrompt,
         setResponseFormat,
         submitForm,
+        isSubmitting,
+        isSubmitted,
+        error,
     };
 };
 
