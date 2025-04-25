@@ -3,12 +3,26 @@ import { supabase } from "../../utils/supabase/supabase"
 import { BackendRoutes } from "./utils/backendRoutes"
 
 type fnParams = {
-    model_name: string,
+    model_id: string | undefined,
     instructions: string,
     personaDescriptions: string[],
     responseInJson?: boolean,
+    file: File | null,
 }
-export async function getResponse({ model_name, instructions, personaDescriptions, responseInJson = false }: fnParams): Promise<ResponseWrapper<any>> {
+export async function getResponse({ file, model_id, instructions, personaDescriptions, responseInJson = false }: fnParams): Promise<ResponseWrapper<any>> {
+
+    if (!file) {
+        return {
+            data: null,
+            error: 'File is not provided',
+        }
+    }
+    if (!model_id) {
+        return {
+            data: null,
+            error: "Select a model",
+        }
+    }
 
     const {
         data: { session },
@@ -22,29 +36,21 @@ export async function getResponse({ model_name, instructions, personaDescription
         }
     }
 
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("model_id", model_id.toString())
+    formData.append("instructions", instructions)
+    formData.append("personas", JSON.stringify(personaDescriptions))
+    formData.append("responseInJson", responseInJson.toString())
+
+
     const res = await fetch(BackendRoutes.DEMO, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            'Authorization': `Bearer ${session.access_token}`
         },
-        body: JSON.stringify({
-            questions: [
-                "How would you rate the overall quality of education in your country in Asia?",
-                "How accessible do you think higher education is for students in rural areas of your country?",
-                "How satisfied are you with the integration of technology in classrooms across Asia?",
-                "How effective do you believe the current education system is in preparing students for the job market?",
-                "How well do schools in Asia promote creativity and critical thinking?",
-                "How would you rate the importance given to mental health support in schools and universities in Asia?",
-                "How do you perceive the role of private vs public education in terms of quality in your country?",
-                "How equitable do you find access to quality education among different socio-economic groups in Asia?",
-                "How much emphasis do you think is placed on rote memorization in the Asian education system?",
-                "How optimistic are you about the future improvements in the education system in Asia over the next decade?",
-            ],
-            model_name: model_name,
-            instructions: instructions,
-            personas: personaDescriptions,
-            responseInJson: responseInJson,
-        }),
+        body: formData,
     })
 
     console.log("API response:", await res.json());
@@ -52,6 +58,27 @@ export async function getResponse({ model_name, instructions, personaDescription
 
     return {
         data: null,
+        error: null,
+    }
+}
+
+type SignedURLParams = {
+    storagePath: string;
+    expirationTime: number;
+}
+export async function getSignedURL({ storagePath, expirationTime }: SignedURLParams): Promise<ResponseWrapper<string>> {
+
+    const { data, error } = await supabase.functions.invoke('smooth-endpoint', {
+        body: { storagePath, expirationTime },
+    })
+    if (error) {
+        return {
+            data: null,
+            error: error.message,
+        }
+    }
+    return {
+        data: data.signedUrl,
         error: null,
     }
 }

@@ -46,28 +46,40 @@ export const useForm = () => {
     );
     const setResponseFormat = useCallback(
         async (data: string) => {
-            if (data === "json") {
-                dispatch(setFileOutput(true));
-            } else {
+            if (data == "csv") {
                 dispatch(setFileOutput(false));
+            } else if (data == "json") {
+                dispatch(setFileOutput(true));
             }
         },
         [dispatch]
     );
 
+    const setPageError = useCallback(
+        (error: string) => {
+            dispatch(submitFailure(error));
+        },
+        [dispatch]
+    );
 
     const submitForm = useCallback(
         async () => {
             const personaDescriptions: string[] = personaParser();
             dispatch(submitStart());
-            const res = await getResponse({ model_name: "gpt-4o-mini", instructions: responsePrompt, personaDescriptions: personaDescriptions, responseInJson });
+
+
+            const res = await getResponse({ file: file, model_id: model?.id, instructions: responsePrompt, personaDescriptions: personaDescriptions, responseInJson });
+
             if (res.error) {
+                console.log(res.error);
+
                 dispatch(submitFailure(res.error));
             }
             dispatch(submitSuccess());
+
             // set the url here, deduct tokens, and update history if the user has a premium subscription 
         },
-        [dispatch]);
+        [dispatch, file, responseInJson, responsePrompt]);
 
     return {
         selectedModel: model,
