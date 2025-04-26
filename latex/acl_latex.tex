@@ -244,27 +244,6 @@ The dataset encompasses 10 distinct domains, selected to cover a broad spectrum 
 The dataset features 433 unique personas designed to represent diverse demographic backgrounds, professions, interests, and perspectives. Our analysis of persona characteristics revealed a strong emphasis on reusing of persona- Most personas (71.4\%) appear in only one domain, suggesting domain-specific persona design, while a smaller percentage (28.6\%) appear across multiple domains, providing cross-domain consistency. The most common persona types include professionals (17.8\%), educators (14.2\%), students (12.5\%), healthcare workers (11.3\%), and technical specialists (10.7\%). Clustering analysis applied to persona descriptions identified 8 distinct persona categories, each characterized by specific keyword patterns and demographic indicators. These clusters enable systematic analysis of response patterns across different demographic segments.
 \subsubsection{Survey Question Analysis}
 The dataset contains 82 unique questions distributed across the 10 domains. Analysis of these questions revealed important characteristics relevant to instruction tuning: The distribution includes open-ended questions (42.7\%), Likert-scale questions (31.7\%), yes/no questions (18.3\%), and statement/agreement prompts (7.3\%). Each domain exhibits distinct question patterns reflecting standard survey methodology in that field: healthcare questions emphasize patient experience and satisfaction metrics, technology questions focus on usage patterns and adoption factors, finance questions address financial literacy and behavioral economics. Questions were derived from established benchmark surveys including HCAHPS (healthcare)\citep{HCAHPS_CMS_2022}, NSSE (education) \citep{NSSE_IndianaUniversity_2024}, TAM (technology adoption) \citep{TAM_Davis_1989}, NEP Scale (environmental) \citep{NEP_Dunlap_2000}, Gallup Q12 (workplace)\citep{GallupQ12_Buckingham_Coffman_1999}, WHOQOL-BREF (quality of life)\citep{WHOQOL_BREF_WHO_1998}, ACSI (consumer satisfaction)\citep{ACSI_Fornell_1996}, World Values Survey (social attitudes)\citep{WVS_WorldValuesSurveyAssociation_2022}, and FINRA (financial literacy)\citep{FINRA_FINRAFoundation_2021}.
-
-\begin{table*}[ht]
-  \centering
-  \begin{tabular}{|p{3cm}|p{5cm}|p{3cm}|p{5cm}|}
-    \hline
-    \textbf{Base Language Model} & \textbf{Reason} & \textbf{Embedding Models} & \textbf{Reason} \\
-    \hline
-    TinyLlama 1B& Lightweight architecture (1.1B params) enables rapid generation; Optimized for instruction tuning with 3T token pretraining & FastText & Efficient subword embeddings for survey text tokenization \\
-    \hline
-    Microsoft Phi-2& State-of-the-art reasoning (2.7B params); Trained on synthetic NLP textbooks for structured output & BERT-Mini & Low-latency embeddings compatible with Phi-2's architecture \\
-    \hline 
-    Qwen-2 2B& Bilingual CN/EN support; 2.4B token context window for complex surveys & all-MiniLM-L6-v2 & Optimized for semantic similarity in short responses \\
-    \hline
-    LLaMA-2-7B& Default choice for response generation& Sentence Transformers& Default choice for embeddings\\
-    \hline
-    Mistral-7B& Consistent output quality; variants optimized for question answering and instruction following& Universal Sentence Encoder (USE)& Fast inference, fine-tuned for question-answering tasks\\
-    \hline
-  \end{tabular}
-  \caption{Proposed Base Language Models and Embedding Models}
-\end{table*}
-
 \begin{table*}[ht]
   \centering
   \begin{tabular}{|p{3cm}|p{5cm}|}
@@ -284,6 +263,30 @@ The dataset contains 82 unique questions distributed across the 10 domains. Anal
   \caption{Summary Table for adopted Evaluation Metrics}
 \end{table*}
 \section{Methodology}
+\begin{table*}[ht]
+  \centering
+  \begin{tabular}{|p{2.6cm}|p{4.8cm}|p{2.6cm}|p{4.8cm}|}
+    \hline
+    \textbf{Base Language Model} & \textbf{Reason} & \textbf{Embedding Models} & \textbf{Reason} \\
+    \hline
+    TinyLlama 1.1B & Lightweight architecture (1.1B params); Optimized for instruction tuning; Highest BLEU score despite small size & FastText & Efficient subword embeddings for survey text tokenization \\
+    \hline
+    Microsoft Phi-2 & Strong reasoning (2.7B params); Trained on synthetic data; Highest ROUGE1 scores and excellent quality & BERT-Mini & Low-latency embeddings compatible with Phi-2's architecture \\
+    \hline 
+    Qwen2 1.5B & Bilingual support; Efficient parameter usage at 1.5B; Strong sentiment preservation & all-MiniLM-L6-v2 & Optimized for semantic similarity in short responses \\
+    \hline
+    Llama 3.1 8B Lexi & Latest LLaMA iteration; 8B parameter size balances capacity/efficiency; Uncensored for wider response range & Sentence Transformers & Versatile framework with strong semantic understanding \\
+    \hline
+    Mistral 7B & Consistent output quality; Strong structural similarity; Excellent sentence count preservation across domains & USE & Fast inference, fine-tuned for question-answering tasks \\
+    \hline
+    DeepSeek R1 Distill Qwen2 1.5B & Knowledge distillation from larger models; Top survey quality (0.8817); Best sentiment similarity & MPNet & Strong contextual embeddings for sentiment alignment \\
+    \hline
+    Qwen1.5 MoE & Mixture-of-Experts architecture; Specialized pattern capabilities; Good text metrics despite structural limits & E5-small & Efficient embeddings designed for retrieval tasks \\
+    \hline
+  \end{tabular}
+  \caption{Base Language Models and Embedding Models Used in Survey Response Generation}
+\end{table*}
+
 Our experimental approach focuses on instruction-tuning small language models (SLMs) for the specialized task of survey response generation using parameter-efficient techniques. We designed a comprehensive methodology that balances computational efficiency with model performance, enabling effective fine-tuning even with limited hardware resources.
 \subsection{Base Model Selection}
 For our primary experiments, we selected TinyLlama-1.1B-Chat as the base model based on several considerations:
@@ -327,7 +330,7 @@ Our adaptive quantization strategy enables efficient training across diverse har
 We conducted a comprehensive evaluation of our instruction-tuned models using a multi-faceted framework designed to assess both general text generation quality and domain-specific response characteristics. Our evaluation framework encompasses the following dimensions:
 
 \begin{itemize}
-    \item \textbf{Standard NLG Metrics}: To benchmark against established standards such as BLEU, ROUGE, and METEOR.
+    \item \textbf{Standard NLG Metrics}: To benchmark against established standards such as BLEU, ROUGE
     \item \textbf{Semantic Similarity Metrics}: To evaluate contextual relevance using metrics like BERTScore and embedding-based similarity measures.
     \item \textbf{Domain-Specific Metrics}: To assess the appropriateness of responses within specialized domains using custom metrics tailored to the task.
     \item \textbf{Response Diversity Metrics}: To evaluate variation across generated responses using Distinct-$n$ metrics and lexical diversity measures.
@@ -343,6 +346,139 @@ The complete evaluation pipeline was developed using the Hugging Face ecosystem 
     \item \textbf{PEFT (Parameter-Efficient Fine-Tuning)}: For fine-tuning models with minimal computational overhead.
     \item \textbf{Accelerate}: For hardware acceleration and distributed training support.
 \end{itemize}
+
+\section{Results and Analysis}
+
+This section presents the performance analysis of seven fine-tuned language models on survey response generation tasks. We evaluate models across various domains and metrics to assess their ability to generate high-quality survey responses that replicate human-like patterns.
+
+\subsection{Overall Performance Comparison}
+
+Table~\ref{tab:overall_performance} summarizes the overall performance of each model across all evaluation metrics.
+
+\begin{table}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{l|ccccc}
+\hline
+\textbf{Model} & \textbf{BLEU} & \textbf{ROUGE1} & \textbf{BScore} & \textbf{SQ} & \textbf{SS} \\
+\hline
+DeepSeek R1 & 0.071 & 0.404 & 0.884 & 0.882 & 0.870 \\
+Llama 3.1 8B & 0.053 & 0.392 & 0.883 & 0.805 & 0.803 \\
+Mistral 7B & 0.078 & 0.416 & 0.889 & 0.867 & 0.800 \\
+Phi-2 & 0.087 & \textbf{0.429} & \textbf{0.891} & 0.868 & 0.820 \\
+Qwen1.5 MoE & 0.050 & 0.356 & 0.854 & 0.574 & 0.788 \\
+Qwen2 1.5B & 0.053 & 0.377 & 0.883 & 0.866 & 0.845 \\
+TinyLlama 1.1B & \textbf{0.090} & 0.419 & 0.890 & 0.873 & 0.835 \\
+\hline
+\end{tabular}%
+}
+\caption{Overall performance comparison across models. BScore = BERTScore F1, SQ = Survey Quality, SS = Sentiment Similarity.}
+\label{tab:overall_performance}
+\end{table}
+
+Our analysis reveals several key findings:
+
+\begin{itemize}
+\item \textbf{Best Overall Performance}: Despite its small parameter count, TinyLlama 1.1B demonstrates surprisingly strong performance across most metrics, achieving the highest BLEU score (0.090) and competitive results in other text generation metrics. Phi-2 also shows excellent all-around performance with the highest ROUGE1 score (0.429) among all models.
+
+\item \textbf{Quality vs. Efficiency}: The smaller models (TinyLlama 1.1B and Phi-2) outperform several larger models, suggesting that efficient fine-tuning on domain-specific tasks can effectively compensate for fewer parameters.
+
+\item \textbf{Outlier Performance}: Qwen1.5 MoE significantly underperforms in structural similarity metrics (length and sentence count similarity), suggesting potential issues with maintaining appropriate response formats despite having competitive text generation quality.
+
+\item \textbf{Consistency Across Metrics}: Mistral 7B shows the most balanced performance across all metrics, with particularly strong sentence count similarity (0.913), indicating its ability to generate responses with appropriate structural characteristics.
+\end{itemize}
+
+\subsection{Domain-Specific Performance}
+
+\subsubsection{Performance by Domain}
+
+The models exhibit varying strengths across different domains
+
+\begin{itemize}
+\item \textbf{Social Issues Domain}: Most models achieved their highest BLEU and ROUGE scores in this domain, with TinyLlama 1.1B (BLEU: 0.132) and Phi-2 (ROUGE1: 0.477) performing exceptionally well. This suggests the models are particularly effective at capturing language patterns in social issue surveys.
+
+\item \textbf{Finance Domain}: Notable performance from TinyLlama 1.1B (BLEU: 0.142) and Mistral 7B (BLEU: 0.139), indicating strong capability in generating financially-oriented responses.
+
+\item \textbf{Technology Domain}: Phi-2 achieved the highest survey quality score (0.936) in this domain, demonstrating its strength in generating technology-related survey responses.
+
+\item \textbf{Healthcare Domain}: Consistent performance across models, with DeepSeek R1 Distill Qwen2 1.5B showing strong ROUGE1 scores (0.429).
+
+\item \textbf{Challenging Domains}: Most models struggled relatively more with the consumer preferences and lifestyle domains, suggesting these domains may contain more diverse or nuanced response patterns.
+\end{itemize}
+
+\subsubsection{Domain Robustness Analysis}
+
+Table~\ref{tab:domain_robustness} presents the standard deviation of performance across domains for each model, highlighting their consistency.
+
+\begin{table}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{l|cccc}
+\hline
+\textbf{Model} & \textbf{BLEU} & \textbf{ROUGE1} & \textbf{SQ} & \textbf{SS} \\
+\hline
+DeepSeek R1 & 0.027 & 0.024 & 0.033 & 0.097 \\
+Llama 3.1 8B & 0.023 & 0.025 & 0.037 & 0.073 \\
+Mistral 7B & 0.029 & 0.028 & 0.031 & 0.077 \\
+Phi-2 & 0.028 & 0.030 & 0.035 & 0.078 \\
+Qwen1.5 MoE & 0.022 & 0.021 & 0.042 & 0.112 \\
+Qwen2 1.5B & \textbf{0.021} & 0.025 & \textbf{0.024} & \textbf{0.056} \\
+TinyLlama 1.1B & 0.035 & \textbf{0.019} & 0.019 & 0.066 \\
+\hline
+\end{tabular}%
+}
+\caption{Standard deviation of performance across domains. SQ = Survey Quality, SS = Sentiment Similarity. Lower values indicate more consistent performance.}
+\label{tab:domain_robustness}
+\end{table}
+
+Qwen2 1.5B and TinyLlama 1.1B demonstrate the most consistent survey quality scores across domains, suggesting more robust generalization capabilities.
+
+\subsection{Metric-Specific Insights}
+
+\subsubsection{Text Generation Quality}
+
+The BLEU, ROUGE, and BERTScore metrics assess how closely the generated text matches reference responses:
+
+\begin{itemize}
+\item \textbf{BLEU Score Performance}: TinyLlama 1.1B (0.090) and Phi-2 (0.087) achieved the highest BLEU scores, indicating better n-gram precision in generated responses.
+
+\item \textbf{ROUGE Metrics}: Phi-2 led in ROUGE1 (0.429), while TinyLlama 1.1B performed best in ROUGE2 (0.128) and ROUGEL (0.239), demonstrating superior recall-oriented performance.
+
+\item \textbf{BERTScore Consistency}: All models except Qwen1.5 MoE achieved BERTScore F1 values above 0.88, with Phi-2 (0.891) and TinyLlama 1.1B (0.890) performing best, indicating strong semantic similarity to reference responses.
+\end{itemize}
+
+\subsubsection{Survey-Specific Characteristics}
+
+The survey-specific metrics evaluate how well models capture the structural and stylistic aspects of survey responses:
+
+\begin{itemize}
+\item \textbf{Survey Quality}: DeepSeek R1 Distill Qwen2 1.5B achieved the highest survey quality score (0.882), closely followed by TinyLlama 1.1B (0.873) and Phi-2 (0.868), suggesting these models generate responses that better adhere to survey-specific characteristics.
+
+\item \textbf{Structural Similarity}: Mistral 7B demonstrated the strongest performance in maintaining appropriate response length (0.887) and sentence count (0.913), indicating its ability to generate responses with human-like structural patterns.
+
+\item \textbf{Sentiment Alignment}: DeepSeek R1 Distill Qwen2 1.5B showed the best sentiment similarity (0.870), followed by Qwen2 1.5B (0.845), reflecting better preservation of the emotional tone present in reference responses.
+\end{itemize}
+
+\subsection{Performance-Size Efficiency Analysis}
+
+An important consideration is the relationship between model size and performance:
+
+\begin{itemize}
+\item \textbf{Parameter Efficiency}: TinyLlama 1.1B demonstrates remarkable efficiency, achieving competitive or superior results despite having significantly fewer parameters than the other models.
+
+\item \textbf{MoE Architecture Impact}: The Qwen1.5 MoE model shows relatively poor performance despite its mixture-of-experts architecture, particularly in structural similarity metrics, suggesting potential issues with the MoE approach for survey response generation.
+
+\item \textbf{Optimal Size Range}: Models in the 1-2B parameter range (Phi-2, TinyLlama 1.1B, Qwen2 1.5B, DeepSeek R1 Distill Qwen2 1.5B) generally performed as well or better than larger models, indicating this may be an efficient parameter range for survey response generation tasks.
+\end{itemize}
+
+\subsection{Conclusion}
+
+Our evaluation demonstrates that fine-tuning smaller language models for survey response generation can yield highly effective results. TinyLlama 1.1B and Phi-2 emerge as particularly strong performers, challenging larger models across most metrics. The consistent performance of Mistral 7B and the strong survey quality scores of DeepSeek R1 Distill Qwen2 1.5B also highlight these models' effectiveness.
+
+The domain-specific analysis reveals varying strengths across models, with social issues and finance emerging as domains where models perform particularly well. The models generally struggle more with consumer preferences and lifestyle domains, suggesting areas for future improvement.
+
+These findings have important implications for deploying language models in survey response generation applications, demonstrating that carefully fine-tuned smaller models can provide efficient and effective solutions for this specific task.
+
 
 \section{Discussion}
 
