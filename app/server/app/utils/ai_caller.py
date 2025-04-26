@@ -90,6 +90,9 @@ def get_system_prompt() -> str:
 def call_openai(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     prompt = build_prompt(questions, personas, instructions)
     max_tokens = estimate_tokens(prompt, model_name)
+    context_window = get_model_specs(model_name)["context_window"]
+    max_tokens = min(max_tokens, context_window)
+
     response = openai_client.chat.completions.create(
         model=model_name,
         max_tokens=max_tokens,
@@ -109,6 +112,8 @@ def call_openai(model_name: str, questions: list, personas: list, instructions: 
 def call_claude(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     prompt = build_prompt(questions, personas, instructions)
     max_tokens = estimate_tokens(prompt, model_name)
+    context_window = get_model_specs(model_name)["context_window"]
+    max_tokens = min(max_tokens, context_window)
     
     full_response_text = ""
     input_tokens = 0
@@ -141,6 +146,9 @@ def call_claude(model_name: str, questions: list, personas: list, instructions: 
 def call_gemini(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     prompt = build_prompt(questions, personas, instructions)
     max_tokens = estimate_tokens(prompt, model_name)
+    context_window = get_model_specs(model_name)["context_window"]
+    max_tokens = min(max_tokens, context_window)
+
     response = gemini_client.models.generate_content(
         model=model_name,
         config=types.GenerateContentConfig(
@@ -162,6 +170,9 @@ def call_gemini(model_name: str, questions: list, personas: list, instructions: 
 def call_deepseek(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     prompt = build_prompt(questions, personas, instructions)
     max_tokens = estimate_tokens(prompt, model_name)
+    context_window = get_model_specs(model_name)["context_window"]
+    max_tokens = min(max_tokens, context_window)
+    
     response = deepseek_client.chat.completions.create(
         model=model_name,
         max_tokens=max_tokens,
