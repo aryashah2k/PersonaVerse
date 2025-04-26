@@ -62,8 +62,8 @@ def fill_survey_form():
         return jsonify({"error": f"Token validation failed: {e}"}), 401
 
     form_file = request.files.get("form_file")
-    model_id = request.form.get("model_id")
-    personas = request.form.get("personas", "")
+    model_id = int(request.form.get("model_id"))
+    personas = request.form.get("personas", [])
     instructions = request.form.get("instructions", "")
     responseInJson = request.form.get("responseInJson", "false").lower() == "true"
     isFromSurvey = request.form.get("isFromSurvey", "false").lower() == "true"

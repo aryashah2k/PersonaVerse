@@ -2,7 +2,7 @@ import io
 import os
 import pandas as pd
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 def generate_response_file(questions, answers, isResponseInJson):
     df = pd.DataFrame({
@@ -10,7 +10,7 @@ def generate_response_file(questions, answers, isResponseInJson):
         'Answer': answers
     })
     
-    timestamp = datetime.now(datetime.timezone.utc).isoformat()
+    timestamp = datetime.now(timezone.utc).isoformat()
     file_extension = "json" if isResponseInJson else "csv"
     file_name = f"{timestamp}.{file_extension}"
     
