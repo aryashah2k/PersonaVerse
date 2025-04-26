@@ -89,7 +89,7 @@ def get_system_prompt() -> str:
 
 def call_openai(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     prompt = build_prompt(questions, personas, instructions)
-    max_tokens = estimate_output_tokens(model_name, questions, personas, instructions)
+    max_tokens = estimate_tokens(prompt, model_name)
     response = openai_client.chat.completions.create(
         model=model_name,
         max_tokens=max_tokens,
@@ -108,7 +108,7 @@ def call_openai(model_name: str, questions: list, personas: list, instructions: 
 
 def call_claude(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     prompt = build_prompt(questions, personas, instructions)
-    max_tokens = estimate_output_tokens(model_name, questions, personas, instructions)
+    max_tokens = estimate_tokens(prompt, model_name)
     
     full_response_text = ""
     input_tokens = 0
@@ -140,7 +140,7 @@ def call_claude(model_name: str, questions: list, personas: list, instructions: 
 
 def call_gemini(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     prompt = build_prompt(questions, personas, instructions)
-    max_tokens = estimate_output_tokens(model_name, questions, personas, instructions)
+    max_tokens = estimate_tokens(prompt, model_name)
     response = gemini_client.models.generate_content(
         model=model_name,
         config=types.GenerateContentConfig(
@@ -161,7 +161,7 @@ def call_gemini(model_name: str, questions: list, personas: list, instructions: 
 
 def call_deepseek(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     prompt = build_prompt(questions, personas, instructions)
-    max_tokens = estimate_output_tokens(model_name, questions, personas, instructions)
+    max_tokens = estimate_tokens(prompt, model_name)
     response = deepseek_client.chat.completions.create(
         model=model_name,
         max_tokens=max_tokens,
@@ -188,10 +188,6 @@ def extract_answers(response_text: str, expected_count: int) -> list:
         if any(line.startswith(f"{i+1}.") for i in range(expected_count)):
             answers.append(line.split('.', 1)[1].strip())
     return answers if len(answers) >= expected_count else response_text.strip().split("\n")[:expected_count]
-
-def estimate_output_tokens(model_name: str, questions: list, personas: list, instructions: str) -> int:
-    model_specs = get_model_specs(model_name)
-    return model_specs["output_tokens"]
 
 def perform_ai_call(questions: list, model_name: str, model_id: int, personas: list, instructions: str, user_info: dict, file_name: str = None, response_in_json: bool = False, is_from_survey: bool = False) -> dict:    
     prompt = build_prompt(questions, personas, instructions)
