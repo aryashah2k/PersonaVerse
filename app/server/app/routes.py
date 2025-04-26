@@ -1,13 +1,10 @@
-from flask import Blueprint, jsonify, request, send_file
-from werkzeug.utils import secure_filename
-from app.utils.ai_caller import build_prompt, call_ai_model, estimate_tokens
+from flask import Blueprint, jsonify, request
+from app.utils.ai_caller import perform_ai_call
 from app.utils.file_parser import parse_file
-from app.utils.response_generator import generate_response_file
 from app.utils.supabase_utils import (
-    MODEL_OUTPUT_TOKENS,
     can_use_model,
     get_user_data_from_token,
-    is_form_upload_allowed,
+    get_model_name
 )
 from app.utils.env_utils import get_required_env_var
 
@@ -23,34 +20,33 @@ def health_check():
 
 @api.route(DEMO_ROUTE, methods=['POST'])
 def demo_fill_survey():
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        return jsonify({"error": "Missing Authorization token"}), 401
+
+    try:
+        user_info = get_user_data_from_token(token)
+    except Exception as e:
+        return jsonify({"error": f"Token validation failed: {e}"}), 401
+    
     data = request.get_json()
     questions = data.get("questions", [])
-    model_name = data.get("model_name")
+    model_id = int(data.get("model_id"))
     instructions = data.get("instructions", "")
     personas = data.get("personas", [])
 
-    if not isinstance(questions, list) or len(questions) != 10:
-        return jsonify({"error": "Exactly 10 questions must be provided as a list."}), 400
-
+    if not isinstance(questions, list):
+        return jsonify({"error": "There must be a list of questions."}), 400
+    
+    if not model_id:
+        return jsonify({"error": "Model id is required."}), 400
+    model_name = get_model_name(model_id)
     if not model_name:
-        return jsonify({"error": "Model name is required."}), 400
-
-    try:
-        answers = call_ai_model(
-            model_name=model_name,
-            questions=questions,
-            personas=personas,
-            instructions=instructions
-        )
-    except Exception as e:
-        return jsonify({"error": f"AI model call failed: {e}"}), 500
-
-    return jsonify({
-        "model": model_name,
-        "instructions": instructions,
-        "personas": personas,
-        "qa_pairs": [{"question": q, "answer": a} for q, a in zip(questions, answers)]
-    })
+        return jsonify({"error": f"Invalid model id: {model_id}"}), 400
+    if not can_use_model(user_info["plan_type"], model_name):
+        return jsonify({"error": f"Model '{model_id}' not allowed for your tier '{user_info['plan_type']}'."}), 403
+    
+    return perform_ai_call(questions, model_name, model_id, personas, instructions, user_info)
 
 @api.route(FILL_SURVEY_ROUTE, methods=['POST'])
 def fill_survey_form():
@@ -61,24 +57,24 @@ def fill_survey_form():
     try:
         user_info = get_user_data_from_token(token)
     except Exception as e:
-        return jsonify({"error": f"Token validation failed: {e}"}), 403
+        return jsonify({"error": f"Token validation failed: {e}"}), 401
 
     form_file = request.files.get("form_file")
-    model_name = request.form.get("model_name")
+    model_id = request.form.get("model_id")
     personas = request.form.get("personas", "")
     instructions = request.form.get("instructions", "")
     responseInJson = request.form.get("responseInJson", "false").lower() == "true"
+    isFromSurvey = request.form.get("isFromSurvey", "false").lower() == "true"
 
     if not form_file:
         return jsonify({"error": "No survey form uploaded."}), 400
+    if not model_id:
+        return jsonify({"error": "Model id is required."}), 400
+    model_name = get_model_name(model_id)
     if not model_name:
-        return jsonify({"error": "Model name is required."}), 400
-
-    if not can_use_model(user_info["tier"], model_name):
-        return jsonify({"error": f"Model '{model_name}' not allowed for your tier '{user_info['tier']}'."}), 403
-
-    if not is_form_upload_allowed(user_info["tier"], user_info["form_usage_count"]):
-        return jsonify({"error": "Form upload limit exceeded for Free tier users."}), 403
+        return jsonify({"error": f"Invalid model id: {model_id}"}), 400
+    if not can_use_model(user_info["plan_type"], model_name):
+        return jsonify({"error": f"Model '{model_id}' not allowed for your tier '{user_info['plan_type']}'."}), 403
 
     try:
         form_file.stream.seek(0)
@@ -88,49 +84,4 @@ def fill_survey_form():
     except Exception as e:
         return jsonify({"error": f"Error parsing survey form: {e}"}), 500
 
-    prompt = build_prompt(questions, personas.split(",") if personas else [], instructions)
-    tokens_used_for_prompt = estimate_tokens(prompt, model_name)
-    expected_output_tokens = MODEL_OUTPUT_TOKENS.get(model_name, 512)
-    total_tokens_required = tokens_used_for_prompt + expected_output_tokens
-    tokens_available = user_info.get("tokens_remaining", 2048)
-
-    if total_tokens_required > tokens_available:
-        return jsonify({
-            "error": (
-                f"Your prompt uses {tokens_used_for_prompt} tokens. "
-                f"Expected model output ~{expected_output_tokens} tokens. "
-                f"You have {tokens_available} tokens remaining. "
-                f"Total required: {total_tokens_required}."
-            )
-        }), 403
-
-    try:
-        answers = call_ai_model(
-            model_name=model_name,
-            questions=questions,
-            personas=personas.split(",") if personas else [],
-            instructions=instructions
-        )
-    except Exception as e:
-        return jsonify({"error": f"AI model call failed: {e}"}), 500
-
-    try:
-        form_file.stream.seek(0)
-        filled_file, file_ext = generate_response_file(form_file, questions, answers, responseInJson)
-    except Exception as e:
-        return jsonify({"error": f"Failed to generate completed form: {e}"}), 500
-
-    return send_file(
-        filled_file,
-        mimetype={
-            ".csv": "text/csv",
-            ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            ".xls": "application/vnd.ms-excel",
-            ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            ".txt": "text/plain",
-            ".rtf": "application/rtf",
-            ".pdf": "application/pdf"
-        }.get(file_ext, "application/octet-stream"),
-        as_attachment=True,
-        download_name=f"filled_survey{file_ext}"
-    )
+    return perform_ai_call(questions, model_name, model_id, personas, instructions, user_info, form_file.filename, responseInJson, isFromSurvey)

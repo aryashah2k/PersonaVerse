@@ -13,3 +13,4 @@ tiktoken
 openai
 anthropic
 google-genai
+supabase

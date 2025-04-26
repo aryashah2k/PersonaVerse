@@ -6,7 +6,7 @@ interface FormState {
     personas: Persona[];
     model: AIModel | null;
     instruction: string;
-    responseInJson: boolean;
+    response_in_json: boolean;
     isSubmitting: boolean;
     isSubmitted: boolean;
     error: string | null;
@@ -16,7 +16,7 @@ const initialState: FormState = {
     personas: [],
     model: null,
     instruction: '',
-    responseInJson: false,
+    response_in_json: false,
     isSubmitting: false,
     isSubmitted: false,
     error: null,
@@ -43,7 +43,7 @@ export const formSlice = createSlice({
             state.instruction = action.payload;
         },
         setFileOutput: (state, action: PayloadAction<boolean>) => {
-            state.responseInJson = action.payload;
+            state.response_in_json = action.payload;
         },
         submitStart: (state) => {
             state.isSubmitting = true;

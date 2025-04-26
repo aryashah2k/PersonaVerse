@@ -5,7 +5,7 @@ import pdfplumber
 from docx import Document
 from striprtf.striprtf import rtf_to_text
 
-ALLOWED_EXTENSIONS = ['.csv', '.xls', '.xlsx', '.docx', '.txt', '.rtf', '.pdf']
+ALLOWED_EXTENSIONS = ['.csv', '.xls', '.xlsx', '.docx', '.txt', '.rtf', '.pdf', '.doc']
 
 def parse_file(file_storage):
     filename = file_storage.filename
@@ -23,7 +23,7 @@ def parse_file(file_storage):
             raise ValueError("First column must be labeled 'Question'")
         questions = df.iloc[:, 0].dropna().astype(str).tolist()
 
-    elif ext == '.docx':
+    elif ext == '.docx' or ext == '.doc':
         document = Document(io.BytesIO(file_bytes))
         questions = [para.text.strip() for para in document.paragraphs if para.text.strip()]
 
@@ -42,9 +42,9 @@ def parse_file(file_storage):
                 if text:
                     lines = text.splitlines()
                     questions.extend([line.strip() for line in lines if line.strip()])
-        questions = questions[:10]
+        questions = questions[:]
 
-    if not (1 <= len(questions) <= 10):
-        raise ValueError(f"File must contain between 1 and 10 questions. Found: {len(questions)}")
+    if len(questions) < 1:
+        raise ValueError(f"File must contain at least 1 question. Found: {len(questions)}")
 
     return questions

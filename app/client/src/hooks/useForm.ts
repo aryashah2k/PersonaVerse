@@ -9,16 +9,16 @@ import { Persona } from '../model/persona';
 export const useForm = () => {
     const dispatch = useAppDispatch();
     const { file, fileName } = useAppSelector((state) => state.file)
-    const { model, personas, responseInJson, instruction: responsePrompt, isSubmitting, error, isSubmitted } = useAppSelector((state) => state.form)
+    const { model, personas, response_in_json, instruction: responsePrompt, isSubmitting, error, isSubmitted } = useAppSelector((state) => state.form)
     const [returnFormat, setReturnFormat] = useState("csv");
 
     useEffect(() => {
-        if (responseInJson) {
+        if (response_in_json) {
             setReturnFormat("json");
         } else {
             setReturnFormat("csv");
         }
-    }, [responseInJson]);
+    }, [response_in_json]);
     // helper function to submitForm
     const personaParser = (): string[] => {
         return personas.map(
@@ -68,7 +68,7 @@ export const useForm = () => {
             dispatch(submitStart());
 
 
-            const res = await getResponse({ file: file, model_id: model?.id, instructions: responsePrompt, personaDescriptions: personaDescriptions, responseInJson });
+            const res = await getResponse({ file: file, model_id: model?.id, instructions: responsePrompt, personaDescriptions: personaDescriptions, response_in_json });
 
             if (res.error) {
                 console.log(res.error);
@@ -79,7 +79,7 @@ export const useForm = () => {
 
             // set the url here, deduct tokens, and update history if the user has a premium subscription 
         },
-        [dispatch, file, responseInJson, responsePrompt]);
+        [dispatch, file, response_in_json, responsePrompt]);
 
     return {
         selectedModel: model,

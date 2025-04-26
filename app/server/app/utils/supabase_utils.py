@@ -1,61 +1,107 @@
-import jwt
 import os
-import requests
+from datetime import datetime
+import mimetypes
+from supabase import create_client, Client
 from .env_utils import get_required_env_var
 
-SUPABASE_PROJECT_ID = get_required_env_var("VITE_SUPABASE_PROJECT_ID")
-SUPABASE_JWKS_URL = f"https://{SUPABASE_PROJECT_ID}.supabase.co/auth/v1/keys"
-SUPABASE_ISSUER = f"https://{SUPABASE_PROJECT_ID}.supabase.co/auth/v1"
-SUPABASE_AUDIENCE = SUPABASE_PROJECT_ID
-
-jwks = requests.get(SUPABASE_JWKS_URL).json()
+_supabase_client = None
 
 def get_supabase_config():
     return {
         "url": get_required_env_var("VITE_SUPABASE_URL"),
-        "service_role_key": get_required_env_var("VITE_SUPABASE_SERVICE_ROLE_KEY"),
-        "jwt_secret": get_required_env_var("VITE_SUPABASE_JWT_SECRET")
+        "service_role_key": get_required_env_var("VITE_SUPABASE_SERVICE_ROLE_KEY")
     }
+
+def init_supabase_client():
+    global _supabase_client
+    if _supabase_client is None:
+        config = get_supabase_config()
+        _supabase_client = create_client(config["url"], config["service_role_key"])
+    return _supabase_client
+
+def get_supabase_client() -> Client:
+    if _supabase_client is None:
+        return init_supabase_client()
+    return _supabase_client
 
 def get_user_data_from_token(token: str) -> dict:
-    unverified_header = jwt.get_unverified_header(token)
-    key = next((k for k in jwks["keys"] if k["kid"] == unverified_header["kid"]), None)
-    if not key:
-        raise Exception("Public key not found for token")
+    try:
+        supabase = get_supabase_client()
+        user_id = supabase.auth.get_user(token).user.id
+    except Exception as e:
+        raise ValueError(f"Invalid user or token: {e}")
 
-    payload = jwt.decode(
-        token,
-        key,
-        algorithms=["RS256"],
-        audience=SUPABASE_AUDIENCE,
-        issuer=SUPABASE_ISSUER
-    )
+    return supabase.table("Profiles").select("*").eq("id", user_id).execute().data[0]
 
-    return {
-        "user_id": payload.get("sub"),
-        "email": payload.get("email"),
-        "tier": payload.get("app_metadata", {}).get("tier", "Free"),
-        "tokens_remaining": payload.get("user_metadata", {}).get("tokens_remaining", 2048),
-        "form_usage_count": payload.get("user_metadata", {}).get("form_usage_count", 0)
-    }
+def get_models() -> dict:
+    try:
+        supabase = get_supabase_client()
+        models = supabase.table("Models").select("*").execute().data
+    except Exception as e:
+        raise ValueError(f"Error fetching models: {e}")
+
+    return models
 
 def can_use_model(tier: str, model: str) -> bool:
-    tier_access = {
-        "Free": ["gpt-4o-mini"],
-        "Standard": ["gpt-4o-mini", "gpt-4o", "deepseek-chat"],
-        "Premium": ["gpt-4o-mini", "gpt-4o", "deepseek-chat", "claude-3-7-sonnet-20250219", "claude-3-5-sonnet-20240620", "gemini-2.0-flash-lite", "gemini-2.0-flash"],
-    }
-    return model in tier_access.get(tier, [])
+    models = get_models()
+    for model in models:
+        if model["model_name"] == model:
+            return tier in model["usage_type"]
+    return False
 
-def is_form_upload_allowed(tier: str, form_usage_count: int) -> bool:
-    return form_usage_count < 5 if tier == "Free" else True
+def get_model_name(model_id: int) -> str:
+    models = get_models()
+    model_name = {model["id"]: model["model_name"] for model in models}
+    return model_name.get(model_id, None)
 
-MODEL_OUTPUT_TOKENS = {
-    "gpt-4o-mini": 512,
-    "gpt-4o": 1024,
-    "deepseek-chat": 800,
-    "claude-3-5-sonnet-20240620": 1024,
-    "claude-3-7-sonnet-20250219": 1024,
-    "gemini-2.0-flash-lite": 512,
-    "gemini-2.0-flash": 1024,
-}
+def get_model_params(model_name: str) -> dict:
+    models = get_models()
+    model_specs = {model["model_name"]: model["model_params"] for model in models}
+    return model_specs.get(model_name, None)
+
+def get_model_specs(model_name: str) -> dict:
+    model_params = get_model_params(model_name)
+    return model_params
+
+def update_user_tokens(user_id: str, tokens_used: int):
+    try:
+        supabase = get_supabase_client()
+        remaining_tokens = supabase.table("Profiles").select("tokens").eq("id", user_id).execute().data[0]["tokens"] - tokens_used
+        supabase.table("Profiles").update({"tokens": remaining_tokens}).eq("id", user_id).execute()
+    except Exception as e:
+        raise ValueError(f"Error updating user tokens: {e}")
+
+def get_form_response(user_id: str, file_path: str, model_id: int, tokens_used: int):
+    try:
+        supabase = get_supabase_client()
+    
+        file_name = f"{user_id}_{datetime.now().isoformat()}"
+        file_extension = os.path.splitext(file_path)[1]
+        storage_path = f"survey_responses/{file_name}.{file_extension}"
+        content_type, _ = mimetypes.guess_type(file_path)
+        original_file_name = os.path.basename(file_path)
+
+        with open(file_path, "rb") as f:
+            _ = supabase.storage.from_("files").upload(
+                path=storage_path,
+                file=f,
+                file_options={"content-type": content_type} 
+            )
+
+        signedUrl = supabase.storage.from_("files").create_signed_url(
+            path=storage_path,
+            expires_in=3600
+        ).get("signedURL")
+
+        data = {
+            "profile_id": user_id,
+            "file_name": original_file_name,
+            "bucket_storage_path": storage_path,
+            "tokens_used": tokens_used,
+            "model_used": model_id,
+            "signed_url": signedUrl
+        }
+        supabase.table('SurveyHistory').insert(data).execute()
+        return data
+    except Exception as e:
+        raise ValueError(f"Error saving file to supabase: {e}")
