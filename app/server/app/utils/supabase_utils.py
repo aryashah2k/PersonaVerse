@@ -81,15 +81,14 @@ def update_user_tokens(user_id: str, tokens_used: int):
     except Exception as e:
         raise ValueError(f"Error updating user tokens: {e}")
 
-def save_to_supabase(user_id: str, file_path: str, model_id: int, tokens_used: int):
+def save_to_supabase(user_id: str, file_path: str, response_file_path: str, model_id: int, tokens_used: int):
     try:
         supabase = get_supabase_client()
     
-        file_name = f"{user_id}_{datetime.now(datetime.timezone.utc).isoformat()}"
-        file_extension = os.path.splitext(file_path)[1]
-        storage_path = f"survey_responses/{file_name}.{file_extension}"
-        content_type, _ = mimetypes.guess_type(file_path)
-        original_file_name = os.path.basename(file_path)
+        response_file_name = f"{user_id}_{os.path.basename(response_file_path)}"
+        response_file_extension = os.path.splitext(response_file_path)[1]
+        storage_path = f"survey_responses/{response_file_name}.{response_file_extension}"
+        content_type, _ = mimetypes.guess_type(response_file_extension)
 
         with open(file_path, "rb") as f:
             _ = supabase.storage.from_("files").upload(
@@ -102,6 +101,8 @@ def save_to_supabase(user_id: str, file_path: str, model_id: int, tokens_used: i
             path=storage_path,
             expires_in=3600
         ).get("signedURL")
+
+        original_file_name = os.path.basename(file_path)
 
         data = {
             "profile_id": user_id,

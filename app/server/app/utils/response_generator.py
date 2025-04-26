@@ -2,22 +2,25 @@ import io
 import os
 import pandas as pd
 import json
+from datetime import datetime
 
-def generate_response_file(file_name, questions, answers, isResponseInJson):
-    base_name = os.path.splitext(file_name)[0]
-    output_filename = f"{base_name}.{'json' if isResponseInJson else 'csv'}"
-    
+def generate_response_file(questions, answers, isResponseInJson):
     df = pd.DataFrame({
         'Question': questions,
         'Answer': answers
     })
-    output = io.BytesIO()
+    
+    timestamp = datetime.now(datetime.timezone.utc).isoformat()
+    file_extension = "json" if isResponseInJson else "csv"
+    file_name = f"{timestamp}.{file_extension}"
+    
+    os.makedirs("responses", exist_ok=True)
+    file_path = os.path.join("responses", file_name)
     
     if isResponseInJson:
-        json_data = df.to_dict(orient='records')
-        output.write(json.dumps(json_data).encode())
+        with open(file_path, 'w') as f:
+            json.dump(df.to_dict(orient='records'), f)
     else:
-        df.to_csv(output, index=False)
+        df.to_csv(file_path, index=False)
     
-    output.seek(0)
-    return output, output_filename
+    return file_path

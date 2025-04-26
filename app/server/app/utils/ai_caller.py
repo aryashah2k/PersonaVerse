@@ -164,9 +164,7 @@ def estimate_output_tokens(model_name: str, questions: list, personas: list, ins
     
     return max_tokens
 
-def perform_ai_call(questions: list, model_name: str, model_id: int, personas: list, instructions: str, user_info: dict, file_name: str, response_in_json: bool, is_from_survey: bool) -> dict:
-    model_specs = get_model_specs(model_name)
-    
+def perform_ai_call(questions: list, model_name: str, model_id: int, personas: list, instructions: str, user_info: dict, file_name: str, response_in_json: bool, is_from_survey: bool) -> dict:    
     prompt = build_prompt(questions, personas.split(",") if personas else [], instructions)
     tokens_used_for_prompt = estimate_tokens(prompt, model_name)
     expected_output_tokens = estimate_output_tokens(model_name, questions, personas.split(",") if personas else [], instructions)
@@ -183,11 +181,6 @@ def perform_ai_call(questions: list, model_name: str, model_id: int, personas: l
             )
         }), 403
 
-    estimated_cost = (
-        (tokens_used_for_prompt / 1000 * model_specs["input_cost_per_1k"]) +
-        (expected_output_tokens / 1000 * model_specs["output_cost_per_1k"])
-    )
-
     try:
         answers = call_ai_model(
             model_name=model_name,
@@ -197,7 +190,7 @@ def perform_ai_call(questions: list, model_name: str, model_id: int, personas: l
         )
     except Exception as e:
         return jsonify({"error": f"AI model call failed: {e}"}), 500
-    
+        
     update_user_tokens(user_info.get("id"), tokens_used_for_prompt)
 
     if not is_from_survey:
@@ -205,8 +198,9 @@ def perform_ai_call(questions: list, model_name: str, model_id: int, personas: l
             "model_id": model_id,
             "instructions": instructions,
             "personas": personas,
-            "estimated_cost": estimated_cost,
             "tokens_used": total_tokens_required,
             "qa_pairs": [{"question": q, "answer": a} for q, a in zip(questions, answers)]
         })
-    return save_to_supabase(user_info, file_name, model_id, tokens_used_for_prompt)
+    
+    response_file_name = generate_response_file(questions, answers, response_in_json)
+    return save_to_supabase(user_info, file_name, response_file_name, model_id, tokens_used_for_prompt)
