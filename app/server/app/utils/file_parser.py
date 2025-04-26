@@ -19,13 +19,12 @@ def parse_file(file_storage):
 
     if ext in ['.csv', '.xls', '.xlsx']:
         df = pd.read_excel(io.BytesIO(file_bytes)) if ext != '.csv' else pd.read_csv(io.BytesIO(file_bytes))
-        if df.columns[0].lower() != 'question':
-            raise ValueError("First column must be labeled 'Question'")
         questions = df.iloc[:, 0].dropna().astype(str).tolist()
 
     elif ext == '.docx' or ext == '.doc':
         document = Document(io.BytesIO(file_bytes))
         questions = [para.text.strip() for para in document.paragraphs if para.text.strip()]
+        questions += [cell.text.strip() for table in document.tables for row in table.rows for cell in row.cells if cell.text.strip() and cell.text.strip() not in questions]
 
     elif ext == '.rtf':
         raw_text = rtf_to_text(file_bytes.decode(errors='ignore'))
@@ -37,12 +36,21 @@ def parse_file(file_storage):
 
     elif ext == '.pdf':
         with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
-            for page in pdf.pages:
-                text = page.extract_text()
-                if text:
-                    lines = text.splitlines()
-                    questions.extend([line.strip() for line in lines if line.strip()])
-        questions = questions[:]
+            lines = [line.strip() for page in pdf.pages for line in page.extract_text().split('\n') if line.strip()]
+            questions = []
+            buffer = ""
+
+        for line in lines:
+            if buffer:
+                buffer += " " + line
+                questions.append(buffer.strip())
+                buffer = ""
+            else:
+                if line.endswith(("?", "!", ".")):
+                    questions.append(line)
+                else:
+                    buffer = line
+        return questions
 
     if len(questions) < 1:
         raise ValueError(f"File must contain at least 1 question. Found: {len(questions)}")

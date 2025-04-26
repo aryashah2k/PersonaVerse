@@ -97,10 +97,14 @@ def save_to_supabase(user_id: str, file_path: str, response_file_path: str, mode
     
         response_file_name = f"{user_id}_{os.path.basename(response_file_path)}"
         response_file_extension = os.path.splitext(response_file_path)[1]
+
+        print(response_file_name)
+        print(response_file_extension)
+
         storage_path = f"survey_responses/{response_file_name}.{response_file_extension}"
         content_type, _ = mimetypes.guess_type(response_file_extension)
 
-        with open(file_path, "rb") as f:
+        with open(response_file_path, "rb") as f:
             _ = supabase.storage.from_("files").upload(
                 path=storage_path,
                 file=f,
