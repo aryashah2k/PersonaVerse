@@ -49,6 +49,16 @@ def can_use_model(tier: str, model: str) -> bool:
             return tier in model["usage_type"]
     return False
 
+def get_models_by_provider() -> dict:
+    models = get_models()
+    provider_models = {}
+    for model in models:
+        provider = model["provider"]
+        if provider not in provider_models:
+            provider_models[provider] = []
+        provider_models[provider].append(model["model_name"])
+    return provider_models
+
 def get_model_name(model_id: int) -> str:
     models = get_models()
     model_name = {model["id"]: model["model_name"] for model in models}

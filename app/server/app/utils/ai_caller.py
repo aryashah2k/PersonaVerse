@@ -5,8 +5,13 @@ from openai import OpenAI
 from anthropic import Anthropic
 from google.genai import types, Client
 from .env_utils import get_required_env_var
-from .supabase_utils import get_model_specs, update_user_tokens, save_to_supabase
+from .supabase_utils import get_model_specs, update_user_tokens, save_to_supabase, get_models_by_provider
 from app.utils.response_generator import generate_response_file
+
+OPENAI_MODELS = "openai"
+CLAUDE_MODELS = "anthropic"
+GEMINI_MODELS = "gemini"
+DEEPSEEK_MODELS = "deepseek"
 
 def get_api_config() -> dict:
     return {
@@ -26,19 +31,16 @@ try:
 except Exception as e:
     raise EnvironmentError(f"Failed to initialize API clients: {str(e)}")
 
-OPENAI_MODELS = ["gpt-4o-mini", "gpt-4o"]
-CLAUDE_MODELS = ["claude-3-7-sonnet-20250219", "claude-3-5-sonnet-20240620"]
-GEMINI_MODELS = ["gemini-2.0-flash-lite", "gemini-2.0-flash"]
-DEEPSEEK_MODELS = ["deepseek-chat"]
-
 def call_ai_model(model_name: str, questions: list, personas: list, instructions: str) -> list:
-    if model_name in OPENAI_MODELS:
+    model_and_providers = get_models_by_provider()
+
+    if model_name in model_and_providers[OPENAI_MODELS]:
         return call_openai(model_name, questions, personas, instructions)
-    elif model_name in CLAUDE_MODELS:
+    elif model_name in model_and_providers[CLAUDE_MODELS]:
         return call_claude(model_name, questions, personas, instructions)
-    elif model_name in GEMINI_MODELS:
+    elif model_name in model_and_providers[GEMINI_MODELS]:
         return call_gemini(model_name, questions, personas, instructions)
-    elif model_name in DEEPSEEK_MODELS:
+    elif model_name in model_and_providers[DEEPSEEK_MODELS]:
         return call_deepseek(model_name, questions, personas, instructions)
     else:
         raise ValueError(f"Unsupported model: {model_name}")
@@ -52,7 +54,7 @@ def build_prompt(questions: list, personas: list, instructions: str) -> str:
     question_block = "\n".join([f"{i+1}. {q}" for i, q in enumerate(questions)])
     return f"{persona_text}{instruction_text}Please answer the following questions:\n\n{question_block}"
 
-def estimate_tokens(prompt: str, model_name: str = "gpt-4o") -> int:
+def estimate_tokens(prompt: str, model_name: str) -> int:
     try:
         encoding = tiktoken.encoding_for_model(model_name)
     except KeyError:
