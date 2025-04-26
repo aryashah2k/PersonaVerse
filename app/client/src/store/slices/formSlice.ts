@@ -10,6 +10,7 @@ interface FormState {
     isSubmitting: boolean;
     isSubmitted: boolean;
     error: string | null;
+    activeStep: number;
 }
 
 const initialState: FormState = {
@@ -20,6 +21,7 @@ const initialState: FormState = {
     isSubmitting: false,
     isSubmitted: false,
     error: null,
+    activeStep: 0,
 };
 
 export const formSlice = createSlice({
@@ -58,6 +60,9 @@ export const formSlice = createSlice({
             state.isSubmitting = false;
             state.error = action.payload;
         },
+        setActiveStep: (state, action: PayloadAction<number>) => {
+            state.activeStep = action.payload;
+        },
         resetFormState: () => initialState,
     },
 });
@@ -71,6 +76,7 @@ export const {
     submitSuccess,
     submitFailure,
     resetFormState,
+    setActiveStep,
 } = formSlice.actions;
 
 export default formSlice.reducer;

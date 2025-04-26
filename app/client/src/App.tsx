@@ -24,10 +24,12 @@ import { logout } from "./store/slices/authSlice";
 import { getSignedURL } from "./services/api/genResponse";
 import useAppLoading from "./hooks/useAppLoading";
 import AppLoader from "./components/loader/loader";
+import useForm from "./hooks/useForm";
 
 const App: React.FC = () => {
   const { isAuthenticated, profile, handleRefresh } = useAuth();
-  const { isLoading, setAppLoadingTrue } = useAppLoading();
+  const { isLoading } = useAppLoading();
+  const { isSubmitting } = useForm();
   const navigate = useNavigate();
   const setUser = async () => {
     const { data, error } = await supabase.auth.getUser();
@@ -52,9 +54,12 @@ const App: React.FC = () => {
     // };
     // fn();
   }, [supabase.auth.onAuthStateChange, isAuthenticated]);
+  useEffect(() => {
+    console.log(isLoading);
+  }, [isLoading]);
   return (
     <>
-      {isLoading && (
+      {(isLoading || isSubmitting) && (
         <div
           style={{
             height: "100vh",

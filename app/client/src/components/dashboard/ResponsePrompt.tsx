@@ -24,21 +24,21 @@ import submitSurvey from "../../api/surveyApi";
 import { FormResponse } from "../../model/response";
 import { deductTokens } from "../../store/slices/userSlice";
 import useForm from "../../hooks/useForm";
+import useAppLoading from "../../hooks/useAppLoading";
+import useAuth from "../../hooks/useAuth";
 
 interface ResponsePromptProps {
-  fileUrl: string;
   onSubmitComplete: (responseUrl: string) => void;
   onRequestTokens: () => void;
   onPrevious: () => void;
 }
 
 const ResponsePrompt: React.FC<ResponsePromptProps> = ({
-  fileUrl,
   onSubmitComplete,
   onRequestTokens,
   onPrevious,
 }) => {
-  const { profile } = useUserProfile();
+  const { profile } = useAuth();
   const {
     submitForm,
     selectedModel,
@@ -53,45 +53,24 @@ const ResponsePrompt: React.FC<ResponsePromptProps> = ({
   } = useForm();
   // const dispatch = useAppDispatch();
   const [promptError, setPromptError] = useState("");
+  const { setAppLoadingFalse } = useAppLoading();
   const [pageError, setError] = useState<string | null>(null);
   const estimatedTokenCost = selectedPersonas.length * 5 + 10; // Example token cost calculation
-  const hasEnoughTokens =
-    (profile?.tokensAvailable || 1000) >= estimatedTokenCost;
+  const hasEnoughTokens = (profile?.tokens || 1000) >= estimatedTokenCost;
   const handlePrevious = () => {
     onPrevious();
   };
+
   const handleSubmit = async () => {
-    // submitForm,selectedModel,selectedPersonas,responsePrompt();
-    // Validate prompt
-    if (!responsePrompt.trim()) {
-      setPromptError("Please enter a prompt for how personas should respond");
-      return;
+    try {
+      // submitForm();
+      onSubmitComplete("kjhddsjfahkjsda");
+    } catch (error) {
+      console.error("Error during submission:", error);
+      setError("An error occurred while processing your request.");
+    } finally {
+      setAppLoadingFalse();
     }
-
-    setPromptError("");
-
-    // Handle insufficient tokens
-    // if (!hasEnoughTokens) {
-    //   onRequestTokens();
-    //   return;
-    // }
-    console.log("Check for sufficient tokens");
-
-    // Generate responses
-    // const result = await generateResponses(fileUrl);
-    const result: FormResponse = await submitSurvey(fileUrl);
-    if (result.error) {
-      setPromptError(result.error);
-      return;
-    }
-    submitForm();
-    // dispatch(deductTokens(result.tokensUsed));
-    if (isSubmitted) {
-      onSubmitComplete(result.responseUrl);
-    }
-    // if (result.success && result.responseUrl) {
-    //   onSubmitComplete(result.responseUrl);
-    // }
   };
 
   return (
@@ -242,10 +221,10 @@ const ResponsePrompt: React.FC<ResponsePromptProps> = ({
                 >
                   {hasEnoughTokens
                     ? `You have sufficient tokens (${
-                        profile?.tokensAvailable || 0
+                        profile?.tokens || 0
                       } available)`
                     : `Insufficient tokens (${
-                        profile?.tokensAvailable || 0
+                        profile?.tokens || 0
                       } available, ${estimatedTokenCost} needed)`}
                 </Typography>
                 {!hasEnoughTokens && (

@@ -150,9 +150,6 @@ const Pricing: React.FC = () => {
 
   const handleCheckout = async (selectedPlan: string) => {
     setAppLoadingTrue();
-    setTimeout(() => {
-      console.log(`Selected plan: ${selectedPlan}`);
-    }, 10);
     if (!isAuthenticated) {
       window.location.href = "/signup";
       return;
@@ -381,7 +378,7 @@ const Pricing: React.FC = () => {
                   <FeatureList>
                     <TokenChip
                       icon={<TokenIcon />}
-                      label={`${plan.tokens} Tokens${
+                      label={`${plan.tokens.toLocaleString()} Tokens${
                         plan.id === "free" ? " only" : "/month"
                       }`}
                     />

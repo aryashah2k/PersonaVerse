@@ -10,8 +10,10 @@ export const useAppLoading = () => {
     const setAppLoadingTrue = useCallback(
         async () => {
             dispatch(setLoadingTrue());
+            console.log("Loading true");
+
         },
-        [dispatch]
+        [dispatch, isLoading]
     );
     const setAppLoadingFalse = useCallback(
         async () => {

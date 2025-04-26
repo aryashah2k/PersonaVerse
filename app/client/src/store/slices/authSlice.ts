@@ -37,6 +37,18 @@ export const authSlice = createSlice({
       state.profile = action.payload;
       state.isAuthenticated = true;
     },
+    addTokens: (state, action: PayloadAction<number>) => {
+
+      let profile: Profile = state.profile!;
+      profile.tokens += action.payload;
+      state.profile = profile;
+    },
+    deductTokens: (state, action: PayloadAction<number>) => {
+
+      let profile: Profile = state.profile!;
+      profile.tokens -= action.payload;
+      state.profile = profile;
+    },
     loginFailure: (state, action: PayloadAction<string>) => {
       state.isAuthenticated = false;
       state.user = null;
@@ -82,6 +94,8 @@ export const {
   logout,
   clearError,
   setProfileState,
+  addTokens,
+  deductTokens,
 } = authSlice.actions;
 
 export default authSlice.reducer;

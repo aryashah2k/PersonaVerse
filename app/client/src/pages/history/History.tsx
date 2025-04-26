@@ -65,25 +65,25 @@ const EmptyStateContainer = styled(Box)(({ theme }) => ({
 }));
 
 const History: React.FC = () => {
-  const { history, loadHistory, downloadHistoryItem, error } = useUserProfile();
+  const { downloadHistoryItem, error } = useUserProfile();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { surveyHistory } = useSurveyHistory();
   const { profile } = useAuth();
   const { models } = usePersonasAI();
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        await loadHistory();
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchHistory = async () => {
+  //     try {
+  //       await loadHistory();
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    fetchHistory();
-  }, [loadHistory]);
+  //   fetchHistory();
+  // }, [loadHistory]);
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -105,9 +105,10 @@ const History: React.FC = () => {
     setPage(0);
   };
 
-  const filteredHistory = history.filter((item) => {
-    return item.title.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredHistory = surveyHistory.filter((item) => {
+    return item.fileName.toLowerCase().includes(searchTerm.toLowerCase());
   });
+  console.log("Filtered History:", filteredHistory);
 
   const getFileTypeFromUrl = (url: string): string => {
     const extension = url.split(".").pop()?.toLowerCase() || "";
@@ -238,7 +239,7 @@ const History: React.FC = () => {
                     <TableRow>
                       <TableCell colSpan={5} align="center">
                         <Typography variant="caption" fontWeight={500}>
-                          Upgrade to a premium plan to enable saving and
+                          Upgrade to a higher plan to enable saving and
                           accessing your survey files.
                         </Typography>
                       </TableCell>
