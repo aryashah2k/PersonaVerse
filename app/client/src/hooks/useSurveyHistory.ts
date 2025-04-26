@@ -13,11 +13,13 @@ export const useSurveyHistory = () => {
 
         const res = await fetchSurveyHistory()
 
-        if (res.error || res.data === null || res.data.length === 0) {
+        if (res.error) {
             throw new Error(res.error ? res.error : "No History available");
         }
         else {
-            dispatch(setSurveyHistory(res.data));
+            if (res.data) {
+                dispatch(setSurveyHistory(res.data));
+            }
         }
     };
 

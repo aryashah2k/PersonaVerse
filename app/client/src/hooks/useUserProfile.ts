@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../store';
+import { useAppDispatch, useAppSelector } from '../store';
 import {
   loadProfileStart,
   loadProfileSuccess,
@@ -18,9 +17,9 @@ import Profile from '../model/profile';
 import { getSignedURL } from '../services/api/genResponse';
 
 export const useUserProfile = () => {
-  const dispatch = useDispatch();
-  const { profile, history, isLoadingProfile, isLoadingHistory, error } = useSelector(
-    (state: RootState) => state.user
+  const dispatch = useAppDispatch();
+  const { profile, history, isLoadingProfile, isLoadingHistory, error } = useAppSelector(
+    (state) => state.user
   );
 
   const loadProfile = useCallback(async () => {
