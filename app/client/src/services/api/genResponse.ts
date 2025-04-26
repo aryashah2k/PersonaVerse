@@ -6,10 +6,10 @@ type fnParams = {
     model_id: string | undefined,
     instructions: string,
     personaDescriptions: string[],
-    response_in_json?: boolean,
+    responseInJson?: boolean,
     file: File | null,
 }
-export async function getResponse({ file, model_id, instructions, personaDescriptions, response_in_json = false }: fnParams): Promise<ResponseWrapper<any>> {
+export async function getResponse({ file, model_id, instructions, personaDescriptions, responseInJson = false }: fnParams): Promise<ResponseWrapper<any>> {
 
     if (!file) {
         return {
@@ -41,8 +41,8 @@ export async function getResponse({ file, model_id, instructions, personaDescrip
     formData.append("model_id", model_id.toString())
     formData.append("instructions", instructions)
     formData.append("personas", JSON.stringify(personaDescriptions))
-    formData.append("response_in_json", response_in_json.toString())
-
+    formData.append("response_in_json", responseInJson.toString())
+    formData.append("is_from_survey", "true")
 
     const res = await fetch(BackendRoutes.FILL_SURVEY, {
         method: "POST",
