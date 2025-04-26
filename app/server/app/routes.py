@@ -41,8 +41,10 @@ def demo_fill_survey():
     if not model_id:
         return jsonify({"error": "Model id is required."}), 400
     model_name = get_model_name(model_id)
+
     if not model_name:
         return jsonify({"error": f"Invalid model id: {model_id}"}), 400
+    
     if not can_use_model(user_info["plan_type"], model_name):
         return jsonify({"error": f"Model '{model_id}' not allowed for your tier '{user_info['plan_type']}'."}), 403
     

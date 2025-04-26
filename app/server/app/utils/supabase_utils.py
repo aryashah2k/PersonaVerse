@@ -3,6 +3,7 @@ from datetime import datetime
 import mimetypes
 from supabase import create_client, Client
 from .env_utils import get_required_env_var
+import json
 
 _supabase_client = None
 
@@ -44,19 +45,19 @@ def get_models() -> dict:
 
 def can_use_model(tier: str, model: str) -> bool:
     models = get_models()
-    for model in models:
-        if model["model_name"] == model:
-            return tier in model["usage_type"]
+    for model_data in models:
+        if model_data.get("model_name", "") == model:
+            return tier in model_data.get("usage_type", [])
     return False
 
 def get_models_by_provider() -> dict:
     models = get_models()
     provider_models = {}
     for model in models:
-        provider = model["provider"]
+        provider = model.get("provider")
         if provider not in provider_models:
             provider_models[provider] = []
-        provider_models[provider].append(model["model_name"])
+        provider_models[provider].append(model.get("model_name"))
     return provider_models
 
 def get_model_name(model_id: int) -> str:
@@ -66,7 +67,15 @@ def get_model_name(model_id: int) -> str:
 
 def get_model_params(model_name: str) -> dict:
     models = get_models()
-    model_specs = {model["model_name"]: model["model_params"] for model in models}
+    model_specs = {}
+    for model in models:
+        params = model["model_params"]
+        if isinstance(params, str):
+            try:
+                params = json.loads(params)
+            except json.JSONDecodeError:
+                raise ValueError(f"Invalid JSON in model_params for model {model['model_name']}")
+        model_specs[model["model_name"]] = params
     return model_specs.get(model_name, None)
 
 def get_model_specs(model_name: str) -> dict:
@@ -76,7 +85,8 @@ def get_model_specs(model_name: str) -> dict:
 def update_user_tokens(user_id: str, tokens_used: int):
     try:
         supabase = get_supabase_client()
-        remaining_tokens = supabase.table("Profiles").select("tokens").eq("id", user_id).execute().data[0]["tokens"] - tokens_used
+        existing_tokens = supabase.table("Profiles").select("tokens").eq("id", user_id).execute().data[0]["tokens"]
+        remaining_tokens = existing_tokens - tokens_used
         supabase.table("Profiles").update({"tokens": remaining_tokens}).eq("id", user_id).execute()
     except Exception as e:
         raise ValueError(f"Error updating user tokens: {e}")
@@ -97,18 +107,12 @@ def save_to_supabase(user_id: str, file_path: str, response_file_path: str, mode
                 file_options={"content-type": content_type} 
             )
 
-        signedUrl = supabase.storage.from_("files").create_signed_url(
-            path=storage_path,
-            expires_in=3600
-        ).get("signedURL")
-
         data = {
             "profile_id": user_id,
             "file_name": file_path,
             "bucket_storage_path": storage_path,
             "tokens_used": tokens_used,
             "model_used": model_id,
-            "signed_url": signedUrl
         }
         supabase.table('SurveyHistory').insert(data).execute()
         

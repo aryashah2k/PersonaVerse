@@ -12,6 +12,7 @@ OPENAI_MODELS = "openai"
 CLAUDE_MODELS = "anthropic"
 GEMINI_MODELS = "gemini"
 DEEPSEEK_MODELS = "deepseek"
+CUSTOM_MODELS = "custom"
 
 def get_api_config() -> dict:
     return {
@@ -64,6 +65,8 @@ def estimate_tokens(prompt: str, model_name: str) -> int:
     system_tokens = len(encoding.encode(system_prompt))
     
     prompt_tokens = len(encoding.encode(prompt))
+    
+    message_format_tokens = 1
     
     if model_name in OPENAI_MODELS or model_name in DEEPSEEK_MODELS:
         message_format_tokens = 6 
@@ -139,6 +142,11 @@ def call_deepseek(model_name: str, questions: list, personas: list, instructions
     )
     return extract_answers(response.choices[0].message.content, len(questions))
 
+def call_custom(model_name: str, questions: list, personas: list, instructions: str) -> list:
+    # This is a placeholder function that you can customize based on your specific custom model's API
+    # You'll need to implement the actual API call logic here
+    raise NotImplementedError("Custom model implementation required")
+
 def extract_answers(response_text: str, expected_count: int) -> list:
     answers = []
     for line in response_text.splitlines():
@@ -164,10 +172,10 @@ def estimate_output_tokens(model_name: str, questions: list, personas: list, ins
     
     return max_tokens
 
-def perform_ai_call(questions: list, model_name: str, model_id: int, personas: list, instructions: str, user_info: dict, file_name: str, response_in_json: bool, is_from_survey: bool) -> dict:    
-    prompt = build_prompt(questions, personas.split(",") if personas else [], instructions)
+def perform_ai_call(questions: list, model_name: str, model_id: int, personas: list, instructions: str, user_info: dict, file_name: str = None, response_in_json: bool = False, is_from_survey: bool = False) -> dict:    
+    prompt = build_prompt(questions, personas, instructions)
     tokens_used_for_prompt = estimate_tokens(prompt, model_name)
-    expected_output_tokens = estimate_output_tokens(model_name, questions, personas.split(",") if personas else [], instructions)
+    expected_output_tokens = estimate_output_tokens(model_name, questions, personas, instructions)
     total_tokens_required = tokens_used_for_prompt + expected_output_tokens
     tokens_available = user_info.get("tokens", 0)
 
@@ -191,7 +199,7 @@ def perform_ai_call(questions: list, model_name: str, model_id: int, personas: l
     except Exception as e:
         return jsonify({"error": f"AI model call failed: {e}"}), 500
         
-    update_user_tokens(user_info.get("id"), tokens_used_for_prompt)
+    update_user_tokens(user_info.get("id"), total_tokens_required)
 
     if not is_from_survey:
         return jsonify({
