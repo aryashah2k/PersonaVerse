@@ -71,11 +71,11 @@ def update_user_tokens(user_id: str, tokens_used: int):
     except Exception as e:
         raise ValueError(f"Error updating user tokens: {e}")
 
-def get_form_response(user_id: str, file_path: str, model_id: int, tokens_used: int):
+def save_to_supabase(user_id: str, file_path: str, model_id: int, tokens_used: int):
     try:
         supabase = get_supabase_client()
     
-        file_name = f"{user_id}_{datetime.now().isoformat()}"
+        file_name = f"{user_id}_{datetime.now(datetime.timezone.utc).isoformat()}"
         file_extension = os.path.splitext(file_path)[1]
         storage_path = f"survey_responses/{file_name}.{file_extension}"
         content_type, _ = mimetypes.guess_type(file_path)
@@ -102,6 +102,7 @@ def get_form_response(user_id: str, file_path: str, model_id: int, tokens_used: 
             "signed_url": signedUrl
         }
         supabase.table('SurveyHistory').insert(data).execute()
+        
         return data
     except Exception as e:
         raise ValueError(f"Error saving file to supabase: {e}")

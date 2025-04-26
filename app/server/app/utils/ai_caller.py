@@ -5,7 +5,7 @@ from openai import OpenAI
 from anthropic import Anthropic
 from google.genai import types, Client
 from .env_utils import get_required_env_var
-from .supabase_utils import get_model_specs
+from .supabase_utils import get_model_specs, update_user_tokens, save_to_supabase
 from app.utils.response_generator import generate_response_file
 
 def get_api_config() -> dict:
@@ -195,6 +195,8 @@ def perform_ai_call(questions: list, model_name: str, model_id: int, personas: l
         )
     except Exception as e:
         return jsonify({"error": f"AI model call failed: {e}"}), 500
+    
+    update_user_tokens(user_info.get("id"), tokens_used_for_prompt)
 
     if not is_from_survey:
         return jsonify({
@@ -205,4 +207,4 @@ def perform_ai_call(questions: list, model_name: str, model_id: int, personas: l
             "tokens_used": total_tokens_required,
             "qa_pairs": [{"question": q, "answer": a} for q, a in zip(questions, answers)]
         })
-    return generate_response_file(file_name, questions, answers, response_in_json)
+    return save_to_supabase(user_info, file_name, model_id, tokens_used_for_prompt)
