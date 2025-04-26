@@ -227,14 +227,14 @@ def perform_ai_call(questions: list, model_name: str, model_id: int, personas: l
 
     tokens_available = user_info.get("tokens", 0)
 
-    # if total_tokens_used > tokens_available:
-    #     return jsonify({
-    #         "error": (
-    #             f"Your prompts use {total_tokens_used} tokens. "
-    #             f"You have {tokens_available} tokens remaining. "
-    #             f"Total required: {total_tokens_used}."
-    #         )
-    #     }), 403
+    if total_tokens_used > tokens_available:
+        return jsonify({
+            "error": (
+                f"Your prompts use {total_tokens_used} tokens. "
+                f"You have {tokens_available} tokens remaining. "
+                f"Total required: {total_tokens_used}."
+            )
+        }), 403
 
     try:
         all_answers, token_usage = call_ai_model(
