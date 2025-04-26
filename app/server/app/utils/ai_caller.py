@@ -67,7 +67,7 @@ def call_ai_model(model_name: str, questions: list, personas: list, instructions
     return all_answers, total_token_usage
 
 def get_randomized_temperature() -> float:
-    return random.uniform(0.5, 1.0)
+    return random.uniform(0.8, 1.0)
 
 def build_prompt(questions: list, persona: str, instructions: str) -> str:
     persona_text = f"The following response should reflect the persona: {persona}.\n" if persona else ""
@@ -101,7 +101,7 @@ def estimate_tokens(prompt: str, model_name: str) -> int:
     return total_tokens
 
 def get_system_prompt() -> str:
-    system_prompt = """You are a helpful assistant that answers questions based on the provided personas and instructions. 
+    system_prompt = """You are a helpful assistant that answers questions based on the provided persona and instructions. 
     Answer only in the way you are instructed to. Do not add any additional commentary or explanations."""
     return system_prompt
 
@@ -218,7 +218,8 @@ def extract_answers(response_text: str, expected_count: int) -> list:
             answers.append(line.split('.', 1)[1].strip())
     return answers if len(answers) >= expected_count else response_text.strip().split("\n")[:expected_count]
 
-def perform_ai_call(questions: list, model_name: str, model_id: int, personas: list, instructions: str, user_info: dict, file_name: str = None, response_in_json: bool = False, is_from_survey: bool = False) -> dict:    
+def perform_ai_call(questions: list, model_name: str, model_id: int, personas: list, instructions: str, user_info: dict, file_name: str = None, 
+                    response_in_json: bool = False, is_from_survey: bool = False) -> dict:    
     total_tokens_used = 0
     for persona in personas:
         prompt = build_prompt(questions, persona, instructions)
