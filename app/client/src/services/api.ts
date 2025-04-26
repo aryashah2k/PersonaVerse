@@ -102,22 +102,7 @@ export const userService = {
     };
   },
 
-  addTokens: async (amount: number) => {
-    // Simulate API call
-    await delay(800);
 
-    // In a real app, this would update the backend
-    const updatedProfile: UserProfile = {
-      id: '1',
-      name: 'Test User',
-      username: 'testuser',
-      email: 'test@example.com',
-      plan: 'free',
-      tokensAvailable: 100 + amount,
-    };
-
-    return updatedProfile;
-  },
 
   changePlan: async (planType: 'free' | 'standard' | 'premium') => {
     // Simulate API call

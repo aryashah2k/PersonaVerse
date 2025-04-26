@@ -13,7 +13,7 @@ import {
   changePlan as changePlanAction,
 } from '../store/slices/userSlice';
 import { userService, historyService } from '../services/api';
-import { setProfileState } from '../store/slices/authSlice';
+import { addTokens, setProfileState } from '../store/slices/authSlice';
 import Profile from '../model/profile';
 import { getSignedURL } from '../services/api/genResponse';
 
@@ -66,8 +66,7 @@ export const useUserProfile = () => {
   const addUserTokens = useCallback(
     async (amount: number) => {
       try {
-        await userService.addTokens(amount);
-        dispatch(addTokensAction(amount));
+        dispatch(addTokens(amount));
         return true;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to add tokens';

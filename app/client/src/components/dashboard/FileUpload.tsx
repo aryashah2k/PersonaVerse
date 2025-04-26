@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from "react";
 import {
   Box,
   Typography,
@@ -9,14 +9,15 @@ import {
   CardContent,
   Alert,
   Stack,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import DescriptionIcon from '@mui/icons-material/Description';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import DeleteIcon from '@mui/icons-material/Delete';
-import useFileUpload from '../../hooks/useFileUpload';
-import { formatFileSize, getFileTypeName } from '../../utils/fileUtils';
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import DescriptionIcon from "@mui/icons-material/Description";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import DeleteIcon from "@mui/icons-material/Delete";
+import useFileUpload from "../../hooks/useFileUpload";
+import { formatFileSize, getFileTypeName } from "../../utils/fileUtils";
+import useForm from "../../hooks/useForm";
 
 interface FileUploadProps {
   onUploadComplete: (fileUrl: string) => void;
@@ -26,18 +27,18 @@ const DropZone = styled(Paper)(({ theme }) => ({
   border: `2px dashed ${theme.palette.primary.main}`,
   borderRadius: theme.shape.borderRadius * 2,
   padding: theme.spacing(6),
-  textAlign: 'center',
-  cursor: 'pointer',
-  transition: 'all 0.3s ease',
+  textAlign: "center",
+  cursor: "pointer",
+  transition: "all 0.3s ease",
   backgroundColor: theme.palette.background.paper,
-  '&:hover': {
+  "&:hover": {
     borderColor: theme.palette.primary.dark,
     backgroundColor: theme.palette.action.hover,
   },
 }));
 
-const HiddenInput = styled('input')({
-  display: 'none',
+const HiddenInput = styled("input")({
+  display: "none",
 });
 
 const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
@@ -57,6 +58,11 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
     uploadFile,
     removeFile,
   } = useFileUpload();
+  const { resetForm } = useForm();
+  const handleRemoveFile = () => {
+    removeFile();
+    resetForm();
+  };
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -105,10 +111,15 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
         Upload Your Survey File
       </Typography>
       <Typography color="text.secondary" paragraph>
-        Upload your survey questions as a file. We support PDF, DOCX, XLSX, and TXT formats (max 10MB).
+        Upload your survey questions as a file. We support PDF, DOCX, XLSX, and
+        TXT formats (max 10MB).
       </Typography>
 
-      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
 
       {!file ? (
         <DropZone
@@ -117,11 +128,11 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
           onDragLeave={handleDragLeave}
           onClick={handleSelectFile}
           sx={{
-            borderColor: dragActive ? 'primary.dark' : 'primary.main',
-            bgcolor: dragActive ? 'action.hover' : 'background.paper',
+            borderColor: dragActive ? "primary.dark" : "primary.main",
+            bgcolor: dragActive ? "action.hover" : "background.paper",
           }}
         >
-          <UploadFileIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+          <UploadFileIcon sx={{ fontSize: 60, color: "primary.main", mb: 2 }} />
           <Typography variant="h6" gutterBottom>
             Drag & Drop your file here
           </Typography>
@@ -146,8 +157,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
       ) : (
         <Card variant="outlined" sx={{ borderRadius: 2 }}>
           <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <DescriptionIcon sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+              <DescriptionIcon
+                sx={{ fontSize: 40, color: "primary.main", mr: 2 }}
+              />
               <Box sx={{ flexGrow: 1 }}>
                 <Typography variant="subtitle1" fontWeight="medium" noWrap>
                   {fileName}
@@ -159,7 +172,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
               <Button
                 startIcon={<DeleteIcon />}
                 color="error"
-                onClick={removeFile}
+                onClick={handleRemoveFile}
                 disabled={isUploading}
               >
                 Remove
@@ -167,8 +180,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
             </Box>
 
             {isUploading && (
-              <Box sx={{ width: '100%', mt: 2 }}>
-                <LinearProgress variant="determinate" value={progress} sx={{ height: 8, borderRadius: 4 }} />
+              <Box sx={{ width: "100%", mt: 2 }}>
+                <LinearProgress
+                  variant="determinate"
+                  value={progress}
+                  sx={{ height: 8, borderRadius: 4 }}
+                />
                 <Typography variant="body2" align="center" sx={{ mt: 1 }}>
                   Uploading: {progress}%
                 </Typography>
@@ -183,7 +200,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
                 onClick={handleUpload}
                 fullWidth
               >
-                {isUploaded ? 'Uploaded' : 'Upload File'}
+                {isUploaded ? "Uploaded" : "Upload File"}
               </Button>
             </Stack>
           </CardContent>

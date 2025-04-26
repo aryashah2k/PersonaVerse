@@ -2,14 +2,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { getResponse } from '../services/api/genResponse';
 import { AIModel } from '../model/AIModel';
-import { setFileOutput, setInstruction, setModel, setPersona, submitFailure, submitStart, submitSuccess } from '../store/slices/formSlice';
+import { resetFormState, setActiveStep, setFileOutput, setInstruction, setModel, setPersona, submitFailure, submitStart, submitSuccess } from '../store/slices/formSlice';
 import { Persona } from '../model/persona';
+import { setLoadingFalse, setLoadingTrue } from '../store/slices/appLoadingSlice';
+import { deductTokens } from '../store/slices/authSlice';
 
 
 export const useForm = () => {
     const dispatch = useAppDispatch();
     const { file, fileName } = useAppSelector((state) => state.file)
-    const { model, personas, responseInJson, instruction: responsePrompt, isSubmitting, error, isSubmitted } = useAppSelector((state) => state.form)
+    const { model, personas, responseInJson, instruction: responsePrompt, isSubmitting, error, isSubmitted, activeStep } = useAppSelector((state) => state.form)
     const [returnFormat, setReturnFormat] = useState("csv");
 
     useEffect(() => {
@@ -54,6 +56,13 @@ export const useForm = () => {
         },
         [dispatch]
     );
+    const setDashboardActiveStep = useCallback(
+
+        async (data: number) => {
+            dispatch(setActiveStep(data));
+        },
+        [dispatch]
+    );
 
     const setPageError = useCallback(
         (error: string) => {
@@ -64,22 +73,34 @@ export const useForm = () => {
 
     const submitForm = useCallback(
         async () => {
-            const personaDescriptions: string[] = personaParser();
-            dispatch(submitStart());
+            try {
+                const personaDescriptions: string[] = personaParser();
+                dispatch(submitStart());
+                const res = await getResponse({ file: file, model_id: model?.id, instructions: responsePrompt, personaDescriptions: personaDescriptions, responseInJson });
 
+                if (res.error) {
+                    console.log(res.error);
 
-            const res = await getResponse({ file: file, model_id: model?.id, instructions: responsePrompt, personaDescriptions: personaDescriptions, responseInJson });
-
-            if (res.error) {
-                console.log(res.error);
-
-                dispatch(submitFailure(res.error));
+                    dispatch(submitFailure(res.error));
+                    dispatch(setLoadingFalse());
+                }
+                dispatch(submitSuccess());
+                dispatch(deductTokens(100));
+            } catch (e) {
+            } finally {
+                dispatch(submitFailure("Something went wrong"));
             }
-            dispatch(submitSuccess());
-
             // set the url here, deduct tokens, and update history if the user has a premium subscription 
         },
         [dispatch, file, responseInJson, responsePrompt]);
+
+    const resetForm = useCallback(
+
+        () => {
+            dispatch(resetFormState());
+        },
+        [dispatch]
+    );
 
     return {
         selectedModel: model,
@@ -96,6 +117,10 @@ export const useForm = () => {
         isSubmitting,
         isSubmitted,
         error,
+        setDashboardActiveStep,
+        activeStep,
+        setPageError,
+        resetForm
     };
 };
 

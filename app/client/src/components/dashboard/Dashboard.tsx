@@ -21,7 +21,6 @@ import ResultDisplay from "./ResultDisplay";
 import TokenDialog from "./TokenDialog";
 import Layout from "../layout/Layout";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import { useAppDispatch } from "../../store";
 import { resetFormState } from "../../store/slices/formSlice";
 import useFileUpload from "../../hooks/useFileUpload";
 import useAuth from "../../hooks/useAuth";
@@ -37,13 +36,13 @@ const steps = [
 const Dashboard: React.FC = () => {
   const { loadProfile } = useUserProfile();
   const { resetUploadState } = useFileUpload();
-  const [activeStep, setActiveStep] = useState(0);
+  // const [activeStep, setDashboardActiveStep] = useState(0);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [responseUrl, setResponseUrl] = useState<string | null>(null);
   const [showTokenDialog, setShowTokenDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const dispatch = useAppDispatch();
+  const { setDashboardActiveStep, activeStep, resetForm } = useForm();
   useEffect(() => {
     const init = async () => {
       try {
@@ -60,32 +59,32 @@ const Dashboard: React.FC = () => {
 
   const handleFileUploadComplete = (url: string) => {
     setFileUrl(url);
-    setActiveStep(1);
+    setDashboardActiveStep(1);
   };
 
   const handlePersonaSelectionComplete = () => {
-    setActiveStep(2);
+    setDashboardActiveStep(2);
   };
 
   const handleResponsePromptComplete = (url: string) => {
     // personaParser();
     // setResponseUrl(url);
     //
-    // setActiveStep(3);
+    // setDashboardActiveStep(3);
   };
 
   const handlePrevious = () => {
     if (activeStep > 0) {
-      setActiveStep((prev) => prev - 1);
+      setDashboardActiveStep(activeStep - 1);
     }
   };
 
   const handleReset = () => {
-    setActiveStep(0);
+    setDashboardActiveStep(0);
     setFileUrl(null);
     setResponseUrl(null);
     resetUploadState();
-    dispatch(resetFormState());
+    resetForm();
   };
 
   const handleNeedMoreTokens = () => {
@@ -179,9 +178,8 @@ const Dashboard: React.FC = () => {
               />
             )}
 
-            {activeStep === 2 && fileUrl && (
+            {activeStep === 2 && (
               <ResponsePrompt
-                fileUrl={fileUrl}
                 onSubmitComplete={handleResponsePromptComplete}
                 onRequestTokens={handleNeedMoreTokens}
                 onPrevious={handlePrevious}
