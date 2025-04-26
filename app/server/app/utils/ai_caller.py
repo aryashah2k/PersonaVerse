@@ -191,20 +191,7 @@ def extract_answers(response_text: str, expected_count: int) -> list:
 
 def estimate_output_tokens(model_name: str, questions: list, personas: list, instructions: str) -> int:
     model_specs = get_model_specs(model_name)
-    base_tokens = model_specs["output_tokens"]
-    context_window = model_specs["context_window"]
-    
-    avg_question_length = sum(len(q) for q in questions) / len(questions) if questions else 0
-    
-    question_factor = len(questions) * (1 + (avg_question_length / 100))
-    persona_factor = len(personas) * 1.5
-    instruction_factor = 1.5 if instructions else 1.0
-    
-    dynamic_tokens = int(base_tokens * question_factor * persona_factor * instruction_factor)
-    
-    max_tokens = min(dynamic_tokens, context_window)
-    
-    return max_tokens
+    return model_specs["output_tokens"]
 
 def perform_ai_call(questions: list, model_name: str, model_id: int, personas: list, instructions: str, user_info: dict, file_name: str = None, response_in_json: bool = False, is_from_survey: bool = False) -> dict:    
     prompt = build_prompt(questions, personas, instructions)
