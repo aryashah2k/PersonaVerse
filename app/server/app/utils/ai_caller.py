@@ -32,7 +32,7 @@ try:
 except Exception as e:
     raise EnvironmentError(f"Failed to initialize API clients: {str(e)}")
 
-def call_ai_model(model_name: str, questions: list, personas: list, instructions: str) -> list:
+def call_ai_model(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     model_and_providers = get_models_by_provider()
 
     if model_name in model_and_providers[CUSTOM_MODELS]:
@@ -87,7 +87,7 @@ def get_system_prompt() -> str:
     Answer only in the way you are instructed to. Do not add any additional commentary or explanations."""
     return system_prompt
 
-def call_openai(model_name: str, questions: list, personas: list, instructions: str) -> list:
+def call_openai(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     prompt = build_prompt(questions, personas, instructions)
     max_tokens = estimate_output_tokens(model_name, questions, personas, instructions)
     response = openai_client.chat.completions.create(
@@ -99,12 +99,22 @@ def call_openai(model_name: str, questions: list, personas: list, instructions: 
         ],
         temperature=get_randomized_temperature()
     )
-    return extract_answers(response.choices[0].message.content, len(questions))
+    token_usage = {
+        "prompt_tokens": response.usage.prompt_tokens,
+        "completion_tokens": response.usage.completion_tokens,
+        "total_tokens": response.usage.total_tokens
+    }
+    return extract_answers(response.choices[0].message.content, len(questions)), token_usage
 
-def call_claude(model_name: str, questions: list, personas: list, instructions: str) -> list:
+def call_claude(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     prompt = build_prompt(questions, personas, instructions)
     max_tokens = estimate_output_tokens(model_name, questions, personas, instructions)
-    response = anthropic_client.messages.create(
+    
+    full_response_text = ""
+    input_tokens = 0
+    output_tokens = 0
+    
+    with anthropic_client.messages.stream(
         model=model_name,
         max_tokens=max_tokens,
         system=get_system_prompt(),
@@ -112,10 +122,23 @@ def call_claude(model_name: str, questions: list, personas: list, instructions: 
             {"role": "user", "content": prompt}
         ],
         temperature=get_randomized_temperature()
-    )
-    return extract_answers(response.content[0].text, len(questions))
+    ) as stream:
+        for chunk in stream:
+            if chunk.type == "message_start":
+                input_tokens = chunk.message.usage.input_tokens
+            elif chunk.type == "content_block_delta":
+                full_response_text += chunk.delta.text
+            elif chunk.type == "message_delta":
+                output_tokens = chunk.usage.output_tokens
+    
+    token_usage = {
+        "prompt_tokens": input_tokens,
+        "completion_tokens": output_tokens,
+        "total_tokens": input_tokens + output_tokens
+    }
+    return extract_answers(full_response_text, len(questions)), token_usage
 
-def call_gemini(model_name: str, questions: list, personas: list, instructions: str) -> list:
+def call_gemini(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     prompt = build_prompt(questions, personas, instructions)
     max_tokens = estimate_output_tokens(model_name, questions, personas, instructions)
     response = gemini_client.models.generate_content(
@@ -128,9 +151,15 @@ def call_gemini(model_name: str, questions: list, personas: list, instructions: 
         ),
         contents=prompt
     )
-    return extract_answers(response.text, len(questions))
+    
+    token_usage = {
+        "prompt_tokens": estimate_tokens(prompt, model_name),
+        "completion_tokens": estimate_tokens(response.text, model_name),
+        "total_tokens": estimate_tokens(prompt, model_name) + estimate_tokens(response.text, model_name)
+    }
+    return extract_answers(response.text, len(questions)), token_usage
 
-def call_deepseek(model_name: str, questions: list, personas: list, instructions: str) -> list:
+def call_deepseek(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     prompt = build_prompt(questions, personas, instructions)
     max_tokens = estimate_output_tokens(model_name, questions, personas, instructions)
     response = deepseek_client.chat.completions.create(
@@ -142,9 +171,14 @@ def call_deepseek(model_name: str, questions: list, personas: list, instructions
         ],
         temperature=get_randomized_temperature()
     )
-    return extract_answers(response.choices[0].message.content, len(questions))
+    token_usage = {
+        "prompt_tokens": response.usage.prompt_tokens,
+        "completion_tokens": response.usage.completion_tokens,
+        "total_tokens": response.usage.total_tokens
+    }
+    return extract_answers(response.choices[0].message.content, len(questions)), token_usage
 
-def call_custom(model_name: str, questions: list, personas: list, instructions: str) -> list:
+def call_custom(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     raise NotImplementedError("Custom model implementation required")
 
 def extract_answers(response_text: str, expected_count: int) -> list:
@@ -175,22 +209,19 @@ def estimate_output_tokens(model_name: str, questions: list, personas: list, ins
 def perform_ai_call(questions: list, model_name: str, model_id: int, personas: list, instructions: str, user_info: dict, file_name: str = None, response_in_json: bool = False, is_from_survey: bool = False) -> dict:    
     prompt = build_prompt(questions, personas, instructions)
     tokens_used_for_prompt = estimate_tokens(prompt, model_name)
-    expected_output_tokens = estimate_output_tokens(model_name, questions, personas, instructions)
-    total_tokens_required = tokens_used_for_prompt + expected_output_tokens
     tokens_available = user_info.get("tokens", 0)
 
-    if total_tokens_required > tokens_available:
+    if tokens_used_for_prompt > tokens_available:
         return jsonify({
             "error": (
                 f"Your prompt uses {tokens_used_for_prompt} tokens. "
-                f"Expected model output ~{expected_output_tokens} tokens. "
                 f"You have {tokens_available} tokens remaining. "
-                f"Total required: {total_tokens_required}."
+                f"Total required: {tokens_used_for_prompt}."
             )
         }), 403
 
     try:
-        answers = call_ai_model(
+        answers, token_usage = call_ai_model(
             model_name=model_name,
             questions=questions,
             personas=personas,
@@ -199,16 +230,17 @@ def perform_ai_call(questions: list, model_name: str, model_id: int, personas: l
     except Exception as e:
         return jsonify({"error": f"AI model call failed: {e}"}), 500
         
-    update_user_tokens(user_info.get("id"), total_tokens_required)
+    update_user_tokens(user_info.get("id"), token_usage["total_tokens"])
 
     if not is_from_survey:
         return jsonify({
             "model_id": model_id,
             "instructions": instructions,
             "personas": personas,
-            "tokens_used": total_tokens_required,
+            "tokens_used": token_usage["total_tokens"],
+            "token_usage": token_usage,
             "qa_pairs": [{"question": q, "answer": a} for q, a in zip(questions, answers)]
         })
     
     response_file_name = generate_response_file(questions, answers, response_in_json)
-    return save_to_supabase(user_info, file_name, response_file_name, model_id, tokens_used_for_prompt)
+    return save_to_supabase(user_info["id"], file_name, response_file_name, model_id, token_usage["total_tokens"])
