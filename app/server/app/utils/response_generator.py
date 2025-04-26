@@ -4,11 +4,8 @@ import pandas as pd
 import json
 from datetime import datetime, timezone
 
-def generate_response_file(questions, answers, isResponseInJson):
-    df = pd.DataFrame({
-        'Question': questions,
-        'Answer': answers
-    })
+def generate_response_file(response_data, isResponseInJson):
+    df = pd.DataFrame(response_data)
     
     timestamp = datetime.now(timezone.utc).isoformat()
     file_extension = "json" if isResponseInJson else "csv"

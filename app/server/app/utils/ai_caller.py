@@ -34,25 +34,43 @@ except Exception as e:
 
 def call_ai_model(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
     model_and_providers = get_models_by_provider()
+    all_answers = []
+    total_token_usage = {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0
+    }
 
-    if model_name in model_and_providers[CUSTOM_MODELS]:
-        return call_custom(model_name, questions, personas, instructions)
-    elif model_name in model_and_providers[OPENAI_MODELS]:
-        return call_openai(model_name, questions, personas, instructions)
-    elif model_name in model_and_providers[CLAUDE_MODELS]:
-        return call_claude(model_name, questions, personas, instructions)
-    elif model_name in model_and_providers[GEMINI_MODELS]:
-        return call_gemini(model_name, questions, personas, instructions)
-    elif model_name in model_and_providers[DEEPSEEK_MODELS]:
-        return call_deepseek(model_name, questions, personas, instructions)
-    else:
-        raise ValueError(f"Unsupported model: {model_name}")
-    
+    for persona in personas:
+        if model_name in model_and_providers[CUSTOM_MODELS]:
+            answers, token_usage = call_custom(model_name, questions, persona, instructions)
+        elif model_name in model_and_providers[OPENAI_MODELS]:
+            answers, token_usage = call_openai(model_name, questions, persona, instructions)
+        elif model_name in model_and_providers[CLAUDE_MODELS]:
+            answers, token_usage = call_claude(model_name, questions, persona, instructions)
+        elif model_name in model_and_providers[GEMINI_MODELS]:
+            answers, token_usage = call_gemini(model_name, questions, persona, instructions)
+        elif model_name in model_and_providers[DEEPSEEK_MODELS]:
+            answers, token_usage = call_deepseek(model_name, questions, persona, instructions)
+        else:
+            raise ValueError(f"Unsupported model: {model_name}")
+        
+        all_answers.append({
+            "persona": persona,
+            "answers": answers
+        })
+        
+        total_token_usage["prompt_tokens"] += token_usage["prompt_tokens"]
+        total_token_usage["completion_tokens"] += token_usage["completion_tokens"]
+        total_token_usage["total_tokens"] += token_usage["total_tokens"]
+
+    return all_answers, total_token_usage
+
 def get_randomized_temperature() -> float:
     return random.uniform(0.5, 1.0)
 
-def build_prompt(questions: list, personas: list, instructions: str) -> str:
-    persona_text = f"The following response should reflect the personas: {', '.join(personas)}.\n" if personas else ""
+def build_prompt(questions: list, persona: str, instructions: str) -> str:
+    persona_text = f"The following response should reflect the persona: {persona}.\n" if persona else ""
     instruction_text = f"{instructions}\n" if instructions else ""
     question_block = "\n".join([f"{i+1}. {q}" for i, q in enumerate(questions)])
     return f"{persona_text}{instruction_text}Please answer the following questions:\n\n{question_block}"
@@ -87,8 +105,8 @@ def get_system_prompt() -> str:
     Answer only in the way you are instructed to. Do not add any additional commentary or explanations."""
     return system_prompt
 
-def call_openai(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
-    prompt = build_prompt(questions, personas, instructions)
+def call_openai(model_name: str, questions: list, persona: str, instructions: str) -> tuple[list, dict]:
+    prompt = build_prompt(questions, persona, instructions)
     max_tokens = estimate_tokens(prompt, model_name)
     context_window = get_model_specs(model_name)["context_window"]
     max_tokens = min(max_tokens, context_window)
@@ -109,8 +127,8 @@ def call_openai(model_name: str, questions: list, personas: list, instructions: 
     }
     return extract_answers(response.choices[0].message.content, len(questions)), token_usage
 
-def call_claude(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
-    prompt = build_prompt(questions, personas, instructions)
+def call_claude(model_name: str, questions: list, persona: str, instructions: str) -> tuple[list, dict]:
+    prompt = build_prompt(questions, persona, instructions)
     max_tokens = estimate_tokens(prompt, model_name)
     context_window = get_model_specs(model_name)["context_window"]
     max_tokens = min(max_tokens, context_window)
@@ -143,8 +161,8 @@ def call_claude(model_name: str, questions: list, personas: list, instructions: 
     }
     return extract_answers(full_response_text, len(questions)), token_usage
 
-def call_gemini(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
-    prompt = build_prompt(questions, personas, instructions)
+def call_gemini(model_name: str, questions: list, persona: str, instructions: str) -> tuple[list, dict]:
+    prompt = build_prompt(questions, persona, instructions)
     max_tokens = estimate_tokens(prompt, model_name)
     context_window = get_model_specs(model_name)["context_window"]
     max_tokens = min(max_tokens, context_window)
@@ -167,8 +185,8 @@ def call_gemini(model_name: str, questions: list, personas: list, instructions: 
     }
     return extract_answers(response.text, len(questions)), token_usage
 
-def call_deepseek(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
-    prompt = build_prompt(questions, personas, instructions)
+def call_deepseek(model_name: str, questions: list, persona: str, instructions: str) -> tuple[list, dict]:
+    prompt = build_prompt(questions, persona, instructions)
     max_tokens = estimate_tokens(prompt, model_name)
     context_window = get_model_specs(model_name)["context_window"]
     max_tokens = min(max_tokens, context_window)
@@ -189,7 +207,7 @@ def call_deepseek(model_name: str, questions: list, personas: list, instructions
     }
     return extract_answers(response.choices[0].message.content, len(questions)), token_usage
 
-def call_custom(model_name: str, questions: list, personas: list, instructions: str) -> tuple[list, dict]:
+def call_custom(model_name: str, questions: list, persona: str, instructions: str) -> tuple[list, dict]:
     raise NotImplementedError("Custom model implementation required")
 
 def extract_answers(response_text: str, expected_count: int) -> list:
@@ -201,21 +219,25 @@ def extract_answers(response_text: str, expected_count: int) -> list:
     return answers if len(answers) >= expected_count else response_text.strip().split("\n")[:expected_count]
 
 def perform_ai_call(questions: list, model_name: str, model_id: int, personas: list, instructions: str, user_info: dict, file_name: str = None, response_in_json: bool = False, is_from_survey: bool = False) -> dict:    
-    prompt = build_prompt(questions, personas, instructions)
-    tokens_used_for_prompt = estimate_tokens(prompt, model_name)
+    total_tokens_used = 0
+    for persona in personas:
+        prompt = build_prompt(questions, persona, instructions)
+        tokens_used_for_prompt = estimate_tokens(prompt, model_name)
+        total_tokens_used += tokens_used_for_prompt
+
     tokens_available = user_info.get("tokens", 0)
 
-    if tokens_used_for_prompt > tokens_available:
-        return jsonify({
-            "error": (
-                f"Your prompt uses {tokens_used_for_prompt} tokens. "
-                f"You have {tokens_available} tokens remaining. "
-                f"Total required: {tokens_used_for_prompt}."
-            )
-        }), 403
+    # if total_tokens_used > tokens_available:
+    #     return jsonify({
+    #         "error": (
+    #             f"Your prompts use {total_tokens_used} tokens. "
+    #             f"You have {tokens_available} tokens remaining. "
+    #             f"Total required: {total_tokens_used}."
+    #         )
+    #     }), 403
 
     try:
-        answers, token_usage = call_ai_model(
+        all_answers, token_usage = call_ai_model(
             model_name=model_name,
             questions=questions,
             personas=personas,
@@ -233,8 +255,23 @@ def perform_ai_call(questions: list, model_name: str, model_id: int, personas: l
             "personas": personas,
             "tokens_used": token_usage["total_tokens"],
             "token_usage": token_usage,
-            "qa_pairs": [{"question": q, "answer": a} for q, a in zip(questions, answers)]
+            "responses": [
+                {
+                    "persona": response["persona"],
+                    "qa_pairs": [{"question": q, "answer": a} for q, a in zip(questions, response["answers"])]
+                }
+                for response in all_answers
+            ]
         })
     
-    response_file_name = generate_response_file(questions, answers, response_in_json)
+    response_data = []
+    for response in all_answers:
+        for question, answer in zip(questions, response["answers"]):
+            response_data.append({
+                "Persona": response["persona"],
+                "Question": question,
+                "Answer": answer
+            })
+    
+    response_file_name = generate_response_file(response_data, response_in_json)
     return save_to_supabase(user_info["id"], file_name, response_file_name, model_id, token_usage["total_tokens"])

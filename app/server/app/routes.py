@@ -7,6 +7,7 @@ from app.utils.supabase_utils import (
     get_model_name
 )
 from app.utils.env_utils import get_required_env_var
+import json
 
 api = Blueprint("api", __name__)
 
@@ -63,10 +64,15 @@ def fill_survey_form():
 
     form_file = request.files.get("form_file")
     model_id = int(request.form.get("model_id"))
-    personas = request.form.get("personas", [])
+    personas = request.form.get("personas", "[]")
     instructions = request.form.get("instructions", "")
-    responseInJson = request.form.get("responseInJson", "false").lower() == "true"
-    isFromSurvey = request.form.get("isFromSurvey", "false").lower() == "true"
+    responseInJson = request.form.get("response_in_json", "false").lower() == "true"
+    isFromSurvey = request.form.get("is_from_survey", "false").lower() == "true"
+
+    try:
+        personas = json.loads(personas)
+    except:
+        return jsonify({"error": "Invalid personas format"}), 400
 
     if not form_file:
         return jsonify({"error": "No survey form uploaded."}), 400
