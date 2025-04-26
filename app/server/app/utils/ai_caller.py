@@ -35,7 +35,9 @@ except Exception as e:
 def call_ai_model(model_name: str, questions: list, personas: list, instructions: str) -> list:
     model_and_providers = get_models_by_provider()
 
-    if model_name in model_and_providers[OPENAI_MODELS]:
+    if model_name in model_and_providers[CUSTOM_MODELS]:
+        return call_custom(model_name, questions, personas, instructions)
+    elif model_name in model_and_providers[OPENAI_MODELS]:
         return call_openai(model_name, questions, personas, instructions)
     elif model_name in model_and_providers[CLAUDE_MODELS]:
         return call_claude(model_name, questions, personas, instructions)
@@ -50,7 +52,7 @@ def get_randomized_temperature() -> float:
     return random.uniform(0.5, 1.0)
 
 def build_prompt(questions: list, personas: list, instructions: str) -> str:
-    persona_text = f"You areThe following response should reflect the personas: {', '.join(personas)}.\n" if personas else ""
+    persona_text = f"The following response should reflect the personas: {', '.join(personas)}.\n" if personas else ""
     instruction_text = f"{instructions}\n" if instructions else ""
     question_block = "\n".join([f"{i+1}. {q}" for i, q in enumerate(questions)])
     return f"{persona_text}{instruction_text}Please answer the following questions:\n\n{question_block}"
@@ -143,8 +145,6 @@ def call_deepseek(model_name: str, questions: list, personas: list, instructions
     return extract_answers(response.choices[0].message.content, len(questions))
 
 def call_custom(model_name: str, questions: list, personas: list, instructions: str) -> list:
-    # This is a placeholder function that you can customize based on your specific custom model's API
-    # You'll need to implement the actual API call logic here
     raise NotImplementedError("Custom model implementation required")
 
 def extract_answers(response_text: str, expected_count: int) -> list:
