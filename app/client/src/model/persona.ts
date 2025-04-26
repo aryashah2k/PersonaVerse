@@ -7,6 +7,7 @@ export interface Persona {
     location: string;
     // background: string;
     description: string;
+    imageURL?: string;
 }
 
 export function copyWith(data: any): Persona {
@@ -18,5 +19,6 @@ export function copyWith(data: any): Persona {
         job: data.job as string,
         description: data.description as string,
         location: data.location as string,
+        imageURL: data.image_url as string,
     };
 }
