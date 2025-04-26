@@ -102,11 +102,9 @@ def save_to_supabase(user_id: str, file_path: str, response_file_path: str, mode
             expires_in=3600
         ).get("signedURL")
 
-        original_file_name = os.path.basename(file_path)
-
         data = {
             "profile_id": user_id,
-            "file_name": original_file_name,
+            "file_name": file_path,
             "bucket_storage_path": storage_path,
             "tokens_used": tokens_used,
             "model_used": model_id,
