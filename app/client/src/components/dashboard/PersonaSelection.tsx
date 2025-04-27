@@ -39,8 +39,8 @@ const PersonaCard = styled(Card)(({ theme }) => ({
 }));
 
 const PersonaAvatar = styled(Avatar)(({ theme }) => ({
-  width: 200,
-  height: 200,
+  width: 60,
+  height: 60,
   backgroundColor: theme.palette.primary.light,
   color: theme.palette.primary.main,
   fontSize: "1.5rem",
@@ -170,17 +170,7 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({
                         alignItems: "center",
                       }}
                     >
-                      <PersonaAvatar>
-                        {persona.imageURL ? (
-                          <img
-                            src={persona.imageURL}
-                            alt={persona.name}
-                            style={{ width: "100%", height: "100%" }}
-                          />
-                        ) : (
-                          persona.name.charAt(0)
-                        )}
-                      </PersonaAvatar>
+                      <PersonaAvatar>{persona.name.charAt(0)}</PersonaAvatar>
                       <Typography
                         variant="h6"
                         component="h3"
