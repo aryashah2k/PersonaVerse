@@ -218,10 +218,10 @@ def call_custom(model_name: str, questions: list, persona: str, instructions: st
 
     token_usage = {
         "prompt_tokens": estimate_tokens(prompt, model_name),
-        "completion_tokens": estimate_tokens(response.text, model_name),
-        "total_tokens": estimate_tokens(prompt, model_name) + estimate_tokens(response.text, model_name)
+        "completion_tokens": estimate_tokens(response.get('text', ''), model_name),
+        "total_tokens": estimate_tokens(prompt, model_name) + estimate_tokens(response.get('text', ''), model_name)
     }
-    return extract_answers(response.text, len(questions)), token_usage
+    return extract_answers_v2(response.get('text', ''), len(questions)), token_usage
 
 def extract_answers(response_text: str, expected_count: int) -> list:
     answers = []
@@ -230,6 +230,30 @@ def extract_answers(response_text: str, expected_count: int) -> list:
         if any(line.startswith(f"{i+1}.") for i in range(expected_count)):
             answers.append(line.split('.', 1)[1].strip())
     return answers if len(answers) >= expected_count else response_text.strip().split("\n")[:expected_count]
+
+def extract_answers_v2(response_text: str, expected_count: int) -> list:
+    answers = []
+    current_question = None
+    current_answer = []
+    
+    for line in response_text.splitlines():
+        line = line.strip()
+        
+        if any(line.startswith(f"{i+1}.") for i in range(expected_count)):
+            if current_question is not None:
+                answers.append("\n".join(current_answer).strip())
+            current_question = line.split('.', 1)[1].strip()
+            current_answer = []
+        elif line and not line.startswith("-"):
+            current_answer.append(line)
+    
+    if current_question is not None:
+        answers.append("\n".join(current_answer).strip())
+    
+    if len(answers) < expected_count:
+        return extract_answers(response_text, expected_count)
+    
+    return answers
 
 def perform_ai_call(questions: list, model_name: str, model_id: int, personas: list, instructions: str, user_info: dict, file_name: str = None, 
                     response_in_json: bool = False, is_from_survey: bool = False) -> dict:    

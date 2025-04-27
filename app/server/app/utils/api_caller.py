@@ -9,5 +9,9 @@ def call_custom_api(prompt: str, max_tokens: int):
         "prompt": prompt,
         "max_tokens": max_tokens
     }
-    response = requests.post(url, json=data)
-    return response.json()
+    try:
+        response = requests.post(url, json=data)
+        final_response = response.json()
+        return final_response
+    except Exception as e:
+        raise Exception(f"Error calling custom API: {e}")
