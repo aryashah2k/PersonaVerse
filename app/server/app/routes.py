@@ -11,6 +11,10 @@ from app.utils.supabase_utils import (
     get_model_name
 )
 
+from werkzeug.serving import WSGIRequestHandler
+
+WSGIRequestHandler.protocol_version = "HTTP/1.1"
+
 api = Blueprint("api", __name__)
 
 HEALTH_CHECK_ROUTE = get_required_env_var("VITE_HEALTH_CHECK_ROUTE")
