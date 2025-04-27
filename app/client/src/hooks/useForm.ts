@@ -27,7 +27,7 @@ export const useForm = () => {
     const personaParser = (): string[] => {
         return personas.map(
             (persona) =>
-                `A ${persona.age} years old, ${persona.gender}, from ${persona.location} who is a ${persona.job}, ${persona.description}.`
+                `${persona.name}, a ${persona.age} years old, ${persona.gender}, from ${persona.location} who is a ${persona.job}, ${persona.description}.`
         );
     };
 
