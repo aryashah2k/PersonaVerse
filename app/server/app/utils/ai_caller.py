@@ -7,6 +7,7 @@ from google.genai import types, Client
 from .env_utils import get_required_env_var
 from .supabase_utils import get_model_specs, update_user_tokens, save_to_supabase, get_models_by_provider
 from app.utils.response_generator import generate_response_file
+from app.utils.api_caller import call_custom_api
 
 OPENAI_MODELS = "openai"
 CLAUDE_MODELS = "anthropic"
@@ -208,7 +209,19 @@ def call_deepseek(model_name: str, questions: list, persona: str, instructions: 
     return extract_answers(response.choices[0].message.content, len(questions)), token_usage
 
 def call_custom(model_name: str, questions: list, persona: str, instructions: str) -> tuple[list, dict]:
-    raise NotImplementedError("Custom model implementation required")
+    prompt = build_prompt(questions, persona, instructions)
+    max_tokens = estimate_tokens(prompt, model_name)
+    context_window = get_model_specs(model_name)["context_window"]
+    max_tokens = min(max_tokens, context_window)
+
+    response = call_custom_api(prompt, max_tokens)
+
+    token_usage = {
+        "prompt_tokens": estimate_tokens(prompt, model_name),
+        "completion_tokens": estimate_tokens(response.text, model_name),
+        "total_tokens": estimate_tokens(prompt, model_name) + estimate_tokens(response.text, model_name)
+    }
+    return extract_answers(response.text, len(questions)), token_usage
 
 def extract_answers(response_text: str, expected_count: int) -> list:
     answers = []
