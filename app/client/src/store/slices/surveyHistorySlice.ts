@@ -29,6 +29,7 @@ export const surveyHistorySlice = createSlice({
 export const {
     setSurveyHistory,
     addSurveyHistory,
+    resetSurveyHistoryState,
 } = surveyHistorySlice.actions;
 
 export default surveyHistorySlice.reducer;

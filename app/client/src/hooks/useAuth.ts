@@ -15,6 +15,9 @@ import {
 import { authService } from '../services/authService';
 import { User } from '@supabase/supabase-js';
 import { changePlanType } from '../services/api/profileApi';
+import { resetFileState } from '../store/slices/fileSlice';
+import { resetFormState } from '../store/slices/formSlice';
+import { resetSurveyHistoryState } from '../store/slices/surveyHistorySlice';
 
 export interface LoginCredentials {
   email: string;
@@ -93,6 +96,9 @@ export const useAuth = () => {
     try {
       await authService.logout();
       dispatch(logoutAction());
+      dispatch(resetFileState());
+      dispatch(resetFormState());
+      dispatch(resetSurveyHistoryState())
       return { success: true };
     } catch (error) {
       console.error('Logout error:', error);
