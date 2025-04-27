@@ -3,7 +3,7 @@ import json
 import os
 from flask import Blueprint, jsonify, request
 from app.utils.ai_caller import perform_ai_call
-from app.utils.env_utils import get_required_env_var, get_delete_token
+from app.utils.env_utils import get_required_env_var, get_delete_token, get_ocp_apim_subscription_key
 from app.utils.file_parser import parse_file
 from app.utils.supabase_utils import (
     can_use_model,
@@ -32,6 +32,16 @@ def demo_fill_survey():
         user_info = get_user_data_from_token(token)
     except Exception as e:
         return jsonify({"error": f"Token validation failed: {e}"}), 401
+    
+    ocp_apim_subscription_key = request.headers.get("Ocp-Apim-Subscription-Key")
+    if not ocp_apim_subscription_key:
+        return jsonify({"error": "Missing Ocp-Apim-Subscription-Key"}), 401
+    
+    try:
+        if ocp_apim_subscription_key != get_ocp_apim_subscription_key():
+            return jsonify({"error": "Invalid Ocp-Apim-Subscription-Key"}), 401
+    except Exception as e:
+        return jsonify({"error": f"Ocp-Apim-Subscription-Key validation failed: {e}"}), 401
     
     data = request.get_json()
     questions = data.get("questions", [])
@@ -64,6 +74,16 @@ def fill_survey_form():
         user_info = get_user_data_from_token(token)
     except Exception as e:
         return jsonify({"error": f"Token validation failed: {e}"}), 401
+    
+    ocp_apim_subscription_key = request.headers.get("Ocp-Apim-Subscription-Key")
+    if not ocp_apim_subscription_key:
+        return jsonify({"error": "Missing Ocp-Apim-Subscription-Key"}), 401
+    
+    try:
+        if ocp_apim_subscription_key != get_ocp_apim_subscription_key():
+            return jsonify({"error": "Invalid Ocp-Apim-Subscription-Key"}), 401
+    except Exception as e:
+        return jsonify({"error": f"Ocp-Apim-Subscription-Key validation failed: {e}"}), 401
 
     form_file = request.files.get("form_file")
     model_id = int(request.form.get("model_id"))
@@ -102,12 +122,22 @@ def delete_response():
     delete_token = request.headers.get("X-Delete-Token")
     if not delete_token:
         return jsonify({"error": "Missing delete token"}), 401
-
+    
     try:
         if delete_token != get_delete_token():
             return jsonify({"error": "Invalid delete token"}), 401
     except Exception as e:
         return jsonify({"error": f"Delete token validation failed: {e}"}), 401
+    
+    ocp_apim_subscription_key = request.headers.get("Ocp-Apim-Subscription-Key")
+    if not ocp_apim_subscription_key:
+        return jsonify({"error": "Missing Ocp-Apim-Subscription-Key"}), 401
+    
+    try:
+        if ocp_apim_subscription_key != get_ocp_apim_subscription_key():
+            return jsonify({"error": "Invalid Ocp-Apim-Subscription-Key"}), 401
+    except Exception as e:
+        return jsonify({"error": f"Ocp-Apim-Subscription-Key validation failed: {e}"}), 401
 
     try:
         files = glob.glob(os.path.join("responses", "*"))
