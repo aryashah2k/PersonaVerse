@@ -88,8 +88,8 @@ jobs:
         with:
           host: ${{ secrets.CUSTOM_FLASK_SERVER_IP }}
           port: ${{ secrets.CUSTOM_FLASK_SERVER_PORT }}
-          username: ${{ secrets.CUSTOM_FLASK_SSH_USERNAME }}
-          key: ${{ secrets.CUSTOM_FLASK_SSH_PRIVATE_KEY }}
+          username: ${{ secrets.CUSTOM_FLASK_USERNAME }}
+          key: ${{ secrets.CUSTOM_FLASK_PRIVATE_SSH_KEY }}
           script: |
             cd ~/${{ secrets.PWD }}
             docker compose down
