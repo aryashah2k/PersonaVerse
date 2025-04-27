@@ -9,7 +9,7 @@ def create_app():
     
     referrer_urls = get_required_env_var("CUSTOM_REFERRER_URLS")
     referrer_urls = referrer_urls.split(",")
-    CORS(app, origins=referrer_urls)
+    CORS(app)
 
     initialize_model()
     
