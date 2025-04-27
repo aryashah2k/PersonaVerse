@@ -10,7 +10,7 @@ def call_custom_api(prompt: str, max_tokens: int):
         "max_tokens": max_tokens
     }
     try:
-        response = requests.post(url, json=data)
+        response = requests.post(url, json=data, timeout=600)
         final_response = response.json()
         return final_response
     except Exception as e:
