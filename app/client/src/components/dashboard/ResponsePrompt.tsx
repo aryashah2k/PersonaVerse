@@ -63,8 +63,8 @@ const ResponsePrompt: React.FC<ResponsePromptProps> = ({
 
   const handleSubmit = async () => {
     try {
-      // submitForm();
-      onSubmitComplete("kjhddsjfahkjsda");
+      submitForm();
+      // onSubmitComplete("kjhddsjfahkjsda");
     } catch (error) {
       console.error("Error during submission:", error);
       setError("An error occurred while processing your request.");

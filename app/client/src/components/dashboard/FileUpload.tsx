@@ -111,8 +111,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
         Upload Your Survey File
       </Typography>
       <Typography color="text.secondary" paragraph>
-        Upload your survey questions as a file. We support PDF, DOCX, XLSX, and
-        TXT formats (max 10MB).
+        Upload your survey questions as a file. We support PDF, DOCX, XLSX, CSV
+        and TXT formats (max 10MB).
       </Typography>
 
       {error && (
@@ -150,7 +150,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
           <HiddenInput
             ref={fileInputRef}
             type="file"
-            accept=".pdf,.docx,.xlsx,.txt,.doc,.xls"
+            accept=".pdf,.docx,.xlsx,.txt,.doc,.xls,.csv"
             onChange={handleFileInputChange}
           />
         </DropZone>

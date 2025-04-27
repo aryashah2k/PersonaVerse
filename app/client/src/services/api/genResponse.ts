@@ -1,4 +1,5 @@
 import { ResponseWrapper } from "../../model/responseWrapper"
+import { copyWith } from "../../model/surveyHistory"
 import { supabase } from "../../utils/supabase/supabase"
 import { BackendRoutes } from "./utils/backendRoutes"
 
@@ -48,13 +49,26 @@ export async function getResponse({ file, model_id, instructions, personaDescrip
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            "Ocp-Apim-Subscription-Key": import.meta.env.VITE_OCP_APIM_SUBSCRIPTION_KEY,
             'Authorization': `Bearer ${session.access_token}`
         },
         body: formData,
     })
-
+    console.log("response", res);
     console.log("API response:", await res.json());
+    if (res.ok) {
+        const data = await res.json()
+        const p = copyWith(data)
+        console.log("converted data", p)
+    }
+    else {
 
+        const error = await res.json()
+        return {
+            data: null,
+            error: error.error,
+        }
+    }
 
     return {
         data: null,

@@ -28,7 +28,7 @@ export const useFileUpload = () => {
 
   const handleFileChange = useCallback((newFile: File) => {
     if (!isValidFileType(newFile)) {
-      dispatch(uploadFailure('Invalid file type. Please upload a PDF, DOCX, XLSX or TXT file.'));
+      dispatch(uploadFailure('Invalid file type. Please upload a PDF, DOCX, XLSX,CSV or TXT file.'));
       return;
     }
 
