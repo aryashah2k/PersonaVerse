@@ -10,6 +10,7 @@ export const VALID_FILE_TYPES = [
   'application/msword',
   'application/vnd.ms-excel',
   'application/octet-stream', // For some .docx files
+  'text/csv', // CSV
 ];
 
 // Map mime types to user-friendly names
@@ -18,6 +19,7 @@ export const FILE_TYPE_NAMES: Record<string, string> = {
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word Document',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Excel Spreadsheet',
   'text/plain': 'Text File',
+  'text/csv': 'CSV File',
 };
 
 // File size limits
@@ -34,6 +36,7 @@ export const isValidFileType = (file: File): boolean => {
     'text/plain',
     'application/msword',
     'application/vnd.ms-excel',
+    'text/csv',
   ];
   return acceptedTypes.includes(file.type);
 };
@@ -58,6 +61,9 @@ export const getFileTypeName = (fileType: string): string => {
     return 'Word';
   } else if (fileType.includes('text') || fileType.includes('txt')) {
     return 'Text';
+  }
+  else if (fileType.includes('csv')) {
+    return 'CSV';
   } else {
     return 'File';
   }

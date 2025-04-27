@@ -310,9 +310,7 @@ const History: React.FC = () => {
                             <IconButton
                               size="small"
                               color="primary"
-                              onClick={() =>
-                                handleDownload(item.bucketStoragePath)
-                              }
+                              onClick={() => handleDownload(item.filePath)}
                             >
                               <DownloadIcon fontSize="small" />
                             </IconButton>
