@@ -108,7 +108,6 @@ const History: React.FC = () => {
   const filteredHistory = surveyHistory.filter((item) => {
     return item.fileName.toLowerCase().includes(searchTerm.toLowerCase());
   });
-  console.log("Filtered History:", filteredHistory);
 
   const getFileTypeFromUrl = (url: string): string => {
     const extension = url.split(".").pop()?.toLowerCase() || "";
@@ -303,7 +302,7 @@ const History: React.FC = () => {
                               color="primary"
                               sx={{ mr: 1 }}
                             >
-                              <VisibilityIcon fontSize="small" />
+                              {/* <VisibilityIcon fontSize="small" /> */}
                             </IconButton>
                           </Tooltip>
                           <Tooltip title="Download">

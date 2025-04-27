@@ -42,7 +42,8 @@ const Dashboard: React.FC = () => {
   const [showTokenDialog, setShowTokenDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const { setDashboardActiveStep, activeStep, resetForm } = useForm();
+  const { setDashboardActiveStep, activeStep, resetForm, surveyResponse } =
+    useForm();
   useEffect(() => {
     const init = async () => {
       try {
@@ -186,12 +187,7 @@ const Dashboard: React.FC = () => {
               />
             )}
 
-            {activeStep === 3 && responseUrl && (
-              <ResultDisplay
-                responseUrl={responseUrl}
-                onStartNew={handleReset}
-              />
-            )}
+            {activeStep === 3 && surveyResponse && <ResultDisplay />}
           </Box>
         </Paper>
 

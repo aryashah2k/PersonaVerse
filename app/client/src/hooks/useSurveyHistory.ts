@@ -28,20 +28,14 @@ export const useSurveyHistory = () => {
     }, [dispatch, user]);
 
     const updateSurveyHistory = useCallback(
-        async (data: SurveyHistory | null) => {
-            try {
-                if (data) {
-                    dispatch(addSurveyHistory(data));
-                    return { success: true };
-                }
-            } catch (error) {
-                return { success: false, error: error instanceof Error ? error.message : 'Failed to update History' };
-            }
+        async () => {
+            fetchHistory();
         },
         [dispatch]);
 
     return {
-        surveyHistory
+        surveyHistory,
+        updateSurveyHistory
     };
 };
 

@@ -97,6 +97,7 @@ export const useUserProfile = () => {
       console.error('Error generating signed URL:', res.error);
     } else if (res.data) {
       const downloadLink = document.createElement('a');
+      downloadLink.target = '_blank';
       downloadLink.href = res.data;       // the signed URL
       downloadLink.download = '';          // empty lets it download automatically with correct name
       document.body.appendChild(downloadLink);

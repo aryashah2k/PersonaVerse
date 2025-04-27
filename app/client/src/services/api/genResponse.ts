@@ -1,5 +1,5 @@
+import SurveyResponse, { copyWith } from "../../model/response"
 import { ResponseWrapper } from "../../model/responseWrapper"
-import { copyWith } from "../../model/surveyHistory"
 import { supabase } from "../../utils/supabase/supabase"
 import { BackendRoutes } from "./utils/backendRoutes"
 
@@ -10,7 +10,7 @@ type fnParams = {
     responseInJson?: boolean,
     file: File | null,
 }
-export async function getResponse({ file, model_id, instructions, personaDescriptions, responseInJson = false }: fnParams): Promise<ResponseWrapper<any>> {
+export async function getResponse({ file, model_id, instructions, personaDescriptions, responseInJson = false }: fnParams): Promise<ResponseWrapper<SurveyResponse>> {
 
     if (!file) {
         return {
@@ -38,41 +38,32 @@ export async function getResponse({ file, model_id, instructions, personaDescrip
     }
 
     const formData = new FormData()
-    formData.append("file", file)
+    formData.append("form_file", file)
     formData.append("model_id", model_id.toString())
     formData.append("instructions", instructions)
     formData.append("personas", JSON.stringify(personaDescriptions))
     formData.append("response_in_json", responseInJson.toString())
     formData.append("is_from_survey", "true")
-
     const res = await fetch(BackendRoutes.FILL_SURVEY, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
             "Ocp-Apim-Subscription-Key": import.meta.env.VITE_OCP_APIM_SUBSCRIPTION_KEY,
             'Authorization': `Bearer ${session.access_token}`
         },
         body: formData,
     })
-    console.log("response", res);
-    console.log("API response:", await res.json());
-    if (res.ok) {
-        const data = await res.json()
-        const p = copyWith(data)
-        console.log("converted data", p)
-    }
-    else {
-
-        const error = await res.json()
+    const response = await res.json()
+    if (response.error) {
         return {
             data: null,
-            error: error.error,
+            error: response.error,
         }
     }
-
-    return {
-        data: null,
-        error: null,
+    else {
+        return {
+            data: copyWith(response),
+            error: null,
+        }
     }
 }
 
