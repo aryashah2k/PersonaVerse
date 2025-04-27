@@ -221,7 +221,19 @@ def extract_answers(response_text: str, expected_count: int) -> list:
 def perform_ai_call(questions: list, model_name: str, model_id: int, personas: list, instructions: str, user_info: dict, file_name: str = None, 
                     response_in_json: bool = False, is_from_survey: bool = False) -> dict:    
     total_tokens_used = 0
+
+    persona_names = []
+    persona_descriptions = []
     for persona in personas:
+        if ',' in persona:
+            name, description = persona.split(',', 1)
+            persona_names.append(name.strip())
+            persona_descriptions.append(description.strip())
+        else:
+            persona_names.append(persona.strip())
+            persona_descriptions.append("")
+
+    for persona in persona_descriptions:
         prompt = build_prompt(questions, persona, instructions)
         tokens_used_for_prompt = estimate_tokens(prompt, model_name)
         total_tokens_used += tokens_used_for_prompt
@@ -241,7 +253,7 @@ def perform_ai_call(questions: list, model_name: str, model_id: int, personas: l
         all_answers, token_usage = call_ai_model(
             model_name=model_name,
             questions=questions,
-            personas=personas,
+            personas=persona_descriptions,
             instructions=instructions
         )
     except Exception as e:
@@ -253,22 +265,23 @@ def perform_ai_call(questions: list, model_name: str, model_id: int, personas: l
         return jsonify({
             "model_id": model_id,
             "instructions": instructions,
-            "personas": personas,
+            "persona_names": persona_names,
+            "persona_descriptions": persona_descriptions,
             "token_usage": token_usage,
             "responses": [
                 {
-                    "persona": response["persona"],
+                    "persona": persona_names[i],
                     "qa_pairs": [{"question": q, "answer": a} for q, a in zip(questions, response["answers"])]
                 }
-                for response in all_answers
+                for i, response in enumerate(all_answers)
             ]
         })
     
     response_data = []
-    for response in all_answers:
+    for i, response in enumerate(all_answers):
         for question, answer in zip(questions, response["answers"]):
             response_data.append({
-                "Persona": response["persona"],
+                "Persona": persona_names[i],
                 "Question": question,
                 "Answer": answer
             })
