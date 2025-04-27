@@ -43,7 +43,7 @@ export async function getResponse({ file, model_id, instructions, personaDescrip
     formData.append("instructions", instructions)
     formData.append("personas", JSON.stringify(personaDescriptions))
     formData.append("response_in_json", responseInJson.toString())
-    formData.append("is_from_survey", "true")
+    formData.append("is_from_survey", "false")
 
     const res = await fetch(BackendRoutes.FILL_SURVEY, {
         method: "POST",
