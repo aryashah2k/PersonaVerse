@@ -1,4 +1,4 @@
-name: Continuous Delivery Pipeline For Backend
+name: Continuous Delivery Pipeline For Server
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   ci-cd:
-    name: Continuous Delivery for Backend
+    name: Continuous Delivery for Server
     runs-on: ubuntu-latest
 
     steps:

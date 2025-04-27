@@ -1,4 +1,4 @@
-name: Continuous Delivery Pipeline For Frontend
+name: Continuous Delivery Pipeline For Client
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   ci-cd:
-    name: Continuous Delivery for Frontend
+    name: Continuous Delivery for Client
     runs-on: ubuntu-latest
 
     steps:
