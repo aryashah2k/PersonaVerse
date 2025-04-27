@@ -1,7 +1,7 @@
 from app import create_app
 from app.utils.env_utils import get_required_env_var
 
-required_vars = ["DEBUG", "PORT", "REFERRER_URLS"]
+required_vars = ["DEBUG", "PORT", "CUSTOM_REFERRER_URLS"]
 for var in required_vars:
     get_required_env_var(var)
 
