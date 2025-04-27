@@ -1,6 +1,6 @@
 import random
-from flask import jsonify
 import tiktoken
+from flask import jsonify
 from openai import OpenAI
 from anthropic import Anthropic
 from google.genai import types, Client
@@ -254,7 +254,6 @@ def perform_ai_call(questions: list, model_name: str, model_id: int, personas: l
             "model_id": model_id,
             "instructions": instructions,
             "personas": personas,
-            "tokens_used": token_usage["total_tokens"],
             "token_usage": token_usage,
             "responses": [
                 {

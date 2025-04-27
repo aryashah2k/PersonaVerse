@@ -1,19 +1,22 @@
+import glob
+import json
+import os
 from flask import Blueprint, jsonify, request
 from app.utils.ai_caller import perform_ai_call
+from app.utils.env_utils import get_required_env_var, get_delete_token
 from app.utils.file_parser import parse_file
 from app.utils.supabase_utils import (
     can_use_model,
     get_user_data_from_token,
     get_model_name
 )
-from app.utils.env_utils import get_required_env_var
-import json
 
 api = Blueprint("api", __name__)
 
 HEALTH_CHECK_ROUTE = get_required_env_var("VITE_HEALTH_CHECK_ROUTE")
 FILL_SURVEY_ROUTE = get_required_env_var("VITE_FILL_SURVEY_ROUTE")
 DEMO_ROUTE = get_required_env_var("VITE_DEMO_ROUTE")
+DELETE_RESPONSE_ROUTE = get_required_env_var("VITE_DELETE_RESPONSE_ROUTE")
 
 @api.route(HEALTH_CHECK_ROUTE, methods=['GET'])
 def health_check():
@@ -93,3 +96,28 @@ def fill_survey_form():
         return jsonify({"error": f"Error parsing survey form: {e}"}), 500
 
     return perform_ai_call(questions, model_name, model_id, personas, instructions, user_info, form_file.filename, responseInJson, isFromSurvey)
+
+@api.route(DELETE_RESPONSE_ROUTE, methods=['DELETE'])
+def delete_response():
+    delete_token = request.headers.get("X-Delete-Token")
+    if not delete_token:
+        return jsonify({"error": "Missing delete token"}), 401
+
+    try:
+        if delete_token != get_delete_token():
+            return jsonify({"error": "Invalid delete token"}), 401
+    except Exception as e:
+        return jsonify({"error": f"Delete token validation failed: {e}"}), 401
+
+    try:
+        files = glob.glob(os.path.join("responses", "*"))
+        if not files:
+            return jsonify({"message": "No files found in responses folder"}), 200
+
+        for file_path in files:
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
+        return jsonify({"message": f"Successfully deleted {len(files)} files from responses folder"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Failed to delete responses: {e}"}), 500

@@ -1,8 +1,8 @@
 import io
 import os
+from docx import Document
 import pandas as pd
 import pdfplumber
-from docx import Document
 from striprtf.striprtf import rtf_to_text
 
 ALLOWED_EXTENSIONS = ['.csv', '.xls', '.xlsx', '.docx', '.txt', '.rtf', '.pdf', '.doc']
