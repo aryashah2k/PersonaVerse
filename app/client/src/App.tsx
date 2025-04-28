@@ -54,9 +54,6 @@ const App: React.FC = () => {
     // };
     // fn();
   }, [supabase.auth.onAuthStateChange, isAuthenticated]);
-  useEffect(() => {
-    console.log(isLoading);
-  }, [isLoading]);
   return (
     <>
       {(isLoading || isSubmitting) && (
@@ -69,7 +66,7 @@ const App: React.FC = () => {
             alignItems: "center",
             backgroundColor: "#ffffff75",
             opacity: 1,
-            position: "absolute",
+            position: "fixed",
             zIndex: 9999,
             top: 0,
             left: 0,

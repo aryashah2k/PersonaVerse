@@ -14,3 +14,4 @@ openai
 anthropic
 google-genai
 supabase
+werkzeug

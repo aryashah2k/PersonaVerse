@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Persona } from '../../model/persona';
 import { AIModel } from '../../model/AIModel';
+import SurveyResponse from '../../model/response';
 
 interface FormState {
     personas: Persona[];
@@ -11,6 +12,7 @@ interface FormState {
     isSubmitted: boolean;
     error: string | null;
     activeStep: number;
+    surveyResponse: SurveyResponse | null
 }
 
 const initialState: FormState = {
@@ -22,6 +24,7 @@ const initialState: FormState = {
     isSubmitted: false,
     error: null,
     activeStep: 0,
+    surveyResponse: null
 };
 
 export const formSlice = createSlice({
@@ -63,6 +66,9 @@ export const formSlice = createSlice({
         setActiveStep: (state, action: PayloadAction<number>) => {
             state.activeStep = action.payload;
         },
+        setSurveyResponse: (state, action: PayloadAction<SurveyResponse>) => {
+            state.surveyResponse = action.payload;
+        },
         resetFormState: () => initialState,
     },
 });
@@ -77,6 +83,7 @@ export const {
     submitFailure,
     resetFormState,
     setActiveStep,
+    setSurveyResponse,
 } = formSlice.actions;
 
 export default formSlice.reducer;

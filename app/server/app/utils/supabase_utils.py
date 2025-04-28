@@ -1,9 +1,8 @@
-import os
-from datetime import datetime
+import json
 import mimetypes
+import os
 from supabase import create_client, Client
 from .env_utils import get_required_env_var
-import json
 
 _supabase_client = None
 
@@ -95,13 +94,10 @@ def save_to_supabase(user_id: str, file_path: str, response_file_path: str, mode
     try:
         supabase = get_supabase_client()
     
-        response_file_name = f"{user_id}_{os.path.basename(response_file_path)}"
+        response_file_name = f"{user_id}_{os.path.splitext(os.path.basename(response_file_path))[0]}"
         response_file_extension = os.path.splitext(response_file_path)[1]
 
-        print(response_file_name)
-        print(response_file_extension)
-
-        storage_path = f"survey_responses/{response_file_name}.{response_file_extension}"
+        storage_path = f"survey_responses/{response_file_name}{response_file_extension}"
         content_type, _ = mimetypes.guess_type(response_file_extension)
 
         with open(response_file_path, "rb") as f:

@@ -2,17 +2,19 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { getResponse } from '../services/api/genResponse';
 import { AIModel } from '../model/AIModel';
-import { resetFormState, setActiveStep, setFileOutput, setInstruction, setModel, setPersona, submitFailure, submitStart, submitSuccess } from '../store/slices/formSlice';
+import { resetFormState, setActiveStep, setFileOutput, setInstruction, setModel, setPersona, setSurveyResponse, submitFailure, submitStart, submitSuccess } from '../store/slices/formSlice';
 import { Persona } from '../model/persona';
 import { setLoadingFalse, setLoadingTrue } from '../store/slices/appLoadingSlice';
 import { deductTokens } from '../store/slices/authSlice';
+import useSurveyHistory from './useSurveyHistory';
 
 
 export const useForm = () => {
     const dispatch = useAppDispatch();
     const { file, fileName } = useAppSelector((state) => state.file)
-    const { model, personas, responseInJson, instruction: responsePrompt, isSubmitting, error, isSubmitted, activeStep } = useAppSelector((state) => state.form)
+    const { model, personas, responseInJson, instruction: responsePrompt, isSubmitting, error, isSubmitted, activeStep, surveyResponse } = useAppSelector((state) => state.form)
     const [returnFormat, setReturnFormat] = useState("csv");
+    const { updateSurveyHistory } = useSurveyHistory();
 
     useEffect(() => {
         if (responseInJson) {
@@ -25,7 +27,7 @@ export const useForm = () => {
     const personaParser = (): string[] => {
         return personas.map(
             (persona) =>
-                `A ${persona.age} years old, ${persona.gender}, from ${persona.location} who is a ${persona.job}, ${persona.description}.`
+                `${persona.name}, a ${persona.age} years old, ${persona.gender}, from ${persona.location} who is a ${persona.job}, ${persona.description}.`
         );
     };
 
@@ -79,15 +81,17 @@ export const useForm = () => {
                 const res = await getResponse({ file: file, model_id: model?.id, instructions: responsePrompt, personaDescriptions: personaDescriptions, responseInJson });
 
                 if (res.error) {
-                    console.log(res.error);
-
                     dispatch(submitFailure(res.error));
-                    dispatch(setLoadingFalse());
                 }
-                dispatch(submitSuccess());
-                dispatch(deductTokens(100));
+                else {
+                    dispatch(deductTokens(res.data!.tokensUsed));
+                    dispatch(setSurveyResponse(res.data!));
+                    dispatch(setActiveStep(3));
+                    updateSurveyHistory();
+                    dispatch(submitSuccess());
+
+                }
             } catch (e) {
-            } finally {
                 dispatch(submitFailure("Something went wrong"));
             }
             // set the url here, deduct tokens, and update history if the user has a premium subscription 
@@ -120,7 +124,8 @@ export const useForm = () => {
         setDashboardActiveStep,
         activeStep,
         setPageError,
-        resetForm
+        resetForm,
+        surveyResponse
     };
 };
 

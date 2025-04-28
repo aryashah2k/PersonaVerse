@@ -13,7 +13,6 @@ def create_app():
     CORS(app, origins=frontend_urls)
 
     init_supabase_client()
-
     app.register_blueprint(api)
 
     return app

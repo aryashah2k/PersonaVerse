@@ -9,9 +9,3 @@ def get_required_env_var(name: str, default: Any = None) -> str:
     if value is None:
         raise EnvironmentError(f"{name} environment variable is required")
     return str(value)
-
-def get_delete_token() -> str:
-    return get_required_env_var("VITE_DELETE_TOKEN") 
-
-def get_ocp_apim_subscription_key() -> str:
-    return get_required_env_var("VITE_OCP_APIM_SUBSCRIPTION_KEY") 

@@ -19,10 +19,6 @@ import {
 } from "@mui/material";
 import TokenIcon from "@mui/icons-material/Token";
 import SendIcon from "@mui/icons-material/Send";
-import { useUserProfile } from "../../hooks/useUserProfile";
-import submitSurvey from "../../api/surveyApi";
-import { FormResponse } from "../../model/response";
-import { deductTokens } from "../../store/slices/userSlice";
 import useForm from "../../hooks/useForm";
 import useAppLoading from "../../hooks/useAppLoading";
 import useAuth from "../../hooks/useAuth";
@@ -62,15 +58,7 @@ const ResponsePrompt: React.FC<ResponsePromptProps> = ({
   };
 
   const handleSubmit = async () => {
-    try {
-      // submitForm();
-      onSubmitComplete("kjhddsjfahkjsda");
-    } catch (error) {
-      console.error("Error during submission:", error);
-      setError("An error occurred while processing your request.");
-    } finally {
-      setAppLoadingFalse();
-    }
+    submitForm();
   };
 
   return (
