@@ -1,0 +1,33 @@
+Personality Trait Identification Questionnaire
+
+Instructions: Select the option that best describes how you typically think, feel, or behave.
+
+1. When faced with a challenge, I usually:
+   a) Stay calm and think through solutions
+   b) Seek help or guidance from others
+   c) Feel stressed or anxious but still try to solve it
+   d) Avoid the situation if possible
+
+2. In social situations, I tend to:
+   a) Enjoy meeting new people and being the center of attention
+   b) Prefer interacting with a small group of close friends
+   c) Keep to myself and avoid large gatherings
+   d) Observe quietly before engaging
+
+3. When making decisions, I mostly rely on:
+   a) Logic and analysis
+   b) My feelings and emotions
+   c) A mix of instinct and thinking
+   d) Other people’s opinions or advice
+
+4. I prefer to plan my day by:
+   a) Following a clear schedule and to-do list
+   b) Planning only important things and keeping some flexibility
+   c) Going with the flow and seeing what happens
+   d) Letting others decide or plan for me
+
+5. When working on tasks, I:
+   a) Stay focused until I finish
+   b) Take breaks but complete tasks on time
+   c) Start strong but get distracted easily
+   d) Procrastinate and struggle to finish
