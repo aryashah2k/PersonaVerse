@@ -1,7 +1,0 @@
-flask
-flask-cors
-torch   
-transformers
-accelerate
-python-dotenv
-werkzeug

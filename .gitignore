@@ -1,5 +1,0 @@
-.env
-.vscode/
-__pycache__/
-.hintrc
-app/server/responses
