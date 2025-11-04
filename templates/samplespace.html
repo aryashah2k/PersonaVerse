@@ -1,0 +1,507 @@
+{% extends "base_new.html" %}
+
+{% block title %}Sample Space - PersonaVerse{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1 class="content-title">Sample Space Generation</h1>
+    <p class="content-description">Generate or upload sample profiles for survey respondents</p>
+</div>
+
+<!-- Method Selection -->
+<div id="methodSelectionView" class="card">
+    <div class="card-header">
+        <h3 class="card-title">Choose Generation Method</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="method-card" onclick="selectMethod('generate')" style="cursor: pointer; padding: 2rem; border: 2px solid var(--border-color); border-radius: var(--radius-lg); transition: all 0.2s;">
+                <svg style="width: 48px; height: 48px; margin-bottom: 1rem; color: var(--primary-color);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                </svg>
+                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">Auto-Generate</h3>
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">Automatically generate diverse sample profiles using AI</p>
+            </div>
+            
+            <div class="method-card" onclick="selectMethod('upload')" style="cursor: pointer; padding: 2rem; border: 2px solid var(--border-color); border-radius: var(--radius-lg); transition: all 0.2s;">
+                <svg style="width: 48px; height: 48px; margin-bottom: 1rem; color: var(--primary-color);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">Upload Profiles</h3>
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">Upload your own sample profiles from a text file</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Generate Dimensions View -->
+<div id="generateView" style="display: none;">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Generate Sample Dimensions</h3>
+        </div>
+        <div class="card-body">
+            <p style="margin-bottom: 1rem;">Click the button below to automatically generate sample dimensions based on your survey content.</p>
+            <button class="btn btn-primary" onclick="generateDimensions()">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                Generate Dimensions
+            </button>
+        </div>
+    </div>
+
+    <div id="dimensionsEditor" style="display: none;">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Configure Sample Dimensions</h3>
+                <button class="btn btn-secondary" onclick="addDimension()" style="padding: 0.5rem 1rem;">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Add Dimension
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="dimensionsList"></div>
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <label class="form-label">Sample Size</label>
+                    <input type="number" id="sampleSize" class="form-input" value="50" min="1">
+                </div>
+                <button class="btn btn-primary" onclick="generateSamples()" style="width: 100%;">Generate Samples</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload View -->
+<div id="uploadView" style="display: none;">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Upload Sample Profiles</h3>
+        </div>
+        <div class="card-body">
+            <div class="upload-area" id="sampleDropZone">
+                <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                <div class="upload-message">
+                    <p>Drop sample profiles file here or click to upload</p>
+                    <p class="supported-formats">Text file with one profile per line</p>
+                </div>
+                <input type="file" id="sampleFileInput" accept=".txt" hidden>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sample Results View -->
+<div id="resultsView" style="display: none;">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Generated Samples</h3>
+            <span class="badge badge-info" id="sampleCount">0 samples</span>
+        </div>
+        <div class="card-body">
+            <div id="samplesDisplay"></div>
+            
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label class="form-label">Number of Executions</label>
+                <input type="number" id="executionCount" class="form-input" value="1" min="1" max="10">
+                <small style="color: var(--text-secondary);">How many times to run the survey with these samples</small>
+            </div>
+            
+            <div class="flex gap-2" style="margin-top: 1.5rem;">
+                <button class="btn btn-primary" onclick="saveAndProceed()">Save & Proceed to Execution</button>
+                <button class="btn btn-secondary" onclick="goBack()">Back</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/samplespace.js') }}"></script>
+<script>
+let currentMethod = null;
+let currentFilename = {{ current_filename|tojson if current_filename else 'null' }};
+
+function selectMethod(method) {
+    currentMethod = method;
+    document.getElementById('methodSelectionView').style.display = 'none';
+    
+    if (method === 'generate') {
+        document.getElementById('generateView').style.display = 'block';
+    } else {
+        document.getElementById('uploadView').style.display = 'block';
+        setupUploadHandlers();
+    }
+}
+
+function generateDimensions() {
+    if (!currentFilename) {
+        showToast('Please process a survey file first', 'error');
+        return;
+    }
+
+    const button = event.target;
+    button.disabled = true;
+    button.textContent = 'Generating...';
+
+    fetch('/sample/generate_dimensions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: currentFilename })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayDimensions(data.dimensions);
+            document.getElementById('dimensionsEditor').style.display = 'block';
+            showToast('Dimensions generated successfully', 'success');
+        } else {
+            showToast(data.error || 'Failed to generate dimensions', 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Error: ' + error.message, 'error');
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.textContent = 'Generate Dimensions';
+    });
+}
+
+let dimensionsData = {};
+
+function displayDimensions(dimensions) {
+    dimensionsData = dimensions;
+    const container = document.getElementById('dimensionsList');
+    
+    container.innerHTML = Object.entries(dimensions).map(([key, data]) => {
+        const isScale = data.scale !== undefined;
+        
+        if (isScale) {
+            // Scale-based dimension
+            return `
+                <div class="card" style="margin-bottom: 1rem; padding: 1rem; background: var(--background);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <strong>${key}</strong>
+                        <button class="btn btn-secondary" onclick="removeDimension('${key}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Remove</button>
+                    </div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.75rem;">${data.format || ''}</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--text-secondary);">Min</label>
+                            <input type="number" class="form-input" value="${data.scale[0]}" data-dimension="${key}" data-field="scale-min" style="padding: 0.5rem;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--text-secondary);">Max</label>
+                            <input type="number" class="form-input" value="${data.scale[1]}" data-dimension="${key}" data-field="scale-max" style="padding: 0.5rem;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--text-secondary);">Step</label>
+                            <input type="number" class="form-input" value="${data.scale[2]}" data-dimension="${key}" data-field="scale-step" style="padding: 0.5rem;">
+                        </div>
+                    </div>
+                    <div style="margin-top: 0.5rem;">
+                        <label style="font-size: 0.75rem; color: var(--text-secondary);">Distribution</label>
+                        <select class="form-input" data-dimension="${key}" data-field="distribution" style="padding: 0.5rem;">
+                            <option value="uniform" ${data.distribution === 'uniform' ? 'selected' : ''}>Uniform</option>
+                            <option value="normal" ${data.distribution === 'normal' ? 'selected' : ''}>Normal</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Options-based dimension
+            return `
+                <div class="card" style="margin-bottom: 1rem; padding: 1rem; background: var(--background);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <strong>${key}</strong>
+                        <button class="btn btn-secondary" onclick="removeDimension('${key}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Remove</button>
+                    </div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.75rem;">${data.format || ''}</div>
+                    <div>
+                        <label style="font-size: 0.75rem; color: var(--text-secondary);">Options (comma-separated)</label>
+                        <textarea class="form-input" rows="2" data-dimension="${key}" data-field="options" style="padding: 0.5rem;">${data.options.join(', ')}</textarea>
+                    </div>
+                    <div style="margin-top: 0.5rem;">
+                        <label style="font-size: 0.75rem; color: var(--text-secondary);">Distribution (comma-separated, must sum to 100)</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" class="form-input" value="${data.distribution.join(', ')}" data-dimension="${key}" data-field="dist" style="padding: 0.5rem; flex: 1;">
+                            <button class="btn btn-secondary" onclick="autoDistribute('${key}')" style="padding: 0.5rem; white-space: nowrap;">Auto</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }).join('');
+}
+
+function addDimension() {
+    const name = prompt('Enter dimension name (e.g., "age", "education"):');
+    if (!name) return;
+    
+    const type = confirm('Click OK for scale-based (e.g., age), Cancel for options-based (e.g., education)');
+    
+    if (type) {
+        // Scale-based
+        dimensionsData[name] = {
+            scale: [18, 80, 5],
+            distribution: 'normal',
+            format: `Your ${name} is X.`
+        };
+    } else {
+        // Options-based
+        dimensionsData[name] = {
+            options: ['option1', 'option2', 'option3'],
+            distribution: [33, 33, 34],
+            format: `Your ${name} is X.`
+        };
+    }
+    
+    displayDimensions(dimensionsData);
+}
+
+function removeDimension(key) {
+    if (!confirm(`Remove dimension "${key}"?`)) return;
+    delete dimensionsData[key];
+    displayDimensions(dimensionsData);
+}
+
+function autoDistribute(key) {
+    const optionsInput = document.querySelector(`[data-dimension="${key}"][data-field="options"]`);
+    const distInput = document.querySelector(`[data-dimension="${key}"][data-field="dist"]`);
+    
+    const options = optionsInput.value.split(',').map(v => v.trim()).filter(v => v);
+    const count = options.length;
+    
+    if (count === 0) {
+        showToast('Please add options first', 'error');
+        return;
+    }
+    
+    // Calculate equal distribution
+    const base = Math.floor(100 / count);
+    const remainder = 100 - (base * count);
+    
+    const distribution = new Array(count).fill(base);
+    // Add remainder to first items
+    for (let i = 0; i < remainder; i++) {
+        distribution[i]++;
+    }
+    
+    distInput.value = distribution.join(', ');
+    showToast('Distribution auto-calculated', 'success');
+}
+
+function generateSamples() {
+    // Collect all edited dimension data
+    const updatedDimensions = {};
+    
+    Object.keys(dimensionsData).forEach(key => {
+        const dimData = dimensionsData[key];
+        const isScale = dimData.scale !== undefined;
+        
+        if (isScale) {
+            // Collect scale data
+            const minInput = document.querySelector(`[data-dimension="${key}"][data-field="scale-min"]`);
+            const maxInput = document.querySelector(`[data-dimension="${key}"][data-field="scale-max"]`);
+            const stepInput = document.querySelector(`[data-dimension="${key}"][data-field="scale-step"]`);
+            const distInput = document.querySelector(`[data-dimension="${key}"][data-field="distribution"]`);
+            
+            updatedDimensions[key] = {
+                scale: [
+                    parseInt(minInput.value),
+                    parseInt(maxInput.value),
+                    parseInt(stepInput.value)
+                ],
+                distribution: distInput.value,
+                format: dimData.format
+            };
+        } else {
+            // Collect options data
+            const optionsInput = document.querySelector(`[data-dimension="${key}"][data-field="options"]`);
+            const distInput = document.querySelector(`[data-dimension="${key}"][data-field="dist"]`);
+            
+            const options = optionsInput.value.split(',').map(v => v.trim()).filter(v => v);
+            const distribution = distInput.value.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
+            
+            // Validate that options and distribution arrays match
+            if (options.length !== distribution.length) {
+                showToast(`Error in "${key}": Number of options (${options.length}) must match number of distribution values (${distribution.length})`, 'error');
+                throw new Error('Validation failed');
+            }
+            
+            // Validate that distribution sums to 100
+            const sum = distribution.reduce((a, b) => a + b, 0);
+            if (sum !== 100) {
+                showToast(`Error in "${key}": Distribution must sum to 100 (currently ${sum})`, 'error');
+                throw new Error('Validation failed');
+            }
+            
+            updatedDimensions[key] = {
+                options: options,
+                distribution: distribution,
+                format: dimData.format
+            };
+        }
+    });
+
+    const sampleSize = document.getElementById('sampleSize').value;
+
+    fetch('/sample/update_dimensions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dimensions: updatedDimensions, sample_size: parseInt(sampleSize) })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayResults(data);
+            showToast('Samples generated successfully', 'success');
+        } else {
+            showToast(data.error || 'Failed to generate samples', 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Error: ' + error.message, 'error');
+    });
+}
+
+function setupUploadHandlers() {
+    const dropZone = document.getElementById('sampleDropZone');
+    const fileInput = document.getElementById('sampleFileInput');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragging');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragging');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragging');
+        if (e.dataTransfer.files.length > 0) {
+            uploadSampleFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            uploadSampleFile(e.target.files[0]);
+        }
+    });
+}
+
+function uploadSampleFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('/sample/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayResults(data);
+            showToast('Samples uploaded successfully', 'success');
+        } else {
+            showToast(data.error || 'Upload failed', 'error');
+        }
+    });
+}
+
+function displayResults(data) {
+    document.getElementById('generateView').style.display = 'none';
+    document.getElementById('uploadView').style.display = 'none';
+    document.getElementById('resultsView').style.display = 'block';
+    
+    document.getElementById('sampleCount').textContent = `${data.total_samples} samples`;
+    
+    const samplesDisplay = document.getElementById('samplesDisplay');
+    const samples = data.sample_profiles || data.samples || [];
+    
+    samplesDisplay.innerHTML = `
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Profile</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${samples.slice(0, 10).map((sample, i) => `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${Array.isArray(sample) ? sample[1] : JSON.stringify(sample)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+        ${samples.length > 10 ? `<p style="margin-top: 1rem; color: var(--text-secondary);">Showing 10 of ${samples.length} samples</p>` : ''}
+    `;
+}
+
+function saveAndProceed() {
+    const executions = document.getElementById('executionCount').value;
+    
+    fetch('/sample/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ executions: parseInt(executions) })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Settings saved. Redirecting to execution...', 'success');
+            setTimeout(() => window.location.href = '/execute', 1500);
+        } else {
+            showToast(data.error || 'Failed to save settings', 'error');
+        }
+    });
+}
+
+function goBack() {
+    document.getElementById('resultsView').style.display = 'none';
+    document.getElementById('methodSelectionView').style.display = 'block';
+}
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type}`;
+    toast.textContent = message;
+    toast.style.position = 'fixed';
+    toast.style.top = '20px';
+    toast.style.right = '20px';
+    toast.style.zIndex = '9999';
+    toast.style.minWidth = '300px';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// Add hover effects to method cards
+document.querySelectorAll('.method-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.borderColor = 'var(--primary-color)';
+        this.style.transform = 'translateY(-4px)';
+        this.style.boxShadow = 'var(--shadow-lg)';
+    });
+    card.addEventListener('mouseleave', function() {
+        this.style.borderColor = 'var(--border-color)';
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = 'none';
+    });
+});
+</script>
+{% endblock %}

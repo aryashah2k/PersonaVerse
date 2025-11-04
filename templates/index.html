@@ -1,0 +1,275 @@
+{% extends "base_new.html" %}
+
+{% block title %}Upload Survey - PersonaVerse{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1 class="content-title">Upload Survey</h1>
+    <p class="content-description">Upload your survey document to begin processing</p>
+</div>
+
+<!-- Upload Card -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Survey Document</h3>
+    </div>
+    <div class="card-body">
+        <div class="upload-area" id="dropZone">
+            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            <div class="upload-message">
+                <p>Drop files here or click to upload</p>
+                <p class="supported-formats">Supported formats: DOCX, PDF, TXT, MD</p>
+            </div>
+            <input type="file" id="fileInput" accept=".docx,.pdf,.txt,.md" hidden>
+        </div>
+
+        <div id="selectedFileInfo" class="selected-file-info" style="display: none; margin-top: 1.5rem;">
+            <div class="alert alert-info">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <div>
+                    <strong id="selectedFilename"></strong>
+                    <p style="margin: 0; font-size: 0.875rem;">Ready to process</p>
+                </div>
+            </div>
+            <button class="btn btn-primary" id="processButton" style="width: 100%; margin-top: 1rem;">
+                Process Survey
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Processing Results -->
+<div id="processingResults" style="display: none;">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Survey Questions</h3>
+            <span class="badge badge-info" id="questionCount">0 questions</span>
+        </div>
+        <div class="card-body">
+            <div id="questionsList"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Survey Flow Diagram</h3>
+        </div>
+        <div class="card-body">
+            <div id="flowDiagram" style="text-align: center;"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Attention Check</h3>
+        </div>
+        <div class="card-body">
+            <p>Would you like to add an attention check question at the end of the survey?</p>
+            <div class="flex gap-2" style="margin-top: 1rem;">
+                <button class="btn btn-primary" onclick="handleCalibration(true)">Yes, Add Check</button>
+                <button class="btn btn-secondary" onclick="handleCalibration(false)">No, Skip</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload History -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Upload History</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Upload Time</th>
+                        <th>Size</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    {% for item in history %}
+                    <tr data-filename="{{ item.filename }}">
+                        <td>{{ item.filename }}</td>
+                        <td>{{ item.upload_time }}</td>
+                        <td>{{ (item.size / 1024)|round(1) }} KB</td>
+                        <td>
+                            <span class="badge {% if item.processed %}badge-success{% else %}badge-warning{% endif %}">
+                                {% if item.processed %}Processed{% else %}Pending{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-secondary" style="padding: 0.5rem 1rem;" onclick="deleteFile('{{ item.filename }}')">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentFilename = null;
+
+// Drag and drop functionality
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('click', () => fileInput.click());
+
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragging');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragging');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragging');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        handleFileSelect(files[0]);
+    }
+});
+
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+    }
+});
+
+function handleFileSelect(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            currentFilename = data.file.filename;
+            document.getElementById('selectedFilename').textContent = data.file.filename;
+            document.getElementById('selectedFileInfo').style.display = 'block';
+            showToast('File uploaded successfully', 'success');
+        } else {
+            showToast(data.error || 'Upload failed', 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Upload failed: ' + error.message, 'error');
+    });
+}
+
+document.getElementById('processButton').addEventListener('click', () => {
+    if (!currentFilename) return;
+
+    const button = document.getElementById('processButton');
+    button.disabled = true;
+    button.textContent = 'Processing...';
+
+    fetch('/process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: currentFilename })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayProcessingResults(data);
+            showToast('Survey processed successfully', 'success');
+        } else {
+            showToast(data.error || 'Processing failed', 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Processing failed: ' + error.message, 'error');
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.textContent = 'Process Survey';
+    });
+});
+
+function displayProcessingResults(data) {
+    document.getElementById('processingResults').style.display = 'block';
+    document.getElementById('questionCount').textContent = `${data.total_questions} questions`;
+    
+    const questionsList = document.getElementById('questionsList');
+    questionsList.innerHTML = data.questions.map((q, i) => `
+        <div style="padding: 0.75rem; border-bottom: 1px solid var(--border-color);">
+            <strong>Q${i + 1}:</strong> ${q.question}
+            <span class="badge badge-info" style="margin-left: 0.5rem;">${q.type}</span>
+        </div>
+    `).join('');
+    
+    if (data.flow_image) {
+        document.getElementById('flowDiagram').innerHTML = `
+            <img src="${data.flow_image}" alt="Survey Flow" style="max-width: 100%; height: auto; border-radius: var(--radius-md);">
+        `;
+    }
+}
+
+function handleCalibration(enable) {
+    fetch('/calibration', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enable, filename: currentFilename })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Settings saved. Proceed to Sample Space.', 'success');
+            setTimeout(() => window.location.href = '/samplespace', 1500);
+        } else {
+            showToast(data.error || 'Failed to save settings', 'error');
+        }
+    });
+}
+
+function deleteFile(filename) {
+    if (!confirm('Are you sure you want to delete this file?')) return;
+
+    fetch(`/delete/${filename}`, { method: 'DELETE' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('File deleted successfully', 'success');
+                location.reload();
+            } else {
+                showToast(data.error || 'Delete failed', 'error');
+            }
+        });
+}
+
+function showToast(message, type) {
+    // Simple toast notification
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type}`;
+    toast.textContent = message;
+    toast.style.position = 'fixed';
+    toast.style.top = '20px';
+    toast.style.right = '20px';
+    toast.style.zIndex = '9999';
+    toast.style.minWidth = '300px';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+</script>
+{% endblock %}

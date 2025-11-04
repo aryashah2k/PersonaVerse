@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+smart/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Flask
+instance/
+.webassets-cache
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Data files (sensitive)
+Data/UserUpload/*
+!Data/UserUpload/.gitkeep
+Data/Output/*
+!Data/Output/.gitkeep
+Data/users.json
+
+# Configuration (contains API keys)
+Config/config.json
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+*.bak
+
+# Environment variables
+.env
+.env.local
+
+# Temporary files
+*.tmp
+temp/

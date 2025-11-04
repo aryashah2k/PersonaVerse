@@ -1,0 +1,312 @@
+{% extends "base_new.html" %}
+
+{% block title %}Execute Survey - PersonaVerse{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1 class="content-title">Survey Execution</h1>
+    <p class="content-description">Execute your survey with AI agents and download results</p>
+</div>
+
+<!-- Metrics Card -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Execution Metrics</h3>
+        <button class="btn btn-secondary" onclick="loadMetrics()" style="padding: 0.5rem 1rem;">
+            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Refresh
+        </button>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div style="text-align: center; padding: 1.5rem; background: var(--background); border-radius: var(--radius-md);">
+                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Survey Length</div>
+                <div id="surveyLength" style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">-</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">questions</div>
+            </div>
+            
+            <div style="text-align: center; padding: 1.5rem; background: var(--background); border-radius: var(--radius-md);">
+                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Total Agents</div>
+                <div id="agentCount" style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">-</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">agents</div>
+            </div>
+            
+            <div style="text-align: center; padding: 1.5rem; background: var(--background); border-radius: var(--radius-md);">
+                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Estimated Cost</div>
+                <div id="estimatedCost" style="font-size: 2rem; font-weight: 700; color: var(--success-color);">-</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">USD</div>
+            </div>
+            
+            <div style="text-align: center; padding: 1.5rem; background: var(--background); border-radius: var(--radius-md);">
+                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Executions</div>
+                <div id="executions" style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">-</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">runs</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Execution Control Card -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Execution Control</h3>
+    </div>
+    <div class="card-body">
+        <div id="executionControls">
+            <div class="alert alert-info" style="margin-bottom: 1.5rem;">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <strong>Credit Cost:</strong> This execution will cost 1 credit.
+                    <br>
+                    <strong>Current Credits:</strong> <span id="currentCredits">{{ user.get_credits() }}</span>
+                </div>
+            </div>
+            
+            <button id="startButton" class="btn btn-primary" onclick="startExecution()" style="width: 100%;">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Start Execution
+            </button>
+        </div>
+
+        <!-- Progress Section -->
+        <div id="progressSection" style="display: none; margin-top: 1.5rem;">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="progressText">Starting execution...</div>
+            </div>
+            
+            <button id="stopButton" class="btn btn-secondary" onclick="stopExecution()" style="width: 100%; margin-top: 1rem;">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+                </svg>
+                Stop Execution
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Results Card -->
+<div id="resultsCard" class="card" style="display: none;">
+    <div class="card-header">
+        <h3 class="card-title">Execution Results</h3>
+        <span class="badge badge-success">Completed</span>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-success">
+            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <strong>Execution completed successfully!</strong>
+                <br>
+                Your survey responses are ready for download. Each response includes the agent's reasoning based on their persona profile.
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+            <button class="btn btn-primary" onclick="downloadResults('json', 1)">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Download JSON
+            </button>
+            
+            <button class="btn btn-primary" onclick="downloadResults('csv', 1)">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Download CSV
+            </button>
+            
+            <button class="btn btn-secondary" onclick="downloadResults('samplespace', 1)">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Download Samples
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+let progressInterval = null;
+let currentExecution = 1;
+
+// Load metrics on page load
+window.addEventListener('load', () => {
+    loadMetrics();
+    updateCreditsDisplay();
+});
+
+function loadMetrics() {
+    fetch('/api/execution/metrics')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                showToast(data.error, 'error');
+                return;
+            }
+            
+            document.getElementById('surveyLength').textContent = data.survey_length || '-';
+            document.getElementById('agentCount').textContent = data.agent_count || '-';
+            
+            // Handle cost display with special case for Groq (free)
+            const costElement = document.getElementById('estimatedCost');
+            if (data.estimated_cost === 0) {
+                costElement.textContent = 'FREE';
+                costElement.style.color = 'var(--success-color)';
+                costElement.style.fontSize = '1.5rem';
+                
+                // Show info toast for Groq
+                if (data.provider && data.provider.toLowerCase() === 'groq') {
+                    showToast('Using Groq API - Free with rate limits. Cost estimation unavailable.', 'info');
+                }
+            } else if (data.estimated_cost) {
+                costElement.textContent = '$' + data.estimated_cost.toFixed(4);
+                costElement.style.color = 'var(--success-color)';
+                costElement.style.fontSize = '2rem';
+            } else {
+                costElement.textContent = '-';
+                costElement.style.fontSize = '2rem';
+            }
+            
+            document.getElementById('executions').textContent = data.question_segments || '-';
+        })
+        .catch(error => {
+            console.error('Error loading metrics:', error);
+            showToast('Failed to load metrics', 'error');
+        });
+}
+
+function updateCreditsDisplay() {
+    fetch('/api/user/credits')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('currentCredits').textContent = data.credits;
+            
+            // Update sidebar credits too
+            const sidebarCredits = document.getElementById('creditsDisplay');
+            if (sidebarCredits) {
+                sidebarCredits.textContent = data.credits;
+            }
+        });
+}
+
+function startExecution() {
+    const startButton = document.getElementById('startButton');
+    startButton.disabled = true;
+    
+    document.getElementById('executionControls').style.display = 'none';
+    document.getElementById('progressSection').style.display = 'block';
+    
+    fetch('/api/execution/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            startProgressMonitoring();
+            showToast('Execution started successfully', 'success');
+            updateCreditsDisplay(); // Update credits after deduction
+        } else {
+            showToast(data.error || 'Failed to start execution', 'error');
+            resetExecutionUI();
+        }
+    })
+    .catch(error => {
+        showToast('Error: ' + error.message, 'error');
+        resetExecutionUI();
+    });
+}
+
+function startProgressMonitoring() {
+    progressInterval = setInterval(() => {
+        fetch(`/api/execution/progress/${currentExecution}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const progress = data.progress || 0;
+                    document.getElementById('progressFill').style.width = progress + '%';
+                    document.getElementById('progressText').textContent = `Progress: ${Math.round(progress)}%`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(progressInterval);
+                        showCompletionUI();
+                    }
+                } else if (data.error) {
+                    clearInterval(progressInterval);
+                    showToast(data.error, 'error');
+                    resetExecutionUI();
+                }
+            })
+            .catch(error => {
+                console.error('Progress monitoring error:', error);
+            });
+    }, 2000);
+}
+
+function stopExecution() {
+    if (!confirm('Are you sure you want to stop the execution?')) return;
+    
+    fetch('/api/execution/stop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            clearInterval(progressInterval);
+            showToast('Execution stopped', 'info');
+            resetExecutionUI();
+        }
+    });
+}
+
+function showCompletionUI() {
+    document.getElementById('progressSection').style.display = 'none';
+    document.getElementById('resultsCard').style.display = 'block';
+    showToast('Execution completed successfully!', 'success');
+}
+
+function resetExecutionUI() {
+    document.getElementById('executionControls').style.display = 'block';
+    document.getElementById('progressSection').style.display = 'none';
+    document.getElementById('startButton').disabled = false;
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('progressText').textContent = 'Starting execution...';
+}
+
+function downloadResults(format, executionNum) {
+    window.location.href = `/api/execution/download/${format}/${executionNum}`;
+    showToast(`Downloading ${format.toUpperCase()} results...`, 'success');
+}
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type}`;
+    toast.textContent = message;
+    toast.style.position = 'fixed';
+    toast.style.top = '20px';
+    toast.style.right = '20px';
+    toast.style.zIndex = '9999';
+    toast.style.minWidth = '300px';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+</script>
+{% endblock %}

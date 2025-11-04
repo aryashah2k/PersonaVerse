@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PersonaVerse{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/professional-style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">PersonaVerse</h1>
+            </div>
+
+            <!-- User Info -->
+            {% if user %}
+            <div class="user-info">
+                <div class="user-avatar">{{ user.username[0].upper() }}</div>
+                <div class="user-details">
+                    <div class="user-name">{{ user.username }}</div>
+                    <div class="user-credits">
+                        <span class="credits-badge" id="creditsDisplay">{{ user.get_credits() }}</span>
+                        <span>credits</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Navigation Menu -->
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <span>Upload Survey</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('samplespace') }}" class="nav-link {% if request.endpoint == 'samplespace' %}active{% endif %}">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            <span>Sample Space</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('execute') }}" class="nav-link {% if request.endpoint == 'execute' %}active{% endif %}">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>Execute</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Settings and Logout -->
+            <div style="margin-top: auto;">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" onclick="openSettingsModal(); return false;" class="nav-link">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('logout') }}" class="nav-link">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Settings</h2>
+                <button onclick="closeSettingsModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="settingsForm">
+                    <div class="form-group">
+                        <label class="form-label">Provider</label>
+                        <select id="provider" name="provider" class="form-input">
+                            <option value="openai">OpenAI</option>
+                            <option value="anthropic">Anthropic</option>
+                            <option value="groq">Groq</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">API Key</label>
+                        <input type="password" id="api_key" name="api_key" class="form-input" placeholder="Paste your API key here">
+                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.25rem; display: block;">
+                            Get keys: <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a> | 
+                            <a href="https://console.anthropic.com/settings/keys" target="_blank">Anthropic</a> | 
+                            <a href="https://console.groq.com/keys" target="_blank">Groq</a>
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Model</label>
+                        <input type="text" id="model" name="model" class="form-input" placeholder="Auto-filled based on provider">
+                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.25rem; display: block;" id="modelHint">
+                            Model name will be auto-populated when you select a provider
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Base URL</label>
+                        <input type="text" id="base_url" name="base_url" class="form-input" placeholder="Auto-filled based on provider">
+                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.25rem; display: block;">
+                            Leave empty for Groq (handled by SDK)
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Max Tokens</label>
+                        <input type="number" id="max_tokens" name="max_tokens" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Temperature</label>
+                        <input type="number" id="temperature" name="temperature" class="form-input" step="0.1" min="0" max="2">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Rate Limit Delay (seconds)</label>
+                        <input type="number" id="rate_limit_delay" name="rate_limit_delay" class="form-input" step="0.1" min="0">
+                        <small style="color: var(--text-secondary);">Delay between API requests to prevent rate limiting (especially for Groq)</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeSettingsModal()" class="btn btn-secondary">Cancel</button>
+                <button onclick="saveSettings()" class="btn btn-primary">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+    <script>
+        function openSettingsModal() {
+            document.getElementById('settingsModal').style.display = 'flex';
+            loadSettings();
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        // Provider presets (updated Nov 2024)
+        const providerPresets = {
+            openai: {
+                base_url: 'https://api.openai.com/v1',
+                model: 'gpt-4o-mini',
+                max_tokens: 512,
+                temperature: 0,
+                rate_limit_delay: 0.5
+            },
+            anthropic: {
+                base_url: 'https://api.anthropic.com',
+                model: 'claude-3-5-sonnet-20241022',
+                max_tokens: 512,
+                temperature: 0,
+                rate_limit_delay: 0.5
+            },
+            groq: {
+                base_url: '',  // Groq SDK handles this internally
+                model: 'llama-3.3-70b-versatile',  // Updated: replaces llama-3.1-70b-versatile
+                max_tokens: 512,
+                temperature: 0,
+                rate_limit_delay: 1.0
+            }
+        };
+
+        function loadSettings() {
+            fetch('/api/settings')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('provider').value = data.llm_settings.provider || 'openai';
+                    document.getElementById('api_key').value = data.llm_settings.api_key || '';
+                    document.getElementById('model').value = data.llm_settings.model || '';
+                    document.getElementById('base_url').value = data.llm_settings.base_url || '';
+                    document.getElementById('max_tokens').value = data.llm_settings.max_tokens || 512;
+                    document.getElementById('temperature').value = data.llm_settings.temperature || 0;
+                    document.getElementById('rate_limit_delay').value = data.llm_settings.rate_limit_delay || 1.0;
+                });
+        }
+
+        // Auto-populate fields when provider changes
+        document.getElementById('provider').addEventListener('change', function(e) {
+            const provider = e.target.value;
+            const preset = providerPresets[provider];
+            
+            if (preset) {
+                // Only update if fields are empty or contain default values
+                const currentModel = document.getElementById('model').value;
+                const currentBaseUrl = document.getElementById('base_url').value;
+                
+                // Always update to provider defaults
+                document.getElementById('base_url').value = preset.base_url;
+                document.getElementById('model').value = preset.model;
+                document.getElementById('max_tokens').value = preset.max_tokens;
+                document.getElementById('temperature').value = preset.temperature;
+                document.getElementById('rate_limit_delay').value = preset.rate_limit_delay;
+                
+                // Update model hint
+                const modelHint = document.getElementById('modelHint');
+                if (provider === 'openai') {
+                    modelHint.innerHTML = 'Options: <strong>gpt-4o-mini</strong> (fast & cheap), <strong>gpt-4o</strong> (most capable), gpt-3.5-turbo (legacy)';
+                } else if (provider === 'anthropic') {
+                    modelHint.innerHTML = 'Options: <strong>claude-3-5-sonnet-20241022</strong> (best), <strong>claude-3-5-haiku-20241022</strong> (faster & cheaper)';
+                } else if (provider === 'groq') {
+                    modelHint.innerHTML = 'Options: <strong>llama-3.3-70b-versatile</strong> (best, Nov 2024), <strong>llama-3.1-8b-instant</strong> (fastest), mixtral-8x7b-32768 (alternative)';
+                }
+            }
+        });
+
+        function saveSettings() {
+            const settings = {
+                llm_settings: {
+                    provider: document.getElementById('provider').value,
+                    api_key: document.getElementById('api_key').value,
+                    model: document.getElementById('model').value,
+                    base_url: document.getElementById('base_url').value,
+                    max_tokens: parseInt(document.getElementById('max_tokens').value),
+                    temperature: parseFloat(document.getElementById('temperature').value),
+                    rate_limit_delay: parseFloat(document.getElementById('rate_limit_delay').value)
+                },
+                user_preference: {
+                    sample: {},
+                    execution: {}
+                }
+            };
+
+            fetch('/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(settings)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Settings saved successfully', 'success');
+                    closeSettingsModal();
+                } else {
+                    showToast('Failed to save settings', 'error');
+                }
+            });
+        }
+
+        // Update credits display periodically
+        function updateCredits() {
+            fetch('/api/user/credits')
+                .then(response => response.json())
+                .then(data => {
+                    const creditsDisplay = document.getElementById('creditsDisplay');
+                    if (creditsDisplay) {
+                        creditsDisplay.textContent = data.credits;
+                    }
+                });
+        }
+
+        // Update credits every 30 seconds
+        setInterval(updateCredits, 30000);
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
